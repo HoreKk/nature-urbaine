@@ -45,3 +45,6 @@ yarn-error.log*
 
 # idea files
 .idea
+
+# payload cms
+src/payload-types.ts

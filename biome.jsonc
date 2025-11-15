@@ -18,10 +18,12 @@
 		}
 	},
 	"formatter": {
-		"enabled": true
+		"enabled": true,
+		"includes": ["!~/payload-types.ts"]
 	},
 	"linter": {
 		"enabled": true,
+		"includes": ["!~/payload-types.ts"],
 		"rules": {
 			"recommended": true,
 			"nursery": {

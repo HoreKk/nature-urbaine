@@ -1,17 +1,14 @@
-import { PrismaClient } from "~/../generated/prisma/client";
+import { getPayload } from "payload";
+import payloadConfig from "~/payload.config";
 
-const createPrismaClient = () =>
-	new PrismaClient({
-		log:
-			process.env.NODE_ENV === "development"
-				? ["query", "error", "warn"]
-				: ["error"],
+const createPayloadClient = async () =>
+	await getPayload({
+		config: payloadConfig
 	});
 
-const globalForPrisma = globalThis as unknown as {
-	prisma: ReturnType<typeof createPrismaClient> | undefined;
+const globalForPayload = globalThis as unknown as {
+	payload: ReturnType<typeof createPayloadClient> | undefined;
 };
 
-export const db = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+export const db = globalForPayload.payload ?? createPayloadClient();
+if (process.env.NODE_ENV !== "production") globalForPayload.payload = db;
