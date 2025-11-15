@@ -11,6 +11,9 @@ const config = {
     defaultLocale: "en",
   },
   devIndicators: false,
+  experimental: {
+    optimizePackageImports: ["@chakra-ui/react"],
+  },
 };
 
 export default config;

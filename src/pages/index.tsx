@@ -1,3 +1,4 @@
+import { Heading } from "@chakra-ui/react";
 import Head from "next/head";
 
 export default function Home() {
@@ -9,7 +10,7 @@ export default function Home() {
 				<link href="/favicon.ico" rel="icon" />
 			</Head>
 			<main>
-				<h1>Main page</h1>
+				<Heading>Main page</Heading>
 			</main>
 		</>
 	);
