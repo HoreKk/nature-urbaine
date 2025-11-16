@@ -8,10 +8,10 @@
  */
 import { initTRPC } from "@trpc/server";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { getPayload } from "payload";
 import superjson from "superjson";
 import { ZodError } from "zod";
-
-import { db } from "~/server/db";
+import payloadConfig from "~/payload/payload.config";
 
 /**
  * 1. CONTEXT
@@ -33,9 +33,10 @@ type CreateContextOptions = Record<string, never>;
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = async (_opts: CreateContextOptions) => {
+	const payload = await getPayload({ config: payloadConfig });
 	return {
-		db,
+		db: payload,
 	};
 };
 
@@ -45,8 +46,8 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-	return createInnerTRPCContext({});
+export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
+	return await createInnerTRPCContext({});
 };
 
 /**

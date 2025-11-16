@@ -14,7 +14,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 		<div className={manrope.className}>
 			<Provider>
 				<Navbar />
-				<Container as="main" maxW="container.lg" py={8}>
+				<Container as="main" maxW="container.lg" py={6}>
 					<Component {...pageProps} />
 				</Container>
 			</Provider>

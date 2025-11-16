@@ -21,7 +21,6 @@ export const Reports: CollectionConfig = {
 			type: "upload",
 			label: "Vignette",
 			relationTo: "media",
-			displayPreview: true,
 			required: true,
 		},
 		{
