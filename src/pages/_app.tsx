@@ -1,18 +1,22 @@
+import { Container } from "@chakra-ui/react";
 import type { AppType } from "next/app";
-import { Geist } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { Provider } from "@/components/ui/provider";
-
+import Navbar from "~/components/Navbar";
 import { api } from "~/utils/api";
 
-const geist = Geist({
+const manrope = Manrope({
 	subsets: ["latin"],
 });
 
 const MyApp: AppType = ({ Component, pageProps }) => {
 	return (
-		<div className={geist.className}>
+		<div className={manrope.className}>
 			<Provider>
-				<Component {...pageProps} />
+				<Navbar />
+				<Container as="main" maxW="container.lg" py={8}>
+					<Component {...pageProps} />
+				</Container>
 			</Provider>
 		</div>
 	);
