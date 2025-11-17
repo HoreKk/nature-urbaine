@@ -1,4 +1,4 @@
-import { Container } from "@chakra-ui/react";
+import { Box, Container } from "@chakra-ui/react";
 import type { AppType } from "next/app";
 import { Manrope } from "next/font/google";
 import { Provider } from "@/components/ui/provider";
@@ -11,14 +11,14 @@ const manrope = Manrope({
 
 const MyApp: AppType = ({ Component, pageProps }) => {
 	return (
-		<div className={manrope.className}>
-			<Provider>
+		<Provider>
+			<Box bg="bg.subtle" className={manrope.className} minH="100vh">
 				<Navbar />
-				<Container as="main" maxW="container.lg" py={6}>
+				<Container as="main" maxW="container.lg" py={8}>
 					<Component {...pageProps} />
 				</Container>
-			</Provider>
-		</div>
+			</Box>
+		</Provider>
 	);
 };
 

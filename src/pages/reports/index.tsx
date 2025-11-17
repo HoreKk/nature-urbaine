@@ -6,7 +6,7 @@ export default function Home() {
 	const { data: reports } = api.report.getAll.useQuery();
 
 	return (
-		<Flex direction="column" gap={6}>
+		<Flex direction="column" gap={8}>
 			<Heading fontSize="4xl" fontWeight="bold">
 				Découvrez nos reportages
 			</Heading>

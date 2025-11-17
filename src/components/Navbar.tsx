@@ -1,5 +1,6 @@
 import { Box, Container, Flex, Heading, Icon, Link } from "@chakra-ui/react";
 import NextLink from "next/link";
+import { usePathname } from "next/navigation";
 import { LuWorm } from "react-icons/lu";
 
 type NavbarItemProps = {
@@ -8,9 +9,19 @@ type NavbarItemProps = {
 };
 
 const NavbarItem = ({ children, href }: NavbarItemProps) => {
+	const pathanme = usePathname();
 	return (
-		<Link asChild px={2} py={1} rounded="md">
-			<NextLink href={href}>{children}</NextLink>
+		<Link
+			_focus={{ outline: "none" }}
+			asChild
+			color={pathanme === href ? "green" : "inherit"}
+			px={2}
+			py={1}
+			rounded="md"
+		>
+			<NextLink href={href} passHref>
+				{children}
+			</NextLink>
 		</Link>
 	);
 };
