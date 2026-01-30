@@ -1,0 +1,12 @@
+{
+  "name": "nature-urbaine",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "generate:types": "cd apps/payload && pnpm generate:types",
+    "generate:importmap": "cd apps/payload && pnpm generate:importmap",
+    "dev:payload": "cd apps/payload && pnpm dev -p 3001",
+    "dev:website": "cd apps/website && pnpm dev"
+  }
+}
