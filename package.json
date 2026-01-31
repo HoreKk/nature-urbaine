@@ -4,9 +4,9 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "generate:types": "cd apps/payload && pnpm generate:types",
-    "generate:importmap": "cd apps/payload && pnpm generate:importmap",
-    "dev:payload": "cd apps/payload && pnpm dev -p 3001",
+    "generate:types": "cd apps/cms-payload && pnpm generate:types",
+    "generate:importmap": "cd apps/cms-payload && pnpm generate:importmap",
+    "dev:cms-payload": "cd apps/cms-payload && pnpm dev -p 3001",
     "dev:website": "cd apps/website && pnpm dev"
   }
 }

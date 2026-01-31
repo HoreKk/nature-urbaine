@@ -23,6 +23,11 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+   optimizeDeps: {
+    exclude: [
+      'payload',
+    ],
+  },
 })
 
 export default config
