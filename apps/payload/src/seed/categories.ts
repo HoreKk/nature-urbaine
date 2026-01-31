@@ -7,7 +7,7 @@ type ExcelCategory = {
 
 export default async function seedCategories(payload: Payload) {
 	const data = readExcelSheet(
-		"./src/payload/seed/historic-data.xlsx",
+		"./src/seed/historic-data.xlsx",
 		"CATEGORIES REPORTAGES",
 	) as ExcelCategory[];
 

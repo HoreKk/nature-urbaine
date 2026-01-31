@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { getSeasonFromDate } from "../hooks";
+import { getSeasonFromDate } from "~/utils/hooks";
 
 export const Reports: CollectionConfig = {
 	slug: "reports",

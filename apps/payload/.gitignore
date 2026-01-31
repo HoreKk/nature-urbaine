@@ -47,6 +47,6 @@ yarn-error.log*
 .idea
 
 # payload cms
-src/payload/payload-types.ts
+src/payload-types.ts
 media
 pictures

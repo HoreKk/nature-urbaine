@@ -15,7 +15,7 @@ const __dirname = dirname(__filename);
 
 export default async function seedReports(payload: Payload) {
 	const data = readExcelSheet(
-		"./src/payload/seed/historic-data.xlsx",
+		"./src/seed/historic-data.xlsx",
 		"reportages lieux",
 	) as ExcelReport[];
 

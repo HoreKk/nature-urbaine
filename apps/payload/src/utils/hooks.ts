@@ -1,5 +1,5 @@
 import type { FieldHook } from "payload";
-import type { Report } from "./payload-types";
+import type { Report } from "~/payload-types";
 
 type season = "spring" | "summer" | "autumn" | "winter";
 type TGetSeasonFromDate = FieldHook<

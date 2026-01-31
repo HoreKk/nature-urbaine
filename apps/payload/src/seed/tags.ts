@@ -9,7 +9,7 @@ type ExcelTags = {
 
 export default async function seedTags(payload: Payload) {
 	const data = readExcelSheet(
-		"./src/payload/seed/historic-data.xlsx",
+		"./src/seed/historic-data.xlsx",
 		"CATEGORIES REPORTAGES",
 		["category", "parent", "tag"],
 	) as ExcelTags[];
