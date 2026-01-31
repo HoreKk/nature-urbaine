@@ -1,16 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getPayload, SanitizedConfig } from 'payload'
+import { getPayload, payloadConfig } from 'cms-payload';
+
 
 export const getPostBySlug = createServerFn()
   .handler(async () => {
-    const { config } = await import('cms-payload/src') as unknown as { config: SanitizedConfig };
-    const payload = await getPayload({ config })
+    const payload = await getPayload({ config: payloadConfig });
     const result = await payload.find({
-      collection: 'users',
+      collection: 'categories',
       limit: 1,
+      depth: 0,
     })
-    return result;
+    return result.docs[0];
   })
 
 export const Route = createFileRoute('/test')({
