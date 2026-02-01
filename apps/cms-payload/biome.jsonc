@@ -17,6 +17,12 @@
 			}
 		}
 	},
+	"files": {
+		"includes": [
+			"**/src/**/*",
+			"!**/src/app/(payload)/**/*"
+		]
+	},
 	"formatter": {
 		"enabled": true
 	},
