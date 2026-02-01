@@ -1,6 +1,6 @@
 import { Link as ChakraLink, Container, Flex, Heading } from '@chakra-ui/react';
 import { Link } from '@tanstack/react-router';
-import { ColorModeButton } from './ui/color-mode';
+import { ColorModeButton } from '../ui/color-mode';
 
 const Navbar = () => {
 	return (

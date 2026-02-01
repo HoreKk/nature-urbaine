@@ -11,6 +11,7 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import ReportCard from '@/components/reports/Card';
+import ContributeCta from '@/components/sections/ContributeCta';
 import UIPagination from '@/components/standard/Pagination';
 import { getReports } from '@/server/reports';
 
@@ -86,7 +87,7 @@ function RouteComponent() {
 					))}
 				</Grid>
 			</Container>
-			<Box mt={8}>
+			<Box mt={16}>
 				<UIPagination
 					totalDocs={totalDocs}
 					limit={LIMIT_PER_PAGE}
@@ -94,6 +95,7 @@ function RouteComponent() {
 					onPageChange={setPage}
 				/>
 			</Box>
+			<ContributeCta />
 		</>
 	);
 }

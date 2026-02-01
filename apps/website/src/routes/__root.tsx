@@ -7,12 +7,13 @@ import {
 	Scripts,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/sections/Navbar';
 import { Provider as ChakraProvider } from '@/components/ui/provider';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 import appCss from '../styles.css?url';
 import '@fontsource-variable/inter/index.css';
 import '@fontsource-variable/josefin-sans/index.css';
+import Footer from '@/components/sections/Footer';
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -55,6 +56,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						<Box as="main" bgColor="bg.subtle" minH="calc(100vh - 78px)">
 							{children}
 						</Box>
+						<Footer />
 					</Box>
 					<TanStackDevtools
 						config={{
@@ -69,7 +71,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						]}
 					/>
 				</ChakraProvider>
-
 				<Scripts />
 			</body>
 		</html>
