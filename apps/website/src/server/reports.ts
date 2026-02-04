@@ -38,6 +38,7 @@ export const getReports = createServerFn({ method: 'GET' })
 			limit: pageSize,
 			page,
 			depth: 1,
+			sort: '-date',
 		});
 
 		const augmentedReports = {

@@ -8,6 +8,9 @@ type ExcelReport = {
 	VILLE: string;
 	CATEGORIE: string;
 	"Description projet ": string;
+	"DATE PHOTO": number;
+	"STRATE DE LA VILLE": string;
+	"NB habitant.e.s": string;
 };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -26,7 +29,7 @@ export default async function seedReports(payload: Payload) {
 
 	const localFilePath = path.resolve(
 		__dirname,
-		"../../../public/hero-section.jpg",
+		"../../../cms-payload/public/hero-section.jpg",
 	);
 
 	const defaultMedia = await payload.create({
@@ -47,6 +50,20 @@ export default async function seedReports(payload: Payload) {
 				`Catégorie introuvable pour le rapport: ${report.CATEGORIE}`,
 			);
 
+		const dateStr = report["DATE PHOTO"].toString();
+
+		if (dateStr.length !== 8) {
+			console.warn(`Date invalide pour le rapport (pas 8 caractères): ${name}`);
+			continue;
+		}
+
+		const formattedDate = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
+
+		if (!formattedDate || Number.isNaN(new Date(formattedDate).getTime())) {
+			console.warn(`Date invalide pour le rapport (date invalide): ${name}`);
+			continue;
+		}
+
 		await payload.create({
 			collection: "reports",
 			draft: false,
@@ -55,9 +72,15 @@ export default async function seedReports(payload: Payload) {
 				description:
 					report["Description projet "] || "Aucune description disponible.",
 				category: reportCategory.id,
-				date: new Date().toISOString().split("T")[0] || "",
+				date: formattedDate,
 				thumbnail: defaultMedia.id,
+				cityStratum: report["STRATE DE LA VILLE"] || "",
+				nbPopulations: report["NB habitant.e.s"]
+					? parseInt(report["NB habitant.e.s"], 10)
+					: undefined,
 			},
 		});
 	}
+
+	console.log("✅ Seed des reportages.");
 }

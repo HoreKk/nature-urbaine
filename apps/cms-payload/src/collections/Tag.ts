@@ -35,17 +35,6 @@ export const Tags: CollectionConfig = {
 			relationTo: "tags",
 			hasMany: false,
 		},
-
-		// {
-		// 	name: "relatedReports",
-		// 	type: "join",
-		// 	collection: "reports",
-		// 	on: "tags",
-		// 	label: "Photos associées",
-		// 	admin: {
-		// 		position: "sidebar",
-		// 	},
-		// },
 		{
 			name: "relatedChildTags",
 			type: "join",
@@ -53,7 +42,6 @@ export const Tags: CollectionConfig = {
 			on: "parentId",
 			label: "Étiquettes enfants",
 			admin: {
-				position: "sidebar",
 				defaultColumns: ["name", "tagCategory"],
 				condition: (data) => data.relatedChildTags?.docs.length > 0,
 			},

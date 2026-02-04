@@ -2,6 +2,7 @@ import config from "@payload-config";
 import { getPayload } from "payload";
 import seedCategories from "./categories";
 import seedReports from "./reports";
+import seedTags from "./tags";
 
 const seed = async () => {
 	const payload = await getPayload({ config });
@@ -16,6 +17,7 @@ const seed = async () => {
 
 	await seedCategories(payload);
 	await seedReports(payload);
+	await seedTags(payload);
 };
 
 await seed();

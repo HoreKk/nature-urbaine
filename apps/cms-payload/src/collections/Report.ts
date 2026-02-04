@@ -109,5 +109,15 @@ export const Reports: CollectionConfig = {
 				afterRead: [getSeasonFromDate],
 			},
 		},
+		{
+			name: "cityStratum",
+			type: "text",
+			label: "Strate de la ville",
+		},
+		{
+			name: "nbPopulations",
+			type: "number",
+			label: "Nombre d'habitants",
+		},
 	],
 };

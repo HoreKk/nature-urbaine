@@ -20,4 +20,6 @@ export default async function seedCategories(payload: Payload) {
 			},
 		});
 	}
+
+	console.log("✅ Seed des catégories.");
 }

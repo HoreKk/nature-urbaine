@@ -36,7 +36,7 @@ const ReportCard = ({ report }: ReportCardProps) => {
 						bgColor="bg.emphasized"
 					/>
 					<Text fontSize={12}>
-						{new Date(report.createdAt).toLocaleDateString()}
+						{new Date(report.date).toLocaleDateString()}
 					</Text>
 				</Flex>
 			</Card.Header>
