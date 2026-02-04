@@ -4,8 +4,8 @@ const system = createSystem(defaultConfig, {
 	theme: {
 		tokens: {
 			fonts: {
-				body: { value: 'Inter Variable' },
-				heading: { value: 'Josefin Sans Variable' },
+				body: { value: 'Mulish Variable' },
+				heading: { value: 'Mulish Variable' },
 			},
 		},
 	},

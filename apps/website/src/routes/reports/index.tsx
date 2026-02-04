@@ -41,7 +41,7 @@ function RouteComponent() {
 
 	return (
 		<>
-			<Box py={16} bgColor="bg.emphasized">
+			<Box py={12} bgColor="bg.emphasized">
 				<Container maxW="container.xl">
 					<Heading size="5xl" fontWeight="black">
 						Reportages
@@ -78,7 +78,7 @@ function RouteComponent() {
 					</Text>
 				</Container>
 			</Box>
-			<Container maxW="container.xl" mt={12}>
+			<Container maxW="container.xl" mt={10}>
 				<Grid templateColumns="repeat(3, 1fr)" gap={8}>
 					{reports.map((report) => (
 						<Skeleton key={report.id} loading={isFetching}>

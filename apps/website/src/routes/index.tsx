@@ -15,7 +15,7 @@ import { getReports } from '@/server/reports';
 
 export const Route = createFileRoute('/')({
 	loader: async () => {
-		const reports = await getReports({ data: { page: 1, pageSize: 6 } });
+		const reports = await getReports({ data: { page: 1, pageSize: 3 } });
 		return { reports };
 	},
 	component: App,

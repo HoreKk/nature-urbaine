@@ -1,14 +1,15 @@
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import type { PaginatedDocs } from 'cms-payload';
-import type { Category, Media, Report } from 'cms-payload/src/payload-types';
+import type { Category, Media, Picture, Report } from 'cms-payload/src/payload-types';
 import { z } from 'zod';
 import { fetchOrReturnRealValue } from '@/utils/tools';
 import { baseProcedure } from './db';
 
-export interface AugmentedReport extends Report {
+export interface AugmentedReport extends Omit<Report, 'thumbnail' | 'category' | 'relatedPictures'> {
 	thumbnail: Media;
 	category: Category;
+	relatedPictures: Picture[];
 }
 
 async function augmentReports(reports: Report[]): Promise<AugmentedReport[]> {
@@ -17,6 +18,7 @@ async function augmentReports(reports: Report[]): Promise<AugmentedReport[]> {
 			...report,
 			thumbnail: await fetchOrReturnRealValue(report.thumbnail, 'media'),
 			category: await fetchOrReturnRealValue(report.category, 'categories'),
+			relatedPictures: await Promise.all(report.relatedPictures?.docs?.map((picture) => fetchOrReturnRealValue(picture, 'pictures')) ?? []),
 		})),
 	);
 	return augmentedDocs;

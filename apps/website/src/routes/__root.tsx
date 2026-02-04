@@ -12,7 +12,7 @@ import { Provider as ChakraProvider } from '@/components/ui/provider';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 import appCss from '../styles.css?url';
 import '@fontsource-variable/inter/index.css';
-import '@fontsource-variable/josefin-sans/index.css';
+import '@fontsource-variable/mulish/index.css';
 import Footer from '@/components/sections/Footer';
 
 interface MyRouterContext {

@@ -1,6 +1,13 @@
 import { Link as ChakraLink, Container, Flex, Heading } from '@chakra-ui/react';
-import { Link } from '@tanstack/react-router';
+import { Link, type LinkProps } from '@tanstack/react-router';
 import { ColorModeButton } from '../ui/color-mode';
+
+const navbarLinks: { label: string; to: LinkProps['to'] }[] = [
+	{ label: 'Accueil', to: '/' },
+	{ label: 'Reportages', to: '/reports' },
+	{ label: 'Interviews', to: '/interviews' },
+	{ label: 'Contact', to: '/contact' },
+];
 
 const Navbar = () => {
 	return (
@@ -8,22 +15,26 @@ const Navbar = () => {
 			<Flex gap={4} align="center">
 				<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
 					<Link to="/">
-						<Heading as="h1">Nature Urbaine</Heading>
+						<Heading as="h1" fontWeight="extrabold">
+							Nature Urbaine
+						</Heading>
 					</Link>
 				</ChakraLink>
 				<Flex gap={6} ml="auto">
-					<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
-						<Link to="/">Accueil</Link>
-					</ChakraLink>
-					<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
-						<Link to="/reports">Reportages</Link>
-					</ChakraLink>
-					<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
-						<Link to="/">Interviews</Link>
-					</ChakraLink>
-					<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
-						<Link to="/">Contact</Link>
-					</ChakraLink>
+					{navbarLinks.map(({ label, to }) => (
+						<Link key={`${to}-${label}`} to={to}>
+							{({ isActive }) => (
+								<ChakraLink
+									outline="none"
+									_hover={{ textDecor: 'none' }}
+									fontWeight={isActive ? 'bold' : 'medium'}
+									asChild
+								>
+									<span>{label}</span>
+								</ChakraLink>
+							)}
+						</Link>
+					))}
 				</Flex>
 				<ColorModeButton />
 			</Flex>
