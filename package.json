@@ -2,11 +2,15 @@
   "name": "nature-urbaine",
   "version": "1.0.0",
   "license": "MIT",
-  "main": "index.js",
+  "private": true,
+  "packageManager": "pnpm@10.28.2",
   "scripts": {
     "generate:types": "cd apps/cms-payload && pnpm generate:types",
     "generate:importmap": "cd apps/cms-payload && pnpm generate:importmap",
     "dev:cms-payload": "cd apps/cms-payload && pnpm dev -p 3001",
     "dev:website": "cd apps/website && pnpm dev"
+  },
+  "devDependencies": {
+    "turbo": "^2.8.3"
   }
 }
