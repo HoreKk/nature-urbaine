@@ -12,6 +12,7 @@ import {
 import { useStore } from '@tanstack/react-form';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
+import { useDebounce } from '@uidotdev/usehooks';
 import { useState } from 'react';
 import z from 'zod';
 import ReportCard from '@/components/reports/Card';
@@ -63,20 +64,29 @@ function RouteComponent() {
 		validators: { onChange: filterSchema },
 	});
 
-	const formValues = useStore(filterForm.store, (state) => state.values);
+	const { search, ...formValues } = useStore(
+		filterForm.store,
+		(state) => state.values,
+	);
+	const debouncedSearch = useDebounce(search, 400);
 
 	const { data, isEnabled, isFetching } = useQuery(
 		queryOptions({
-			queryKey: ['reports', page, formValues],
+			queryKey: ['reports', page, formValues, debouncedSearch],
 			queryFn: () =>
 				getReports({
-					data: { page, pageSize: LIMIT_PER_PAGE, filters: formValues },
+					data: {
+						page,
+						pageSize: LIMIT_PER_PAGE,
+						filters: { ...formValues, search: debouncedSearch },
+					},
 				}),
 			enabled: page !== 1 || filterForm.state.isDirty,
 			initialData: loaderReports,
 		}),
 	);
 
+	const isLoading = isFetching || debouncedSearch !== search;
 	const reports = isEnabled ? data.docs : loaderReports.docs;
 	const totalDocs = isEnabled ? data.totalDocs : loaderReports.totalDocs;
 
@@ -150,7 +160,7 @@ function RouteComponent() {
 			<Container maxW="container.xl" mt={10}>
 				<Grid templateColumns="repeat(3, 1fr)" gap={8}>
 					{reports.map((report) => (
-						<Skeleton key={report.id} loading={isFetching}>
+						<Skeleton key={report.id} loading={isLoading}>
 							<ReportCard report={report} />
 						</Skeleton>
 					))}
