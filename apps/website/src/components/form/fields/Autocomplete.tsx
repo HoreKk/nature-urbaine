@@ -36,13 +36,12 @@ export function AutocompleteField({
 			<Combobox.Root
 				collection={collection}
 				placeholder={placeholder}
-				size="sm"
-				width="320px"
 				value={field.state.value}
 				onInputValueChange={(e) => filter(e.inputValue)}
 				onValueChange={(e) => field.handleChange(e.value)}
 				multiple={multiple}
 				openOnClick
+				positioning={{ flip: false }}
 			>
 				<Combobox.Label>{label}</Combobox.Label>
 				{multiple && (
@@ -61,8 +60,8 @@ export function AutocompleteField({
 				</Combobox.Control>
 				<Portal>
 					<Combobox.Positioner>
-						<Combobox.Content>
-							<Combobox.Empty>No items found</Combobox.Empty>
+						<Combobox.Content maxH="350px">
+							<Combobox.Empty>Pas de résultat</Combobox.Empty>
 							{collection.items.map((option) => (
 								<ComboboxItem key={option.value} item={option} />
 							))}
