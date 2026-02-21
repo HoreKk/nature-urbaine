@@ -4,8 +4,8 @@ import { getSeasonFromDate } from "../utils/hooks";
 export const Reports: CollectionConfig = {
 	slug: "reports",
 	labels: {
-		singular: "Rapport",
-		plural: "Rapports",
+		singular: "Reportage",
+		plural: "Reportages",
 	},
 	versions: {
 		drafts: {
