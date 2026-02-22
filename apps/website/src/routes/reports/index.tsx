@@ -41,7 +41,7 @@ export const Route = createFileRoute('/reports/')({
 });
 
 export const filterSchema = z.object({
-	category: z.array(z.string()).optional(),
+	category: z.array(z.coerce.number<number>()).optional(),
 	search: z.string().optional(),
 });
 
@@ -57,7 +57,10 @@ function RouteComponent() {
 
 	const { contains } = useFilter({ sensitivity: 'base' });
 	const { collection, filter } = useListCollection({
-		initialItems: categories.map(({ name }) => ({ label: name, value: name })),
+		initialItems: categories.map(({ id, name }) => ({
+			label: name,
+			value: id.toString(),
+		})),
 		filter: contains,
 	});
 

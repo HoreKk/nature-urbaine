@@ -11,6 +11,7 @@
     "dev:website": "cd apps/website && pnpm dev"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.13",
     "turbo": "^2.8.10"
   }
 }

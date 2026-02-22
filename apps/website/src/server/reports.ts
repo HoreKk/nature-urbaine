@@ -55,7 +55,7 @@ export const getReports = createServerFn({ method: 'GET' })
 			if (category && category.length > 0) {
 				where = {
 					...where,
-					'category.name': { in: category },
+					category: { in: category },
 				};
 			}
 
