@@ -18,53 +18,86 @@ type ReportCardProps = {
 
 const ReportCard = ({ report }: ReportCardProps) => {
 	return (
-		<Card.Root key={report.id} overflow="hidden" shadow="md">
-			<ChakraImage asChild height="250px">
-				<Image
-					src={`http://localhost:3001${report.thumbnail.url}`}
-					alt={report.thumbnail.alt || report.name}
-					layout="fullWidth"
-				/>
-			</ChakraImage>
-			<Card.Header>
-				<Flex alignItems="center" gap={2} color="fg.muted">
-					<Text fontSize={12}>{report.category.name}</Text>
-					<Box
-						width={1.5}
-						height={1.5}
-						borderRadius="full"
-						bgColor="bg.emphasized"
+		<Card.Root
+			overflow="hidden"
+			shadow="sm"
+			transition="box-shadow 0.25s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)"
+			_hover={{
+				boxShadow: 'lg',
+				transform: 'translateY(-1.5px)',
+			}}
+		>
+			<Box position="relative">
+				<ChakraImage asChild height="220px" w="full">
+					<Image
+						src={`http://localhost:3001${report.thumbnail.url}`}
+						alt={report.thumbnail.alt || report.name}
+						layout="fullWidth"
 					/>
-					<Text fontSize={12}>
-						{new Date(report.date).toLocaleDateString()}
-					</Text>
-				</Flex>
-			</Card.Header>
-			<Card.Body pt={2}>
-				<Heading fontSize="lg" fontWeight="bold" lineClamp={1}>
+				</ChakraImage>
+				<Box
+					position="absolute"
+					bottom={0}
+					left={0}
+					right={0}
+					height="90px"
+					background="linear-gradient(to top, rgba(0,0,0,0.58) 0%, transparent 100%)"
+					pointerEvents="none"
+				/>
+				<Box
+					position="absolute"
+					bottom={3}
+					left={3}
+					bgColor="primary.solid"
+					color="fg.inverted"
+					fontSize="2xs"
+					fontWeight="bold"
+					px={2.5}
+					py={1}
+					borderRadius="full"
+					letterSpacing="widest"
+					textTransform="uppercase"
+					lineHeight={1}
+				>
+					{report.category.name}
+				</Box>
+			</Box>
+			<Card.Body>
+				<Text fontSize="xs" color="fg.muted" mb={2}>
+					{new Date(report.date).toLocaleDateString('fr-FR', {
+						day: 'numeric',
+						month: 'long',
+						year: 'numeric',
+					})}
+				</Text>
+				<Heading fontSize="lg" fontWeight="bold" lineClamp={1} lineHeight="1.3">
 					{report.name}
 				</Heading>
-				<Text
-					fontSize="sm"
-					mt={2}
-					color="fg.muted"
-					lineClamp={5}
-					minHeight="105px"
-				>
+				<Text fontSize="sm" mt={2} color="fg.muted" lineClamp={5} minH="105px">
 					{report.description}
 				</Text>
 			</Card.Body>
-			<Card.Footer>
-				<Flex justifyContent="space-between" width="full">
-					<Flex gap={1} alignItems="center" color="fg.muted">
-						<Icon as={RiEyeLine} />
-						<Text fontSize="sm">0</Text>
+			<Card.Footer bgColor="primary.muted" py={3}>
+				<Flex justifyContent="space-between" width="full" alignItems="center">
+					<Flex gap={1.5} alignItems="center" color="primary.fg">
+						<Icon as={RiEyeLine} boxSize={3.5} />
+						<Text fontSize="xs" fontWeight="medium">
+							0 vue
+						</Text>
 					</Flex>
 					<Link to="/reports/$id" params={{ id: report.id.toString() }}>
-						<Text fontSize="sm" color="primary.accent" fontWeight="bold">
-							Lire plus
-							<Icon as={RiArrowRightLine} ml={1} />
-						</Text>
+						<Flex
+							align="center"
+							gap={1}
+							color="primary.fg"
+							fontWeight="bold"
+							fontSize="sm"
+							_hover={{ color: 'primary.solid' }}
+							transition="color 0.15s cubic-bezier(0.25, 1, 0.5, 1)"
+						>
+							<Text>Lire plus</Text>
+							<Icon as={RiArrowRightLine} />
+						</Flex>
 					</Link>
 				</Flex>
 			</Card.Footer>
