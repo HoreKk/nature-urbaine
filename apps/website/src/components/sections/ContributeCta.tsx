@@ -32,9 +32,16 @@ const ContributeCta = () => {
 				</Text>
 				<ButtonGroup mt={8} gap={4}>
 					<Link to="/">
-						<Button size="lg">Soumettre un projet</Button>
+						<Button size="lg" colorPalette="primary">
+							Soumettre un projet
+						</Button>
 					</Link>
-					<Button variant="outline" borderColor="bg.inverted" size="lg">
+					<Button
+						variant="outline"
+						colorPalette="primary"
+						borderColor="primary.solid"
+						size="lg"
+					>
 						En savoir plus
 					</Button>
 				</ButtonGroup>

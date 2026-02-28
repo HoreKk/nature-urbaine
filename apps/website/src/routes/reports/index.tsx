@@ -167,7 +167,7 @@ function RouteComponent() {
 										<Tag.Root
 											key={key}
 											size="sm"
-											colorPalette="blue"
+											colorPalette="primary"
 											borderRadius="full"
 										>
 											<Tag.Label>{value}</Tag.Label>
@@ -201,7 +201,7 @@ function RouteComponent() {
 						</Wrap>
 					</Flex>
 					<Text>
-						<Text as="span" color="fg.info" fontWeight="bold">
+						<Text as="span" color="primary.accent" fontWeight="bold">
 							{totalDocs}
 						</Text>{' '}
 						reportages trouvés

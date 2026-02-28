@@ -61,7 +61,7 @@ const ReportCard = ({ report }: ReportCardProps) => {
 						<Text fontSize="sm">0</Text>
 					</Flex>
 					<Link to="/reports/$id" params={{ id: report.id.toString() }}>
-						<Text fontSize="sm" color="fg.info" fontWeight="bold">
+						<Text fontSize="sm" color="primary.accent" fontWeight="bold">
 							Lire plus
 							<Icon as={RiArrowRightLine} ml={1} />
 						</Text>
