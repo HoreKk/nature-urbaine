@@ -19,20 +19,23 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
 import { useState } from 'react';
 import { RiArrowRightLine } from 'react-icons/ri';
+import InterviewCard from '@/components/interviews/Card';
 import ReportCard from '@/components/reports/Card';
 import ContributeCta from '@/components/sections/ContributeCta';
+import { getInterviews } from '@/server/interviews';
 import { getReports } from '@/server/reports';
 import { getSearchResults } from '@/server/search';
 
 export const Route = createFileRoute('/')({
 	loader: async () => ({
 		reports: await getReports({ data: { page: 1, pageSize: 3 } }),
+		interviews: await getInterviews({ data: { page: 1, pageSize: 3 } }),
 	}),
 	component: App,
 });
 
 function App() {
-	const { reports } = Route.useLoaderData();
+	const { reports, interviews } = Route.useLoaderData();
 
 	const [search, setSearch] = useState('');
 	const debouncedSearch = useDebounce(search, 400);
@@ -134,25 +137,48 @@ function App() {
 						</Portal>
 					</Combobox.Root>
 				</Box>
-				<Flex justify="space-between" align="center">
-					<Flex direction="column" align="flex-start">
-						<Heading>Derniers reportages</Heading>
-						<Text color="fg.muted">
-							Découvrez nos dernières explorations urbaines
-						</Text>
-					</Flex>
-					<Link to="/reports">
-						<Flex align="center" gap={1} color="primary.accent">
-							<Text>Voir tous les reportages</Text>
-							<Icon as={RiArrowRightLine} />
+				<Box>
+					<Flex justify="space-between" align="center">
+						<Flex direction="column" align="flex-start">
+							<Heading>Derniers reportages</Heading>
+							<Text color="fg.muted">
+								Découvrez nos dernières explorations urbaines
+							</Text>
 						</Flex>
-					</Link>
-				</Flex>
-				<Grid templateColumns="repeat(3, 1fr)" gap={8} mt={4}>
-					{reports.docs.map((report) => (
-						<ReportCard key={report.id} report={report} />
-					))}
-				</Grid>
+						<Link to="/reports">
+							<Flex align="center" gap={1} color="primary.accent">
+								<Text>Voir tous les reportages</Text>
+								<Icon as={RiArrowRightLine} />
+							</Flex>
+						</Link>
+					</Flex>
+					<Grid templateColumns="repeat(3, 1fr)" gap={8} mt={4}>
+						{reports.docs.map((report) => (
+							<ReportCard key={report.id} report={report} />
+						))}
+					</Grid>
+				</Box>
+				<Box mt={16}>
+					<Flex justify="space-between" align="center">
+						<Flex direction="column" align="flex-start">
+							<Heading>Derniers reportages</Heading>
+							<Text color="fg.muted">
+								Plongez dans les récits inspirants de nos explorateurs urbains
+							</Text>
+						</Flex>
+						<Link to="/interviews">
+							<Flex align="center" gap={1} color="primary.accent">
+								<Text>Voir toutes les interviews</Text>
+								<Icon as={RiArrowRightLine} />
+							</Flex>
+						</Link>
+					</Flex>
+					<Grid templateColumns="repeat(3, 1fr)" gap={8} mt={4}>
+						{interviews.docs.map((interview) => (
+							<InterviewCard key={interview.id} interview={interview} />
+						))}
+					</Grid>
+				</Box>
 			</Container>
 			<ContributeCta />
 		</>
