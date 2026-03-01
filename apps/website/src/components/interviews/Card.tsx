@@ -1,18 +1,6 @@
-import {
-	Box,
-	Card,
-	Flex,
-	Heading,
-	Icon,
-	Text,
-} from '@chakra-ui/react';
+import { Box, Card, Flex, Heading, Icon, Text } from '@chakra-ui/react';
 import { Link } from '@tanstack/react-router';
-import {
-	RiArrowRightLine,
-	RiMapPinLine,
-	RiMicLine,
-	RiUserLine,
-} from 'react-icons/ri';
+import { RiArrowRightLine, RiMapPinLine, RiMicLine } from 'react-icons/ri';
 import type { SafeInterview } from '@/server/interviews';
 
 type InterviewCardProps = {
@@ -22,41 +10,69 @@ type InterviewCardProps = {
 const InterviewCard = ({ interview }: InterviewCardProps) => {
 	return (
 		<Card.Root
+			h="full"
 			overflow="hidden"
-			shadow="sm"
-			transition="box-shadow 0.25s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)"
+			shadow="md"
+			transition="box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)"
 			_hover={{
-				boxShadow: 'lg',
-				transform: 'translateY(-1.5px)',
+				boxShadow: 'xl',
+				transform: 'translateY(-3px)',
 			}}
 		>
-			{/* Person header — structural equivalent of the image in ReportCard */}
-			<Box bgColor="primary.muted" px={5} py={4}>
-				<Flex gap={3} alignItems="center">
-					<Flex
-						flexShrink={0}
-						w={9}
-						h={9}
-						borderRadius="full"
-						bgColor="primary.subtle"
-						alignItems="center"
-						justifyContent="center"
-					>
-						<Icon as={RiUserLine} boxSize={4} color="primary.fg" />
-					</Flex>
-					<Flex flexDir="column" gap={0} minW={0}>
-						<Text fontWeight="bold" fontSize="sm" lineClamp={1} color="primary.fg">
-							{interview.interviewee}
-						</Text>
-						<Text fontSize="xs" color="primary.fg" opacity={0.75} lineClamp={1}>
+			{/* Person hero — saturated primary green, interviewee as visual headline */}
+			<Box
+				bgColor="primary.solid"
+				px={5}
+				pt={6}
+				pb={5}
+				position="relative"
+				overflow="hidden"
+			>
+				{/* Decorative guillemet — editorial texture, French locale, aria-hidden */}
+				<Text
+					aria-hidden
+					position="absolute"
+					bottom="-16px"
+					right="10px"
+					fontSize="9xl"
+					fontWeight="bold"
+					color="primary.emphasized"
+					lineHeight={1}
+					userSelect="none"
+					pointerEvents="none"
+				>
+					«
+				</Text>
+
+				<Flex flexDir="column" gap={1.5} position="relative" zIndex={1}>
+					{interview.intervieweeRole && (
+						<Text
+							fontSize="2xs"
+							fontWeight="bold"
+							letterSpacing="widest"
+							textTransform="uppercase"
+							color="fg.inverted"
+							lineClamp={1}
+						>
 							{interview.intervieweeRole}
 						</Text>
-					</Flex>
+					)}
+
+					{/* Name is the visual hero — large, white, extrabold */}
+					<Heading
+						fontSize="2xl"
+						fontWeight="extrabold"
+						color="fg.inverted"
+						lineHeight="1.1"
+						lineClamp={2}
+					>
+						{interview.interviewee}
+					</Heading>
 				</Flex>
 			</Box>
 
-			<Card.Body pt={4}>
-				<Text fontSize="xs" color="fg.muted" mb={1.5}>
+			<Card.Body>
+				<Text fontSize="xs" color="fg.muted" mb={2}>
 					{new Date(interview.publishedAt).toLocaleDateString('fr-FR', {
 						day: 'numeric',
 						month: 'long',
@@ -64,7 +80,13 @@ const InterviewCard = ({ interview }: InterviewCardProps) => {
 					})}
 				</Text>
 
-				<Heading fontSize="lg" fontWeight="bold" lineClamp={2} lineHeight="1.3" mb={2}>
+				<Heading
+					fontSize="lg"
+					fontWeight="bold"
+					lineClamp={2}
+					lineHeight="1.3"
+					mb={2}
+				>
 					{interview.name}
 				</Heading>
 
@@ -85,7 +107,12 @@ const InterviewCard = ({ interview }: InterviewCardProps) => {
 				<Flex justifyContent="space-between" width="full" alignItems="center">
 					<Flex gap={1.5} alignItems="center" color="primary.fg">
 						<Icon as={RiMicLine} boxSize={3.5} />
-						<Text fontSize="xs" fontWeight="medium">
+						<Text
+							fontSize="2xs"
+							fontWeight="bold"
+							letterSpacing="wide"
+							textTransform="uppercase"
+						>
 							Interview
 						</Text>
 					</Flex>
@@ -96,11 +123,19 @@ const InterviewCard = ({ interview }: InterviewCardProps) => {
 							color="primary.fg"
 							fontWeight="bold"
 							fontSize="sm"
-							_hover={{ color: 'primary.solid' }}
 							transition="color 0.15s cubic-bezier(0.25, 1, 0.5, 1)"
+							_hover={{
+								color: 'primary.solid',
+								'& .arrow-icon': { transform: 'translateX(3px)' },
+							}}
 						>
 							<Text>Lire l'interview</Text>
-							<Icon as={RiArrowRightLine} />
+							<Icon
+								as={RiArrowRightLine}
+								boxSize={3.5}
+								className="arrow-icon"
+								transition="transform 0.15s cubic-bezier(0.25, 1, 0.5, 1)"
+							/>
 						</Flex>
 					</Link>
 				</Flex>
