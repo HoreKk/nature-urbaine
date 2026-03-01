@@ -6,6 +6,7 @@ import { buildConfig } from "payload";
 
 import sharp from "sharp";
 import { Categories } from "./collections/Category";
+import { Interviews } from "./collections/Interview";
 import { Media } from "./collections/Media";
 import { Pictures } from "./collections/Picture";
 import { Reports } from "./collections/Report";
@@ -26,6 +27,7 @@ export default buildConfig({
 	collections: [
 		Media,
 		Reports,
+		Interviews,
 		Pictures,
 		Categories,
 		Tags,
@@ -43,6 +45,6 @@ export default buildConfig({
 		},
 	}),
 	sharp,
-	cors: ['http://localhost:3000', 'http://localhost:3001'],
-  csrf: ['http://localhost:3000', 'http://localhost:3001'],
+	cors: ["http://localhost:3000", "http://localhost:3001"],
+	csrf: ["http://localhost:3000", "http://localhost:3001"],
 });

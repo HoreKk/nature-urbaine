@@ -1,6 +1,7 @@
 import config from "@payload-config";
 import { getPayload } from "payload";
 import seedCategories from "./categories";
+import seedInterviews from "./interviews";
 import seedReports from "./reports";
 import seedTags from "./tags";
 
@@ -17,6 +18,7 @@ const seed = async () => {
 
 	await seedCategories(payload);
 	await seedReports(payload);
+	await seedInterviews(payload);
 	await seedTags(payload);
 };
 
