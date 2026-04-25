@@ -3,7 +3,10 @@
 	"ui": "tui",
 	"tasks": {
 		"build": {
-			"outputs": ["dist/**"]
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["dist/**", ".output/**"],
+			"env": ["DATABASE_URL", "PAYLOAD_SECRET"]
 		},
 		"check-types": {
 			"dependsOn": ["^check-types"]
