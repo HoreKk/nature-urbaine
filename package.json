@@ -9,7 +9,9 @@
     "generate:importmap": "cd apps/cms-payload && pnpm generate:importmap",
     "dev:cms-payload": "cd apps/cms-payload && pnpm dev -p 3001",
     "dev:website": "cd apps/website && pnpm dev",
-    "build:loose": "turbo build --env-mode=loose"
+    "build:loose": "turbo build --env-mode=loose",
+    "serve:web": "cd apps/website && pnpm start",
+    "serve:admin": "cd apps/cms-payload && pnpm start"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.13",

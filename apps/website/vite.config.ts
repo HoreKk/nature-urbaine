@@ -1,7 +1,6 @@
 import { fileURLToPath, URL } from 'node:url';
 import { devtools } from '@tanstack/devtools-vite';
-// import { nitro as nitroV3Plugin } from 'nitro/vite';
-import { nitroV2Plugin } from '@tanstack/nitro-v2-vite-plugin';
+import { nitro } from 'nitro/vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -14,8 +13,7 @@ const config = defineConfig({
 	},
 	plugins: [
 		devtools(),
-		// nitroV3Plugin(),
-		nitroV2Plugin(),
+		nitro(),
 		tanstackStart(),
 		viteReact(),
 	],

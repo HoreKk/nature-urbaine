@@ -1,15 +1,12 @@
 import { Box } from '@chakra-ui/react';
-import { TanStackDevtools } from '@tanstack/react-devtools';
 import type { QueryClient } from '@tanstack/react-query';
 import {
 	createRootRouteWithContext,
 	HeadContent,
 	Scripts,
 } from '@tanstack/react-router';
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import Navbar from '@/components/sections/Navbar';
 import { Provider as ChakraProvider } from '@/components/ui/provider';
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 import appCss from '../styles.css?url';
 import '@fontsource-variable/inter/index.css';
 import '@fontsource-variable/mulish/index.css';
@@ -58,18 +55,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						</Box>
 						<Footer />
 					</Box>
-					<TanStackDevtools
-						config={{
-							position: 'bottom-right',
-						}}
-						plugins={[
-							{
-								name: 'Tanstack Router',
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-							TanStackQueryDevtools,
-						]}
-					/>
 				</ChakraProvider>
 				<Scripts />
 			</body>
