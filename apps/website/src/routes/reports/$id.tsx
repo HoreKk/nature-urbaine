@@ -14,7 +14,7 @@ import { Image } from '@unpic/react';
 import { UIBreadcrumb } from '@/components/standard/Breadcrumb';
 import UICarousel from '@/components/standard/Carousel';
 import { getReportById } from '@/server/reports';
-import { getBackendUrl } from '@/utils/tools';
+import { getBackendUrl } from '@/utils/backend-url';
 
 export const Route = createFileRoute('/reports/$id')({
 	component: RouteComponent,

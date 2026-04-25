@@ -11,7 +11,7 @@ import { Link } from '@tanstack/react-router';
 import { Image } from '@unpic/react';
 import { RiArrowRightLine, RiEyeLine } from 'react-icons/ri';
 import type { AugmentedReport } from '@/server/reports';
-import { getBackendUrl } from '@/utils/tools';
+import { getBackendUrl } from '@/utils/backend-url';
 
 type ReportCardProps = {
 	report: AugmentedReport;
