@@ -5,9 +5,11 @@
 	"type": "module",
 	"scripts": {
 		"build": "next build",
-		"check": "biome check .",
-		"check:unsafe": "biome check --write --unsafe .",
-		"check:write": "biome check --write .",
+		"format": "oxfmt",
+		"format:check": "oxfmt --check",
+		"lint": "oxlint",
+		"lint:fix": "oxlint --fix",
+		"check": "oxfmt --check && oxlint",
 		"dev": "next dev --turbo --port 3001",
 		"preview": "next build && next start",
 		"start": "next start",
@@ -35,7 +37,6 @@
 		"zod": "^3.24.2"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.2.5",
 		"@types/node": "^20.14.10",
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",

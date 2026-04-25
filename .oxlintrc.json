@@ -1,0 +1,35 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": [
+		"typescript",
+		"react",
+		"react-perf",
+		"unicorn",
+		"jsx-a11y",
+		"import",
+		"oxc",
+		"promise"
+	],
+	"categories": {
+		"correctness": "error",
+		"suspicious": "warn"
+	},
+	"rules": {
+		"react/react-in-jsx-scope": "off"
+	},
+	"env": {
+		"browser": true,
+		"node": true,
+		"es2024": true
+	},
+	"ignorePatterns": [
+		"**/node_modules/**",
+		"**/dist/**",
+		"**/.next/**",
+		"**/.output/**",
+		"**/.turbo/**",
+		"apps/cms-payload/src/app/(payload)/**",
+		"apps/website/src/routeTree.gen.ts",
+		"apps/website/src/components/ui/**"
+	]
+}

@@ -1,0 +1,40 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"useTabs": true,
+	"tabWidth": 2,
+	"printWidth": 80,
+	"singleQuote": false,
+	"jsxSingleQuote": false,
+	"quoteProps": "as-needed",
+	"trailingComma": "all",
+	"semi": true,
+	"arrowParens": "always",
+	"bracketSameLine": false,
+	"bracketSpacing": true,
+	"sortImports": {
+		"partitionByNewline": true,
+		"newlinesBetween": false
+	},
+	"sortTailwindcss": {
+		"functions": ["clsx", "cva", "cn"]
+	},
+	"ignorePatterns": [
+		"**/node_modules/**",
+		"**/dist/**",
+		"**/.next/**",
+		"**/.output/**",
+		"**/.turbo/**",
+		"apps/cms-payload/src/app/(payload)/**",
+		"apps/website/src/routeTree.gen.ts",
+		"apps/website/src/styles.css",
+		"apps/website/src/components/ui/**"
+	],
+	"overrides": [
+		{
+			"files": ["apps/website/**"],
+			"options": {
+				"singleQuote": true
+			}
+		}
+	]
+}
