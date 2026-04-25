@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
 import sharp from "sharp";
 
@@ -20,6 +21,13 @@ const packageDir = path.dirname(filename);
 export interface BuildPayloadConfigOptions {
 	importMapBaseDir?: string;
 }
+
+const s3Enabled = Boolean(
+	process.env.S3_BUCKET &&
+	process.env.S3_ENDPOINT &&
+	process.env.S3_ACCESS_KEY &&
+	process.env.S3_SECRET_KEY,
+);
 
 export const buildPayloadConfig = ({
 	importMapBaseDir,
@@ -57,6 +65,25 @@ export const buildPayloadConfig = ({
 		sharp,
 		cors: ["http://localhost:3000", "http://localhost:3001"],
 		csrf: ["http://localhost:3000", "http://localhost:3001"],
+		plugins: s3Enabled
+			? [
+					s3Storage({
+						collections: {
+							media: true,
+						},
+						bucket: process.env.S3_BUCKET as string,
+						config: {
+							endpoint: process.env.S3_ENDPOINT,
+							region: process.env.S3_REGION || "us-east-1",
+							credentials: {
+								accessKeyId: process.env.S3_ACCESS_KEY as string,
+								secretAccessKey: process.env.S3_SECRET_KEY as string,
+							},
+							forcePathStyle: true,
+						},
+					}),
+				]
+			: [],
 	});
 
 export default buildPayloadConfig();
