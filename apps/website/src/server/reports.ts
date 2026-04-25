@@ -12,8 +12,10 @@ import { filterSchema } from '@/routes/reports';
 import { fetchOrReturnRealValue } from '@/utils/tools';
 import { baseProcedure } from './db';
 
-export interface AugmentedReport
-	extends Omit<Report, 'thumbnail' | 'category' | 'relatedPictures'> {
+export interface AugmentedReport extends Omit<
+	Report,
+	'thumbnail' | 'category' | 'relatedPictures'
+> {
 	thumbnail: Media;
 	category: Category;
 	relatedPictures: Picture[];

@@ -10,8 +10,10 @@ import {
 import type { PaginatedDocs } from 'cms-payload';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
-interface UIPaginationProps
-	extends Pick<PaginatedDocs, 'totalDocs' | 'limit' | 'page'> {
+interface UIPaginationProps extends Pick<
+	PaginatedDocs,
+	'totalDocs' | 'limit' | 'page'
+> {
 	onPageChange: (page: number) => void;
 }
 
@@ -54,9 +56,9 @@ const UIPagination = ({
 							</Pagination.PrevTrigger>
 
 							<Pagination.Items
-								render={(page) => (
+								render={(paginationItem) => (
 									<IconButton variant={{ base: 'ghost', _selected: 'outline' }}>
-										{page.value}
+										{paginationItem.value}
 									</IconButton>
 								)}
 							/>

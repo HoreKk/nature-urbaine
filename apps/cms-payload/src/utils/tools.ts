@@ -1,5 +1,4 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: xlsx sheet */
-import XLSX from "xlsx";
+import * as XLSX from "xlsx";
 
 export function readExcelSheet(
 	filePath: string,

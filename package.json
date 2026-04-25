@@ -1,26 +1,26 @@
 {
-  "name": "nature-urbaine",
-  "version": "1.0.0",
-  "license": "MIT",
-  "private": true,
-  "packageManager": "pnpm@10.28.2",
-  "scripts": {
-    "generate:types": "cd apps/cms-payload && pnpm generate:types",
-    "generate:importmap": "cd apps/cms-payload && pnpm generate:importmap",
-    "dev:cms-payload": "cd apps/cms-payload && pnpm dev -p 3001",
-    "dev:website": "cd apps/website && pnpm dev",
-    "build:loose": "turbo build --env-mode=loose",
-    "serve:web": "cd apps/website && pnpm start",
-    "serve:admin": "cd apps/cms-payload && pnpm start",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
-    "check": "oxfmt --check && oxlint"
-  },
-  "devDependencies": {
-    "oxfmt": "^0.46.0",
-    "oxlint": "^1.61.0",
-    "turbo": "^2.8.20"
-  }
+	"name": "nature-urbaine",
+	"version": "1.0.0",
+	"private": true,
+	"license": "MIT",
+	"scripts": {
+		"generate:types": "cd apps/cms-payload && pnpm generate:types",
+		"generate:importmap": "cd apps/cms-payload && pnpm generate:importmap",
+		"dev:cms-payload": "cd apps/cms-payload && pnpm dev -p 3001",
+		"dev:website": "cd apps/website && pnpm dev",
+		"build:loose": "turbo build --env-mode=loose",
+		"serve:web": "cd apps/website && pnpm start",
+		"serve:admin": "cd apps/cms-payload && pnpm start",
+		"format": "oxfmt",
+		"format:check": "oxfmt --check",
+		"lint": "oxlint",
+		"lint:fix": "oxlint --fix",
+		"check": "oxfmt --check && oxlint"
+	},
+	"devDependencies": {
+		"oxfmt": "^0.46.0",
+		"oxlint": "^1.61.0",
+		"turbo": "^2.8.20"
+	},
+	"packageManager": "pnpm@10.28.2"
 }

@@ -6,7 +6,6 @@
 		"react-perf",
 		"unicorn",
 		"jsx-a11y",
-		"import",
 		"oxc",
 		"promise"
 	],

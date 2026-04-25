@@ -52,11 +52,7 @@ function QuestionBlock({ question, html }: QuestionBlockProps) {
 				</Text>
 			</Flex>
 			<Box pl={4}>
-				<Prose
-					// biome-ignore lint/security/noDangerouslySetInnerHtml: server-generated HTML from Payload's official Lexical converter
-					dangerouslySetInnerHTML={{ __html: html }}
-					maxW="none"
-				/>
+				<Prose dangerouslySetInnerHTML={{ __html: html }} maxW="none" />
 			</Box>
 		</Box>
 	);
@@ -145,7 +141,12 @@ function RouteComponent() {
 							borderLeft="4px solid"
 							borderColor="primary.emphasized"
 						>
-							<Text fontSize="md" color="fg.muted" fontStyle="italic" lineHeight="1.75">
+							<Text
+								fontSize="md"
+								color="fg.muted"
+								fontStyle="italic"
+								lineHeight="1.75"
+							>
 								{interview.summary}
 							</Text>
 						</Box>
@@ -187,28 +188,25 @@ function RouteComponent() {
 								</Heading>
 								<Flex flexDir="column" gap={3}>
 									<Flex flexDir="column" gap={1}>
-										<Text
-											color="fg.muted"
-											fontSize="sm"
-										>
+										<Text color="fg.muted" fontSize="sm">
 											Superficie
 										</Text>
 										<Text>{interview.area}</Text>
 									</Flex>
 									<Separator />
 									<Flex flexDir="column" gap={1}>
-										<Text
-											color="fg.muted"
-											fontSize="sm"
-										>
+										<Text color="fg.muted" fontSize="sm">
 											Date de réalisation
 										</Text>
 										<Text>
-											{new Date(interview.realisedAt).toLocaleDateString('fr-FR', {
-												day: 'numeric',
-												month: 'long',
-												year: 'numeric',
-											})}
+											{new Date(interview.realisedAt).toLocaleDateString(
+												'fr-FR',
+												{
+													day: 'numeric',
+													month: 'long',
+													year: 'numeric',
+												},
+											)}
 										</Text>
 									</Flex>
 								</Flex>
@@ -221,7 +219,11 @@ function RouteComponent() {
 								<Flex flexDir="column" gap={3}>
 									<Flex flexDir="column" gap={1}>
 										<Flex alignItems="center" gap={1.5}>
-											<Icon as={RiBuildingLine} boxSize={3.5} color="fg.muted" />
+											<Icon
+												as={RiBuildingLine}
+												boxSize={3.5}
+												color="fg.muted"
+											/>
 											<Text color="fg.muted" fontSize="sm">
 												Maîtrise d'ouvrage
 											</Text>
@@ -231,7 +233,11 @@ function RouteComponent() {
 									<Separator />
 									<Flex flexDir="column" gap={1}>
 										<Flex alignItems="center" gap={1.5}>
-											<Icon as={RiBuildingLine} boxSize={3.5} color="fg.muted" />
+											<Icon
+												as={RiBuildingLine}
+												boxSize={3.5}
+												color="fg.muted"
+											/>
 											<Text color="fg.muted" fontSize="sm">
 												Maîtrise d'œuvre
 											</Text>

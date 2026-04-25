@@ -31,43 +31,43 @@ const system = createSystem(defaultConfig, {
 							_dark: '{colors.primary.300}',
 						},
 					},
-					contrast: { 
+					contrast: {
 						value: {
 							base: '{colors.primary.100}',
 							_dark: '{colors.primary.900}',
 						},
 					},
-					fg: { 
+					fg: {
 						value: {
 							base: '{colors.primary.700}',
 							_dark: '{colors.primary.300}',
 						},
 					},
-					muted: { 
+					muted: {
 						value: {
 							base: '{colors.primary.100}',
 							_dark: '{colors.primary.800}',
 						},
 					},
-					subtle: { 
+					subtle: {
 						value: {
 							base: '{colors.primary.200}',
 							_dark: '{colors.primary.700}',
 						},
 					},
-					emphasized: { 
+					emphasized: {
 						value: {
 							base: '{colors.primary.300}',
 							_dark: '{colors.primary.600}',
 						},
 					},
-					focusRing: { 
+					focusRing: {
 						value: {
 							base: '{colors.primary.500}',
 							_dark: '{colors.primary.400}',
 						},
 					},
-					accent: { 
+					accent: {
 						value: {
 							base: '{colors.primary.700}',
 							_dark: '{colors.primary.300}',

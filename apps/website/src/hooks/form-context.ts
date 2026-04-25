@@ -18,4 +18,4 @@ export const { useAppForm } = createFormHook({
 export type DefaultFieldProps = {
 	label: string;
 	placeholder?: string;
-}
+};

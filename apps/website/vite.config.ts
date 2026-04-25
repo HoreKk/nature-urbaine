@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from 'node:url';
-import { nitro } from 'nitro/vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
+import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite';
 
 const config = defineConfig({
@@ -10,11 +10,7 @@ const config = defineConfig({
 			'@': fileURLToPath(new URL('./src', import.meta.url)),
 		},
 	},
-	plugins: [
-		nitro(),
-		tanstackStart(),
-		viteReact(),
-	],
+	plugins: [nitro(), tanstackStart(), viteReact()],
 	optimizeDeps: {
 		exclude: ['payload'],
 	},

@@ -20,16 +20,14 @@ export const getSearchResults = createServerFn({ method: 'GET' })
 			limit: 5,
 		});
 
-		const results = [
-			...categories.docs.map(
-				(category) =>
-					({
-						kind: 'category',
-						label: category.name,
-						value: category.id.toString(),
-					}) as const,
-			),
-		];
+		const results = categories.docs.map(
+			(category) =>
+				({
+					kind: 'category',
+					label: category.name,
+					value: category.id.toString(),
+				}) as const,
+		);
 
 		return results;
 	});

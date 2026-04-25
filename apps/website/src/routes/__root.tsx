@@ -5,12 +5,12 @@ import {
 	HeadContent,
 	Scripts,
 } from '@tanstack/react-router';
+import Footer from '@/components/sections/Footer';
 import Navbar from '@/components/sections/Navbar';
 import { Provider as ChakraProvider } from '@/components/ui/provider';
-import appCss from '../styles.css?url';
 import '@fontsource-variable/inter/index.css';
 import '@fontsource-variable/mulish/index.css';
-import Footer from '@/components/sections/Footer';
+import appCss from '../styles.css?url';
 
 interface MyRouterContext {
 	queryClient: QueryClient;
