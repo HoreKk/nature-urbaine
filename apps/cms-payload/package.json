@@ -14,26 +14,18 @@
 		"preview": "next build && next start",
 		"start": "next start",
 		"typecheck": "tsc --noEmit",
-		"generate:types": "payload generate:types",
-		"generate:importmap": "payload generate:importmap",
-		"seed:dev": "NODE_ENV=development PAYLOAD_DROP_DATABASE=true payload run ./src/seed/index.ts",
-		"seed:prod": "NODE_ENV=production payload run ./src/seed/index.ts"
+		"generate:importmap": "payload generate:importmap"
 	},
 	"dependencies": {
-		"@payloadcms/db-postgres": "3.84.1",
+		"@nature-urbaine/database": "workspace:*",
 		"@payloadcms/next": "3.84.1",
 		"@payloadcms/richtext-lexical": "3.84.1",
 		"@tanstack/react-query": "^5.69.0",
-		"@types/jsdom": "^28.0.0",
-		"graphql": "^16.12.0",
-		"jsdom": "^27.4.0",
 		"next": "^16.2.4",
 		"payload": "3.84.1",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
-		"sharp": "^0.34.5",
 		"superjson": "^2.2.1",
-		"xlsx": "^0.18.5",
 		"zod": "^3.24.2"
 	},
 	"devDependencies": {

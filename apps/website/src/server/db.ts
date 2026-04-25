@@ -1,5 +1,5 @@
+import { getPayload, payloadConfig } from '@nature-urbaine/database';
 import { createMiddleware } from '@tanstack/react-start';
-import { getPayload, payloadConfig } from 'cms-payload';
 
 export const baseProcedure = createMiddleware({ type: 'function' }).server(
 	async ({ next }) => {

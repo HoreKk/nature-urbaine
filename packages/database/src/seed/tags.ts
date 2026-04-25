@@ -1,6 +1,6 @@
 import type { Payload } from "payload";
-import type { Tag, TagCategory } from "~/payload-types";
-import { readExcelSheet } from "~/utils/tools";
+import type { Tag, TagCategory } from "../payload-types";
+import { readExcelSheet } from "../utils/tools";
 
 type ExcelTags = {
 	category: string;

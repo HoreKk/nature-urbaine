@@ -9,11 +9,11 @@ import {
 	Text,
 	Wrap,
 } from '@chakra-ui/react';
+import type { PaginatedDocs } from '@nature-urbaine/database';
 import { useStore } from '@tanstack/react-form';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
-import type { PaginatedDocs } from 'cms-payload';
 import { useState } from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
 import type z from 'zod';

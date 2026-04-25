@@ -1,6 +1,6 @@
-import payloadConfig from "@payload-config";
 import { getPayload } from "payload";
-import type { Config } from "~/payload-types";
+import payloadConfig from "../config";
+import type { Config } from "../payload-types";
 
 export async function fetchOrReturnRealValue<
 	T extends keyof Config["collections"],

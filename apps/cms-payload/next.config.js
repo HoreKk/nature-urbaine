@@ -4,6 +4,7 @@ import { withPayload } from "@payloadcms/next/withPayload";
 const config = {
 	reactStrictMode: true,
 	devIndicators: false,
+	transpilePackages: ["@nature-urbaine/database"],
 	experimental: {
 		optimizePackageImports: ["@chakra-ui/react"],
 	},

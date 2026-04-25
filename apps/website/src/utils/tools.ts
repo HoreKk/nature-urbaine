@@ -1,4 +1,8 @@
-import { type Config, getPayload, payloadConfig } from 'cms-payload';
+import {
+	type Config,
+	getPayload,
+	payloadConfig,
+} from '@nature-urbaine/database';
 
 export async function fetchOrReturnRealValue<
 	T extends keyof Config['collections'],

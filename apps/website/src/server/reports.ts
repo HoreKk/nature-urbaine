@@ -1,12 +1,12 @@
-import { notFound } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/react-start';
-import type { PaginatedDocs } from 'cms-payload';
 import type {
 	Category,
 	Media,
+	PaginatedDocs,
 	Picture,
 	Report,
-} from 'cms-payload/src/payload-types';
+} from '@nature-urbaine/database';
+import { notFound } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { filterSchema } from '@/routes/reports';
 import { fetchOrReturnRealValue } from '@/utils/tools';

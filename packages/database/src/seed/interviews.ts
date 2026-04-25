@@ -4,8 +4,8 @@ import {
 } from "@payloadcms/richtext-lexical";
 import { JSDOM } from "jsdom";
 import type { Payload } from "payload";
-import payloadConfig from "~/payload.config";
-import { readExcelSheet } from "~/utils/tools";
+import payloadConfig from "../config";
+import { readExcelSheet } from "../utils/tools";
 
 type ExcelInterview = {
 	"Ville // Département": string;

@@ -1,5 +1,5 @@
 import type { Payload } from "payload";
-import { readExcelSheet } from "~/utils/tools";
+import { readExcelSheet } from "../utils/tools";
 
 type ExcelCategory = {
 	CATEGORIES: string;

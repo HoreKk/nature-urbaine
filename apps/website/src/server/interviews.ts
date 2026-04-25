@@ -1,8 +1,10 @@
+import {
+	convertLexicalToHTML,
+	type Interview,
+	type PaginatedDocs,
+} from '@nature-urbaine/database';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import type { PaginatedDocs } from 'cms-payload';
-import type { Interview } from 'cms-payload/src/payload-types';
-import { convertLexicalToHTML } from 'cms-payload/src/utils/lexical';
 import { z } from 'zod';
 import { baseProcedure } from './db';
 

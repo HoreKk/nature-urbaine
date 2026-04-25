@@ -1,7 +1,7 @@
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Payload } from "payload";
-import { readExcelSheet } from "~/utils/tools";
+import { readExcelSheet } from "../utils/tools";
 
 type ExcelReport = {
 	PROJET: string;
