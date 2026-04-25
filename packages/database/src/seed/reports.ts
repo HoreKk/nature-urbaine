@@ -29,7 +29,7 @@ export default async function seedReports(payload: Payload) {
 
 	const localFilePath = path.resolve(
 		__dirname,
-		"../../../cms-payload/public/hero-section.jpg",
+		"../../../../apps/cms-payload/public/hero-section.jpg",
 	);
 
 	const defaultMedia = await payload.create({
