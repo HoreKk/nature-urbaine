@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import XLSX from "xlsx";
 
 export function readExcelSheet(
 	filePath: string,
@@ -6,13 +6,8 @@ export function readExcelSheet(
 	headers?: string[],
 ) {
 	try {
-		// Lire le fichier Excel
 		const workbook = XLSX.readFile(filePath);
 
-		// Afficher les noms de toutes les feuilles disponibles
-		// console.log("Feuilles disponibles:", workbook.SheetNames);
-
-		// Récupérer la feuille spécifiée (ou la première si non spécifiée)
 		const targetSheet = sheetName || workbook.SheetNames[0];
 		if (!targetSheet)
 			throw new Error("Aucune feuille disponible dans le fichier Excel");
@@ -22,7 +17,6 @@ export function readExcelSheet(
 			throw new Error(`Feuille "${sheetName}" introuvable`);
 		}
 
-		// Convertir la feuille en JSON
 		const data = XLSX.utils.sheet_to_json(sheet);
 		const processedData = headers
 			? data.map((row: any) => {

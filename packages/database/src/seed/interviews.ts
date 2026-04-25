@@ -54,8 +54,8 @@ export default async function seedInterviews(payload: Payload) {
 				projectManagement: interview["Maîtrise d’œuvre"].trim(),
 				summary: interview.Résumé.trim(),
 				area: interview.Superficie.trim(),
-				publishedAt: new Date().toLocaleDateString("fr-FR"),
-				realisedAt: new Date().toLocaleDateString("fr-FR"),
+				publishedAt: new Date().toISOString(),
+				realisedAt: new Date().toISOString(),
 				projectDetails: {
 					objectives: convertHTMLToLexical({
 						editorConfig: test,

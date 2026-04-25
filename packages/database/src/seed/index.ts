@@ -7,14 +7,38 @@ import seedTags from "./tags";
 
 const seed = async () => {
 	const payload = await getPayload({ config });
+	const adminEmail = "admin@test.loc";
+	const adminPassword = "admin123";
 
-	await payload.create({
+	const existingAdmin = await payload.find({
 		collection: "users",
-		data: {
-			email: "admin@test.loc",
-			password: "admin123",
+		limit: 1,
+		pagination: false,
+		where: {
+			email: {
+				equals: adminEmail,
+			},
 		},
 	});
+
+	if (existingAdmin.docs[0]) {
+		await payload.update({
+			collection: "users",
+			id: existingAdmin.docs[0].id,
+			data: {
+				email: adminEmail,
+				password: adminPassword,
+			},
+		});
+	} else {
+		await payload.create({
+			collection: "users",
+			data: {
+				email: adminEmail,
+				password: adminPassword,
+			},
+		});
+	}
 
 	await seedCategories(payload);
 	await seedReports(payload);
