@@ -18,6 +18,7 @@
 		"check": "oxfmt --check && oxlint"
 	},
 	"devDependencies": {
+		"lefthook": "^2.1.6",
 		"oxfmt": "^0.46.0",
 		"oxlint": "^1.61.0",
 		"turbo": "^2.8.20"
