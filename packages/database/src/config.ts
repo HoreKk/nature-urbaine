@@ -31,6 +31,9 @@ export const buildPayloadConfig = ({
 				baseDir: importMapBaseDir ?? packageDir,
 			},
 		},
+		routes: {
+			admin: "/",
+		},
 		collections: [
 			Media,
 			Reports,
