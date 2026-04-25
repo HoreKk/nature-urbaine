@@ -14,6 +14,7 @@ import { Image } from '@unpic/react';
 import { UIBreadcrumb } from '@/components/standard/Breadcrumb';
 import UICarousel from '@/components/standard/Carousel';
 import { getReportById } from '@/server/reports';
+import { getBackendUrl } from '@/utils/tools';
 
 export const Route = createFileRoute('/reports/$id')({
 	component: RouteComponent,
@@ -34,7 +35,7 @@ function RouteComponent() {
 			/>
 			<ChakraImage asChild height={200} width="full">
 				<Image
-					src={`http://localhost:3001${report.thumbnail.url}`}
+					src={getBackendUrl(report.thumbnail.url)}
 					alt={report.thumbnail.alt || report.name}
 					layout="fullWidth"
 				/>
@@ -69,7 +70,7 @@ function RouteComponent() {
 								<UICarousel
 									images={report.relatedPictures.map((picture) => ({
 										label: picture.filename || picture.alt || 'Photo associée',
-										url: `http://localhost:3001${picture.url}`,
+										url: getBackendUrl(picture.url),
 									}))}
 								/>
 							) : (

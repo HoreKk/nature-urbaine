@@ -11,6 +11,7 @@ import { Link } from '@tanstack/react-router';
 import { Image } from '@unpic/react';
 import { RiArrowRightLine, RiEyeLine } from 'react-icons/ri';
 import type { AugmentedReport } from '@/server/reports';
+import { getBackendUrl } from '@/utils/tools';
 
 type ReportCardProps = {
 	report: AugmentedReport;
@@ -30,7 +31,7 @@ const ReportCard = ({ report }: ReportCardProps) => {
 			<Box position="relative">
 				<ChakraImage asChild height="220px" w="full">
 					<Image
-						src={`http://localhost:3001${report.thumbnail.url}`}
+						src={getBackendUrl(report.thumbnail.url)}
 						alt={report.thumbnail.alt || report.name}
 						layout="fullWidth"
 					/>
