@@ -29,6 +29,7 @@
 		"**/.turbo/**",
 		"apps/cms-payload/src/app/(payload)/**",
 		"apps/website/src/routeTree.gen.ts",
-		"apps/website/src/components/ui/**"
+		"apps/website/src/components/ui/**",
+		"packages/database/src/migrations/**"
 	]
 }

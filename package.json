@@ -5,6 +5,12 @@
 	"license": "MIT",
 	"scripts": {
 		"migrate": "pnpm --filter @nature-urbaine/database migrate",
+		"migrate:create": "pnpm --filter @nature-urbaine/database migrate:create",
+		"migrate:status": "pnpm --filter @nature-urbaine/database migrate:status",
+		"migrate:down": "pnpm --filter @nature-urbaine/database migrate:down",
+		"migrate:refresh": "pnpm --filter @nature-urbaine/database migrate:refresh",
+		"migrate:reset": "pnpm --filter @nature-urbaine/database migrate:reset",
+		"migrate:fresh": "pnpm --filter @nature-urbaine/database migrate:fresh",
 		"generate:types": "pnpm --filter @nature-urbaine/database generate:types",
 		"generate:importmap": "cd apps/cms-payload && pnpm generate:importmap",
 		"seed:dev": "pnpm --filter @nature-urbaine/database seed:dev",
