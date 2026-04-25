@@ -20,7 +20,6 @@
     "@fontsource-variable/mulish": "^5.2.8",
     "@tanstack/react-form": "^1.0.0",
     "@tanstack/react-query": "^5.66.5",
-    "@tanstack/react-query-devtools": "^5.84.2",
     "@tanstack/react-router": "^1.168.24",
     "@tanstack/react-router-ssr-query": "^1.131.7",
     "@tanstack/react-start": "^1.167.48",
