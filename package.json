@@ -8,7 +8,8 @@
     "generate:types": "cd apps/cms-payload && pnpm generate:types",
     "generate:importmap": "cd apps/cms-payload && pnpm generate:importmap",
     "dev:cms-payload": "cd apps/cms-payload && pnpm dev -p 3001",
-    "dev:website": "cd apps/website && pnpm dev"
+    "dev:website": "cd apps/website && pnpm dev",
+    "build:loose": "turbo build --env-mode=loose"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.13",
