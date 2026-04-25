@@ -4,6 +4,7 @@
 	"private": true,
 	"license": "MIT",
 	"scripts": {
+		"migrate": "pnpm --filter @nature-urbaine/database migrate",
 		"generate:types": "pnpm --filter @nature-urbaine/database generate:types",
 		"generate:importmap": "cd apps/cms-payload && pnpm generate:importmap",
 		"seed:dev": "pnpm --filter @nature-urbaine/database seed:dev",

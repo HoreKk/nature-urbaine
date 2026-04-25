@@ -16,7 +16,9 @@
 		"lint:fix": "oxlint --fix",
 		"check": "oxfmt --check && oxlint",
 		"typecheck": "tsc --noEmit",
-		"generate:types": "payload generate:types --config ./src/config.ts",
+		"payload": "PAYLOAD_CONFIG_PATH=./src/config.ts payload",
+		"migrate": "PAYLOAD_CONFIG_PATH=./src/config.ts payload migrate",
+		"generate:types": "PAYLOAD_CONFIG_PATH=./src/config.ts payload generate:types",
 		"seed:dev": "NODE_ENV=development PAYLOAD_DROP_DATABASE=true payload run ./src/seed/index.ts",
 		"seed:prod": "NODE_ENV=production payload run ./src/seed/index.ts"
 	},
