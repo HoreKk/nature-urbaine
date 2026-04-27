@@ -15,23 +15,22 @@ const s3Enabled = Boolean(
 
 export default buildPayloadConfig({
 	importMapBaseDir: dirname,
-	plugins: s3Enabled
-		? [
-				s3Storage({
-					collections: {
-						media: true,
-					},
-					bucket: process.env.S3_BUCKET as string,
-					config: {
-						endpoint: process.env.S3_ENDPOINT,
-						region: process.env.S3_REGION,
-						credentials: {
-							accessKeyId: process.env.S3_ACCESS_KEY as string,
-							secretAccessKey: process.env.S3_SECRET_KEY as string,
-						},
-						forcePathStyle: true,
-					},
-				}),
-			]
-		: [],
+	plugins: [
+		s3Storage({
+			enabled: s3Enabled,
+			collections: {
+				media: true,
+			},
+			bucket: process.env.S3_BUCKET || "",
+			config: {
+				endpoint: process.env.S3_ENDPOINT,
+				region: process.env.S3_REGION,
+				credentials: {
+					accessKeyId: process.env.S3_ACCESS_KEY || "",
+					secretAccessKey: process.env.S3_SECRET_KEY || "",
+				},
+				forcePathStyle: true,
+			},
+		}),
+	],
 });
