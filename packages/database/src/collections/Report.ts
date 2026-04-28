@@ -55,9 +55,81 @@ export const Reports: CollectionConfig = {
 			required: true,
 		},
 		{
-			name: "location",
-			type: "point",
-			label: "Emplacement",
+			name: "projectName",
+			type: "text",
+			label: "Nom du projet",
+		},
+		{
+			name: "locationDetails",
+			type: "group",
+			label: "Localisation",
+			fields: [
+				{
+					type: "row",
+					fields: [
+						{
+							name: "country",
+							type: "text",
+							label: "Pays",
+						},
+						{
+							name: "city",
+							type: "text",
+							label: "Ville",
+						},
+						{
+							name: "postalCode",
+							type: "text",
+							label: "Code postal",
+						},
+					],
+				},
+				{
+					name: "address",
+					type: "text",
+					label: "Adresse",
+				},
+				{
+					name: "location",
+					type: "point",
+					label: "Point cartographique",
+				},
+				{
+					type: "row",
+					fields: [
+						{
+							name: "departmentCode",
+							type: "text",
+							label: "Code département",
+						},
+						{
+							name: "department",
+							type: "text",
+							label: "Département",
+						},
+						{
+							name: "region",
+							type: "text",
+							label: "Région",
+						},
+					],
+				},
+				{
+					type: "row",
+					fields: [
+						{
+							name: "cityStratum",
+							type: "text",
+							label: "Strate de la ville",
+						},
+						{
+							name: "nbPopulations",
+							type: "number",
+							label: "Nombre d'habitants",
+						},
+					],
+				},
+			],
 		},
 		{
 			name: "relatedPictures",
@@ -110,14 +182,61 @@ export const Reports: CollectionConfig = {
 			},
 		},
 		{
-			name: "cityStratum",
-			type: "text",
-			label: "Strate de la ville",
-		},
-		{
-			name: "nbPopulations",
-			type: "number",
-			label: "Nombre d'habitants",
+			name: "projectDetails",
+			type: "group",
+			label: "Détails du projet",
+			fields: [
+				{
+					type: "row",
+					fields: [
+						{
+							name: "photoAuthor",
+							type: "text",
+							label: "Auteur",
+						},
+						{
+							name: "wordpressPostId",
+							type: "number",
+							label: "Code WordPress",
+						},
+					],
+				},
+				{
+					type: "row",
+					fields: [
+						{
+							name: "projectOwner",
+							type: "text",
+							label: "Maître d'ouvrage",
+						},
+						{
+							name: "projectManagement",
+							type: "text",
+							label: "Maître d'oeuvre",
+						},
+					],
+				},
+				{
+					type: "row",
+					fields: [
+						{
+							name: "deliveryYear",
+							type: "number",
+							label: "Année de livraison",
+						},
+						{
+							name: "projectCost",
+							type: "text",
+							label: "Coût",
+						},
+						{
+							name: "projectArea",
+							type: "text",
+							label: "Superficie",
+						},
+					],
+				},
+			],
 		},
 	],
 };

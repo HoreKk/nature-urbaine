@@ -171,11 +171,23 @@ export interface Report {
   name: string;
   slug?: string | null;
   description: string;
-  /**
-   * @minItems 2
-   * @maxItems 2
-   */
-  location?: [number, number] | null;
+  projectName?: string | null;
+  locationDetails?: {
+    country?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    address?: string | null;
+    /**
+     * @minItems 2
+     * @maxItems 2
+     */
+    location?: [number, number] | null;
+    departmentCode?: string | null;
+    department?: string | null;
+    region?: string | null;
+    cityStratum?: string | null;
+    nbPopulations?: number | null;
+  };
   relatedPictures?: {
     docs?: (number | Picture)[];
     hasNextPage?: boolean;
@@ -184,8 +196,15 @@ export interface Report {
   category: number | Category;
   date: string;
   season?: ('spring' | 'summer' | 'autumn' | 'winter') | null;
-  cityStratum?: string | null;
-  nbPopulations?: number | null;
+  projectDetails?: {
+    photoAuthor?: string | null;
+    wordpressPostId?: number | null;
+    projectOwner?: string | null;
+    projectManagement?: string | null;
+    deliveryYear?: number | null;
+    projectCost?: string | null;
+    projectArea?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -488,13 +507,36 @@ export interface ReportsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   description?: T;
-  location?: T;
+  projectName?: T;
+  locationDetails?:
+    | T
+    | {
+        country?: T;
+        city?: T;
+        postalCode?: T;
+        address?: T;
+        location?: T;
+        departmentCode?: T;
+        department?: T;
+        region?: T;
+        cityStratum?: T;
+        nbPopulations?: T;
+      };
   relatedPictures?: T;
   category?: T;
   date?: T;
   season?: T;
-  cityStratum?: T;
-  nbPopulations?: T;
+  projectDetails?:
+    | T
+    | {
+        photoAuthor?: T;
+        wordpressPostId?: T;
+        projectOwner?: T;
+        projectManagement?: T;
+        deliveryYear?: T;
+        projectCost?: T;
+        projectArea?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

@@ -15,6 +15,13 @@ import { UIBreadcrumb } from '@/components/standard/Breadcrumb';
 import UICarousel from '@/components/standard/Carousel';
 import { getReportById } from '@/server/reports';
 import { getBackendUrl } from '@/utils/backend-url';
+import {
+	formatDepartmentLabel,
+	formatOptionalDate,
+	formatOptionalInteger,
+	formatOptionalNumber,
+	joinNonEmpty,
+} from '@/utils/tools';
 
 export const Route = createFileRoute('/reports/$id')({
 	component: RouteComponent,
@@ -23,6 +30,51 @@ export const Route = createFileRoute('/reports/$id')({
 
 function RouteComponent() {
 	const report = Route.useLoaderData();
+	const publicationDate = formatOptionalDate(report.date);
+	const locationLabel = joinNonEmpty([
+		report.locationDetails?.city,
+		report.locationDetails?.department,
+		report.locationDetails?.region,
+	]);
+
+	const locationItems = [
+		{ label: 'Catégorie', value: report.category.name },
+		{ label: 'Ville', value: report.locationDetails?.city },
+		{ label: 'Code postal', value: report.locationDetails?.postalCode },
+		{
+			label: 'Département',
+			value: formatDepartmentLabel(
+				report.locationDetails?.departmentCode,
+				report.locationDetails?.department,
+			),
+		},
+		{ label: 'Région', value: report.locationDetails?.region },
+		{ label: 'Strate urbaine', value: report.locationDetails?.cityStratum },
+		{
+			label: "Nombre d'habitants",
+			value: formatOptionalNumber(report.locationDetails?.nbPopulations),
+		},
+		{ label: 'Adresse', value: report.locationDetails?.address },
+	].filter((item) => item.value);
+
+	const projectItems = [
+		{ label: 'Auteur', value: report.projectDetails?.photoAuthor },
+		{ label: 'Maître d’ouvrage', value: report.projectDetails?.projectOwner },
+		{
+			label: 'Maître d’œuvre',
+			value: report.projectDetails?.projectManagement,
+		},
+		{
+			label: 'Année de livraison',
+			value: formatOptionalInteger(report.projectDetails?.deliveryYear),
+		},
+		{ label: 'Coût', value: report.projectDetails?.projectCost },
+		{ label: 'Superficie', value: report.projectDetails?.projectArea },
+		{
+			label: 'Code WordPress',
+			value: formatOptionalInteger(report.projectDetails?.wordpressPostId),
+		},
+	].filter((item) => item.value);
 
 	return (
 		<>
@@ -46,18 +98,27 @@ function RouteComponent() {
 						<Heading size="5xl" fontWeight="black">
 							{report.name}
 						</Heading>
+						{report.projectName ? (
+							<Text fontSize="xl" color="fg.muted">
+								{report.projectName}
+							</Text>
+						) : null}
 						<Text fontSize="lg" color="fg.muted" whiteSpace="pre-line">
 							{report.description}
 						</Text>
 						<Flex alignItems="center" gap={6} mt={4}>
 							<Flex flexDir="column" gap={2}>
 								<Text color="fg.muted">Date de publication</Text>
-								<Text>{new Date(report.date).toLocaleDateString()}</Text>
+								<Text>{publicationDate}</Text>
 							</Flex>
 							<Separator orientation="vertical" height="full" />
 							<Flex flexDir="column" gap={2}>
 								<Text color="fg.muted">Localisation</Text>
-								<Text>xxx</Text>
+								<Text>
+									{locationLabel ||
+										report.locationDetails?.address ||
+										'Non renseignée'}
+								</Text>
 							</Flex>
 						</Flex>
 					</Flex>
@@ -87,46 +148,46 @@ function RouteComponent() {
 						<Flex flexDir="column" gap={6}>
 							<Box bgColor="bg.muted" p={6} borderRadius="lg" boxShadow="sm">
 								<Heading size="2xl" mb={4}>
-									Informations
+									Localisation
 								</Heading>
 								<Flex flexDir="column" gap={3}>
-									<Flex flexDir="column" gap={1}>
-										<Text color="fg.muted" fontSize="sm">
-											Catégorie
-										</Text>
-										<Text>{report.category.name}</Text>
-									</Flex>
-									<Separator />
-									<Flex flexDir="column" gap={1}>
-										<Text color="fg.muted" fontSize="sm">
-											Surface
-										</Text>
-										<Text>{report.cityStratum}</Text>
-									</Flex>
-									<Separator />
-									<Flex flexDir="column" gap={1}>
-										<Text color="fg.muted" fontSize="sm">
-											Nombre d'habitants
-										</Text>
-										<Text>{report.nbPopulations}</Text>
-									</Flex>
+									{locationItems.map((item, index) => (
+										<Box key={item.label}>
+											<Flex flexDir="column" gap={1}>
+												<Text color="fg.muted" fontSize="sm">
+													{item.label}
+												</Text>
+												<Text>{item.value}</Text>
+											</Flex>
+											{index < locationItems.length - 1 ? (
+												<Separator mt={3} />
+											) : null}
+										</Box>
+									))}
 								</Flex>
 							</Box>
-							<Box bgColor="bg.muted" p={6} borderRadius="lg" boxShadow="sm">
-								<Heading size="2xl" mb={4}>
-									Étiquettes
-								</Heading>
-							</Box>
-							<Box bgColor="bg.muted" p={6} borderRadius="lg" boxShadow="sm">
-								<Heading size="2xl" mb={4}>
-									Contact
-								</Heading>
-							</Box>
-							<Box bgColor="bg.muted" p={6} borderRadius="lg" boxShadow="sm">
-								<Heading size="2xl" mb={4}>
-									Partager
-								</Heading>
-							</Box>
+							{projectItems.length > 0 ? (
+								<Box bgColor="bg.muted" p={6} borderRadius="lg" boxShadow="sm">
+									<Heading size="2xl" mb={4}>
+										Projet
+									</Heading>
+									<Flex flexDir="column" gap={3}>
+										{projectItems.map((item, index) => (
+											<Box key={item.label}>
+												<Flex flexDir="column" gap={1}>
+													<Text color="fg.muted" fontSize="sm">
+														{item.label}
+													</Text>
+													<Text>{item.value}</Text>
+												</Flex>
+												{index < projectItems.length - 1 ? (
+													<Separator mt={3} />
+												) : null}
+											</Box>
+										))}
+									</Flex>
+								</Box>
+							) : null}
 						</Flex>
 					</GridItem>
 				</Grid>
