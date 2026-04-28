@@ -19,12 +19,14 @@ export default buildPayloadConfig({
 		s3Storage({
 			enabled: s3Enabled,
 			collections: {
-				media: true,
+				media: {
+					signedDownloads: true,
+				},
 			},
 			bucket: process.env.S3_BUCKET || "",
 			config: {
 				endpoint: process.env.S3_ENDPOINT,
-				region: process.env.S3_REGION,
+				region: process.env.S3_REGION || "auto",
 				credentials: {
 					accessKeyId: process.env.S3_ACCESS_KEY || "",
 					secretAccessKey: process.env.S3_SECRET_KEY || "",
