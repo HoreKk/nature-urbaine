@@ -19,8 +19,11 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
 import { useState } from 'react';
 import { RiArrowRightLine } from 'react-icons/ri';
-import InterviewCard from '@/components/interviews/Card';
-import ReportCard from '@/components/reports/Card';
+import ProjectCard from '@/components/cards/ProjectCard';
+import {
+	interviewToProjectCardProps,
+	reportToProjectCardProps,
+} from '@/components/cards/projectCardProps';
 import ContributeCta from '@/components/sections/ContributeCta';
 import { getInterviews } from '@/server/interviews';
 import { getReports } from '@/server/reports';
@@ -154,7 +157,10 @@ function App() {
 					</Flex>
 					<Grid templateColumns="repeat(3, 1fr)" gap={8} mt={4}>
 						{reports.docs.map((report) => (
-							<ReportCard key={report.id} report={report} />
+							<ProjectCard
+								key={report.id}
+								{...reportToProjectCardProps(report)}
+							/>
 						))}
 					</Grid>
 				</Box>
@@ -175,7 +181,10 @@ function App() {
 					</Flex>
 					<Grid templateColumns="repeat(3, 1fr)" gap={8} mt={4}>
 						{interviews.docs.map((interview) => (
-							<InterviewCard key={interview.id} interview={interview} />
+							<ProjectCard
+								key={interview.id}
+								{...interviewToProjectCardProps(interview)}
+							/>
 						))}
 					</Grid>
 				</Box>

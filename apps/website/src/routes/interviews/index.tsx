@@ -17,7 +17,8 @@ import { useDebounce } from '@uidotdev/usehooks';
 import { useState } from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
 import type z from 'zod';
-import InterviewCard from '@/components/interviews/Card';
+import ProjectCard from '@/components/cards/ProjectCard';
+import { interviewToProjectCardProps } from '@/components/cards/projectCardProps';
 import ContributeCta from '@/components/sections/ContributeCta';
 import UIPagination from '@/components/standard/Pagination';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -162,7 +163,7 @@ function RouteComponent() {
 					) : (
 						interviews.map((interview) => (
 							<Skeleton key={interview.id} loading={isLoading}>
-								<InterviewCard interview={interview} />
+								<ProjectCard {...interviewToProjectCardProps(interview)} />
 							</Skeleton>
 						))
 					)}

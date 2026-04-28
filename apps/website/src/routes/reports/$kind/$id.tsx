@@ -11,7 +11,8 @@ import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { useState } from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
-import ReportCard from '@/components/reports/Card';
+import ProjectCard from '@/components/cards/ProjectCard';
+import { reportToProjectCardProps } from '@/components/cards/projectCardProps';
 import ContributeCta from '@/components/sections/ContributeCta';
 import UIPagination from '@/components/standard/Pagination';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -92,7 +93,7 @@ function RouteComponent() {
 					) : (
 						reports.docs.map((report) => (
 							<Skeleton key={report.id} loading={isLoading}>
-								<ReportCard report={report} />
+								<ProjectCard {...reportToProjectCardProps(report)} />
 							</Skeleton>
 						))
 					)}
