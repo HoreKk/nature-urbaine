@@ -9,8 +9,8 @@ import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { filterSchema } from '@/routes/reports';
-import { fetchOrReturnRealValue } from '@/utils/tools';
 import { baseProcedure } from './db';
+import { fetchOrReturnRealValue } from './tools';
 
 export interface AugmentedReport extends Omit<
 	Report,
