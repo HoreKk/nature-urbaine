@@ -8,8 +8,11 @@ import {
 import Footer from '@/components/sections/Footer';
 import Navbar from '@/components/sections/Navbar';
 import { Provider as ChakraProvider } from '@/components/ui/provider';
-import '@fontsource-variable/inter/index.css';
-import '@fontsource-variable/mulish/index.css';
+import '@fontsource-variable/newsreader/index.css';
+import '@fontsource/instrument-sans/400.css';
+import '@fontsource/instrument-sans/500.css';
+import '@fontsource/instrument-sans/600.css';
+import '@fontsource-variable/jetbrains-mono/index.css';
 import appCss from '../styles.css?url';
 
 interface MyRouterContext {
@@ -42,7 +45,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" suppressHydrationWarning>
+		<html lang="fr">
 			<head>
 				<HeadContent />
 			</head>

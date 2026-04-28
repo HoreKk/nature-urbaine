@@ -1,6 +1,5 @@
 import { Box, Link as ChakraLink, Container, Flex } from '@chakra-ui/react';
 import { Link, type LinkProps } from '@tanstack/react-router';
-import { ColorModeButton } from '../ui/color-mode';
 import Logo from '../ui/Logo';
 
 const navbarLinks: { label: string; to: LinkProps['to'] }[] = [
@@ -49,7 +48,6 @@ const Navbar = () => {
 							)}
 						</Link>
 					))}
-					<ColorModeButton />
 				</Flex>
 			</Flex>
 		</Container>
