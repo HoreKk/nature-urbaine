@@ -1,56 +1,102 @@
-import { Box, Link as ChakraLink, Container, Flex } from '@chakra-ui/react';
+import {
+	AbsoluteCenter,
+	Box,
+	Button,
+	Link as ChakraLink,
+	Container,
+	Flex,
+	HStack,
+	Text,
+} from '@chakra-ui/react';
 import { Link, type LinkProps } from '@tanstack/react-router';
-import Logo from '../ui/Logo';
+import { LuSearch } from 'react-icons/lu';
 
 const navbarLinks: { label: string; to: LinkProps['to'] }[] = [
 	{ label: 'Accueil', to: '/' },
+	{ label: 'À la une', to: '/interviews' },
 	{ label: 'Reportages', to: '/reports' },
-	{ label: 'Interviews', to: '/interviews' },
+	{ label: 'Carte', to: '/carte' },
+	{ label: 'Contribuer', to: '/contribuer' },
 	{ label: 'Contact', to: '/contact' },
 ];
 
+const Wordmark = () => (
+	<Flex align="center" gap={2}>
+		<Box w="11px" h="11px" borderRadius="full" bgColor="primary.solid" />
+		<Text
+			fontFamily="heading"
+			fontSize="20px"
+			fontWeight={500}
+			letterSpacing="-0.02em"
+			lineHeight={1}
+			color="fg"
+		>
+			Nature Urbaine
+		</Text>
+	</Flex>
+);
+
 const Navbar = () => {
 	return (
-		<Container
-			as="nav"
-			maxW="container.xl"
-			py={6}
-			borderBottom="1px solid"
-			borderColor="border.muted"
-		>
-			<Flex gap={4} align="center">
-				<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
-					<Link to="/">
-						<Logo size="md" />
-					</Link>
-				</ChakraLink>
-				<Flex gap={6} ml="auto" align="center">
-					{navbarLinks.map(({ label, to }) => (
-						<Link key={`${to}-${label}`} to={to}>
-							{({ isActive }) => (
-								<Flex direction="column" align="center" gap={1}>
-									<ChakraLink
-										outline="none"
-										_hover={{ textDecor: 'none' }}
-										fontWeight={isActive ? 'bold' : 'medium'}
-										pt={1}
-										asChild
-									>
-										<span>{label}</span>
-									</ChakraLink>
-									<Box
-										w="95%"
-										h="2px"
-										borderRadius="full"
-										bgColor={isActive ? 'primary.solid' : 'transparent'}
-									/>
-								</Flex>
-							)}
+		<Box as="nav" borderBottom="1px solid" borderColor="border.muted">
+			<Container maxW="container.xl" py="20px" position="relative">
+				<Flex align="center" justify="space-between" gap={6}>
+					<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
+						<Link to="/">
+							<Wordmark />
 						</Link>
-					))}
+					</ChakraLink>
+
+					<AbsoluteCenter axis="horizontal">
+						<HStack gap="22px" fontSize="13px">
+							{navbarLinks.map(({ label, to }) => (
+								<Link key={`${to}-${label}`} to={to}>
+									{({ isActive }) => (
+										<ChakraLink
+											asChild
+											outline="none"
+											color={isActive ? 'fg' : 'fg.muted'}
+											fontWeight={isActive ? 500 : 400}
+											letterSpacing="-0.005em"
+											textDecoration={isActive ? 'underline' : 'none'}
+											textUnderlineOffset="5px"
+											_hover={{ textDecoration: 'underline' }}
+										>
+											<span>{label}</span>
+										</ChakraLink>
+									)}
+								</Link>
+							))}
+						</HStack>
+					</AbsoluteCenter>
+
+					<HStack gap={3}>
+						<Button
+							variant="outline"
+							size="sm"
+							borderRadius="full"
+							borderColor="border"
+							color="fg.muted"
+							fontWeight={500}
+							px="14px"
+						>
+							<LuSearch /> Rechercher
+						</Button>
+						<Button
+							size="sm"
+							borderRadius="full"
+							bgColor="secondary.solid"
+							color="secondary.contrast"
+							fontWeight={500}
+							px="16px"
+							_hover={{ bgColor: 'secondary.emphasized' }}
+						>
+							Contribuer
+						</Button>
+					</HStack>
 				</Flex>
-			</Flex>
-		</Container>
+			</Container>
+		</Box>
 	);
 };
 

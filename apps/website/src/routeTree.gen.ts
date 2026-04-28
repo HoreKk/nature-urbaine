@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ContribuerRouteImport } from './routes/contribuer'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CarteRouteImport } from './routes/carte'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReportsIndexRouteImport } from './routes/reports/index'
 import { Route as InterviewsIndexRouteImport } from './routes/interviews/index'
@@ -17,9 +19,19 @@ import { Route as ReportsIdRouteImport } from './routes/reports/$id'
 import { Route as InterviewsIdRouteImport } from './routes/interviews/$id'
 import { Route as ReportsKindIdRouteImport } from './routes/reports/$kind/$id'
 
+const ContribuerRoute = ContribuerRouteImport.update({
+  id: '/contribuer',
+  path: '/contribuer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarteRoute = CarteRouteImport.update({
+  id: '/carte',
+  path: '/carte',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -55,7 +67,9 @@ const ReportsKindIdRoute = ReportsKindIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/carte': typeof CarteRoute
   '/contact': typeof ContactRoute
+  '/contribuer': typeof ContribuerRoute
   '/interviews/$id': typeof InterviewsIdRoute
   '/reports/$id': typeof ReportsIdRoute
   '/interviews/': typeof InterviewsIndexRoute
@@ -64,7 +78,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/carte': typeof CarteRoute
   '/contact': typeof ContactRoute
+  '/contribuer': typeof ContribuerRoute
   '/interviews/$id': typeof InterviewsIdRoute
   '/reports/$id': typeof ReportsIdRoute
   '/interviews': typeof InterviewsIndexRoute
@@ -74,7 +90,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/carte': typeof CarteRoute
   '/contact': typeof ContactRoute
+  '/contribuer': typeof ContribuerRoute
   '/interviews/$id': typeof InterviewsIdRoute
   '/reports/$id': typeof ReportsIdRoute
   '/interviews/': typeof InterviewsIndexRoute
@@ -85,7 +103,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/carte'
     | '/contact'
+    | '/contribuer'
     | '/interviews/$id'
     | '/reports/$id'
     | '/interviews/'
@@ -94,7 +114,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/carte'
     | '/contact'
+    | '/contribuer'
     | '/interviews/$id'
     | '/reports/$id'
     | '/interviews'
@@ -103,7 +125,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/carte'
     | '/contact'
+    | '/contribuer'
     | '/interviews/$id'
     | '/reports/$id'
     | '/interviews/'
@@ -113,7 +137,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CarteRoute: typeof CarteRoute
   ContactRoute: typeof ContactRoute
+  ContribuerRoute: typeof ContribuerRoute
   InterviewsIdRoute: typeof InterviewsIdRoute
   ReportsIdRoute: typeof ReportsIdRoute
   InterviewsIndexRoute: typeof InterviewsIndexRoute
@@ -123,11 +149,25 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/contribuer': {
+      id: '/contribuer'
+      path: '/contribuer'
+      fullPath: '/contribuer'
+      preLoaderRoute: typeof ContribuerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/carte': {
+      id: '/carte'
+      path: '/carte'
+      fullPath: '/carte'
+      preLoaderRoute: typeof CarteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -177,7 +217,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CarteRoute: CarteRoute,
   ContactRoute: ContactRoute,
+  ContribuerRoute: ContribuerRoute,
   InterviewsIdRoute: InterviewsIdRoute,
   ReportsIdRoute: ReportsIdRoute,
   InterviewsIndexRoute: InterviewsIndexRoute,
