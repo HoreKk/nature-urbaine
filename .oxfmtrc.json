@@ -28,7 +28,8 @@
 		"apps/website/src/routeTree.gen.ts",
 		"apps/website/src/styles.css",
 		"apps/website/src/components/ui/**",
-		"packages/database/src/migrations/**"
+		"packages/database/src/migrations/**",
+		"packages/database/src/payload-types.ts"
 	],
 	"overrides": [
 		{

@@ -1,5 +1,5 @@
 import { getPayload } from "payload";
-import payloadConfig from "../config";
+import payloadConfig from "../default-config";
 import type { Config } from "../payload-types";
 
 export async function fetchOrReturnRealValue<

@@ -1,5 +1,5 @@
 import { getPayload } from "payload";
-import config from "../config";
+import config from "../default-config";
 import seedCategories from "./categories";
 import seedInterviews from "./interviews";
 import seedReports from "./reports";

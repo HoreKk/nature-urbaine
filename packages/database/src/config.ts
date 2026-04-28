@@ -61,5 +61,3 @@ export const buildPayloadConfig = ({
 		csrf: ["http://localhost:3000", "http://localhost:3001"],
 		plugins,
 	});
-
-export default buildPayloadConfig();
