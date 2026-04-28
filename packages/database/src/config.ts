@@ -61,17 +61,21 @@ export const buildPayloadConfig = ({
 			"http://localhost:3000",
 			"http://localhost:3001",
 			...(process.env.RAILWAY_PUBLIC_DOMAIN
-				? [process.env.RAILWAY_PUBLIC_DOMAIN]
+				? [`http://${process.env.RAILWAY_PUBLIC_DOMAIN}`]
 				: []),
-			...(process.env.WEBSITE_DOMAIN ? [process.env.WEBSITE_DOMAIN] : []),
+			...(process.env.WEBSITE_DOMAIN
+				? [`https://${process.env.WEBSITE_DOMAIN}`]
+				: []),
 		],
 		csrf: [
 			"http://localhost:3000",
 			"http://localhost:3001",
 			...(process.env.RAILWAY_PUBLIC_DOMAIN
-				? [process.env.RAILWAY_PUBLIC_DOMAIN]
+				? [`http://${process.env.RAILWAY_PUBLIC_DOMAIN}`]
 				: []),
-			...(process.env.WEBSITE_DOMAIN ? [process.env.WEBSITE_DOMAIN] : []),
+			...(process.env.WEBSITE_DOMAIN
+				? [`https://${process.env.WEBSITE_DOMAIN}`]
+				: []),
 		],
 		plugins,
 	});
