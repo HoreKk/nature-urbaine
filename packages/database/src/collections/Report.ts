@@ -90,11 +90,6 @@ export const Reports: CollectionConfig = {
 					label: "Adresse",
 				},
 				{
-					name: "location",
-					type: "point",
-					label: "Point cartographique",
-				},
-				{
 					type: "row",
 					fields: [
 						{

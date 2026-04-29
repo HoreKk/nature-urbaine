@@ -177,11 +177,6 @@ export interface Report {
     city?: string | null;
     postalCode?: string | null;
     address?: string | null;
-    /**
-     * @minItems 2
-     * @maxItems 2
-     */
-    location?: [number, number] | null;
     departmentCode?: string | null;
     department?: string | null;
     region?: string | null;
@@ -515,7 +510,6 @@ export interface ReportsSelect<T extends boolean = true> {
         city?: T;
         postalCode?: T;
         address?: T;
-        location?: T;
         departmentCode?: T;
         department?: T;
         region?: T;
