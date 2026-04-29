@@ -17,6 +17,8 @@
 		"seed:prod": "pnpm --filter @nature-urbaine/database seed:prod",
 		"dev:cms-payload": "cd apps/cms-payload && pnpm dev -p 3001",
 		"dev:website": "cd apps/website && pnpm dev",
+		"chakra:typegen": "pnpm --filter website chakra:typegen",
+		"chakra:typegen:watch": "pnpm --filter website chakra:typegen:watch",
 		"build:loose": "turbo build --env-mode=loose",
 		"serve:web": "cd apps/website && pnpm start",
 		"serve:admin": "cd apps/cms-payload && pnpm start",
