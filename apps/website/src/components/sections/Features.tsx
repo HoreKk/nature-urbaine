@@ -66,26 +66,10 @@ const Features = () => {
 		<Box as="section" py={{ base: 16, md: 20 }}>
 			<Container maxW="container.xl" mb={10}>
 				<Stack gap={2}>
-					<Text
-						fontFamily="mono"
-						fontSize="11px"
-						textTransform="uppercase"
-						letterSpacing="0.08em"
-						color="fg.subtle"
-					>
-						Fonctionnalités
-					</Text>
-					<Heading
-						as="h2"
-						fontFamily="heading"
-						fontSize={{ base: '32px', md: '44px' }}
-						fontWeight={400}
-						lineHeight={1}
-						letterSpacing="-0.02em"
-						color="fg"
-					>
+					<Text textStyle="kicker">Fonctionnalités</Text>
+					<Heading as="h2" textStyle="heading.lg">
 						Que faire sur{' '}
-						<Text as="em" fontStyle="italic" color="primary.fg">
+						<Text as="em" textStyle="emphasis">
 							Nature Urbaine
 						</Text>{' '}
 						?
@@ -116,7 +100,11 @@ const Features = () => {
 								}
 							>
 								<Flex justify="space-between" align="baseline">
-									<Text fontFamily="mono" fontSize="11px" color="fg.subtle">
+									<Text
+										textStyle="kicker"
+										textTransform="none"
+										letterSpacing="normal"
+									>
 										{f.num} / {total}
 									</Text>
 									<Box
@@ -128,21 +116,15 @@ const Features = () => {
 								</Flex>
 
 								<Text
-									mt={8}
-									fontSize="11px"
-									textTransform="uppercase"
-									letterSpacing="0.08em"
+									textStyle="kicker"
 									color={f.available ? 'primary.fg' : 'fg.subtle'}
+									mt={8}
 								>
 									{f.kicker}
 								</Text>
 								<Heading
 									as="h3"
-									fontFamily="heading"
-									fontSize="26px"
-									fontWeight={400}
-									lineHeight={1.1}
-									letterSpacing="-0.01em"
+									textStyle="heading.md"
 									color={f.available ? 'fg' : 'fg.muted'}
 									mt={1}
 								>

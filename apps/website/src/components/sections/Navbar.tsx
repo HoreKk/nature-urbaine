@@ -53,28 +53,12 @@ const Navbar = () => {
 						</HStack>
 					</AbsoluteCenter>
 					<HStack gap={3}>
-						<Button
-							variant="outline"
-							size="sm"
-							borderRadius="full"
-							borderColor="border"
-							color="fg.muted"
-							fontWeight={500}
-							px="14px"
-						>
+						<Button variant="outline" size="sm" px="14px" color="fg.muted">
 							<LuSearch /> Rechercher
 						</Button>
 						<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
 							<Link to="/contribuer">
-								<Button
-									size="sm"
-									borderRadius="full"
-									bgColor="secondary.solid"
-									color="secondary.contrast"
-									fontWeight={500}
-									px="16px"
-									_hover={{ bgColor: 'secondary.emphasized' }}
-								>
+								<Button size="sm" px="16px">
 									Contribuer
 								</Button>
 							</Link>

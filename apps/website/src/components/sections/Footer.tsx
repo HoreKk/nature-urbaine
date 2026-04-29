@@ -60,13 +60,7 @@ const Footer = () => {
 					</GridItem>
 					{footerColumns.map((col) => (
 						<GridItem key={col.title}>
-							<Text
-								fontSize="11px"
-								textTransform="uppercase"
-								letterSpacing="0.08em"
-								color="fg.subtle"
-								mb={3}
-							>
+							<Text textStyle="kicker" mb={3}>
 								{col.title}
 							</Text>
 							<Stack gap={2}>
@@ -91,8 +85,9 @@ const Footer = () => {
 				<Flex
 					justify="space-between"
 					align="center"
-					fontSize="11px"
-					color="fg.subtle"
+					textStyle="kicker"
+					textTransform="none"
+					letterSpacing="normal"
 					flexWrap="wrap"
 					gap={3}
 				>

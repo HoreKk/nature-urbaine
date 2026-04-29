@@ -35,34 +35,14 @@ function App() {
 		<>
 			<Box as="section" borderBottom="1px solid" borderColor="border.muted">
 				<Container maxW="container.xl" pt={{ base: 12, md: 28 }} pb={16}>
-					<Heading
-						as="h1"
-						fontFamily="heading"
-						fontSize={{ base: '48px', md: '76px' }}
-						fontWeight={350}
-						lineHeight={0.95}
-						letterSpacing="-0.025em"
-						color="fg"
-						maxW="900px"
-					>
+					<Heading as="h1" textStyle="display" maxW="900px">
 						Une bibliothèque vivante du{' '}
-						<Text
-							as="em"
-							fontStyle="italic"
-							fontWeight={400}
-							color="primary.fg"
-						>
+						<Text as="em" textStyle="emphasis" fontWeight={400}>
 							paysage urbain
 						</Text>
 						.
 					</Heading>
-					<Text
-						fontSize={{ base: 'md', md: 'lg' }}
-						lineHeight={1.5}
-						color="fg.muted"
-						maxW="640px"
-						mt={7}
-					>
+					<Text textStyle="lead" maxW="640px" mt={7}>
 						Plateforme collaborative dédiée aux professionnels de l'aménagement
 						des espaces extérieurs, maîtres d'ouvrage et maîtres d'œuvre.
 						Inspirez-vous d'une riche collection de projets et de banques

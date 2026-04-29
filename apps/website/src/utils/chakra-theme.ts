@@ -1,11 +1,13 @@
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
 import { buttonRecipe } from './recipes/button';
+import { textStyles } from './recipes/textStyles';
 
 const config = defineConfig({
 	theme: {
 		recipes: {
 			button: buttonRecipe,
 		},
+		textStyles,
 		tokens: {
 			fonts: {
 				body: {
