@@ -6,10 +6,10 @@ import {
 	Container,
 	Flex,
 	HStack,
-	Text,
 } from '@chakra-ui/react';
 import { Link, type LinkProps } from '@tanstack/react-router';
 import { LuSearch } from 'react-icons/lu';
+import Wordmark from '@/components/standard/Wordmark';
 
 const navbarLinks: { label: string; to: LinkProps['to'] }[] = [
 	{ label: 'Accueil', to: '/' },
@@ -19,22 +19,6 @@ const navbarLinks: { label: string; to: LinkProps['to'] }[] = [
 	{ label: 'Contribuer', to: '/contribuer' },
 	{ label: 'Contact', to: '/contact' },
 ];
-
-const Wordmark = () => (
-	<Flex align="center" gap={2}>
-		<Box w="11px" h="11px" borderRadius="full" bgColor="primary.solid" />
-		<Text
-			fontFamily="heading"
-			fontSize="20px"
-			fontWeight={500}
-			letterSpacing="-0.02em"
-			lineHeight={1}
-			color="fg"
-		>
-			Nature Urbaine
-		</Text>
-	</Flex>
-);
 
 const Navbar = () => {
 	return (
