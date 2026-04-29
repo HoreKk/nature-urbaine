@@ -1,23 +1,13 @@
 import {
 	Box,
-	Center,
-	Link as ChakraLink,
-	Combobox,
 	Container,
 	Flex,
 	Grid,
 	Heading,
 	Icon,
-	Portal,
-	Spinner,
 	Text,
-	useListCollection,
-	VStack,
 } from '@chakra-ui/react';
-import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { useDebounce } from '@uidotdev/usehooks';
-import { useState } from 'react';
 import { RiArrowRightLine } from 'react-icons/ri';
 import ProjectCard from '@/components/cards/ProjectCard';
 import {
@@ -25,9 +15,10 @@ import {
 	reportToProjectCardProps,
 } from '@/components/cards/projectCardProps';
 import ContributeCta from '@/components/sections/ContributeCta';
+import Features from '@/components/sections/Features';
+import SearchCombobox from '@/components/standard/SearchCombobox';
 import { getInterviews } from '@/server/interviews';
 import { getReports } from '@/server/reports';
-import { getSearchResults } from '@/server/search';
 
 export const Route = createFileRoute('/')({
 	loader: async () => ({
@@ -40,106 +31,50 @@ export const Route = createFileRoute('/')({
 function App() {
 	const { reports, interviews } = Route.useLoaderData();
 
-	const [search, setSearch] = useState('');
-	const debouncedSearch = useDebounce(search, 400);
-
-	const { collection, set } = useListCollection<{
-		kind: 'category';
-		value: string;
-		label: string;
-	}>({
-		initialItems: [],
-		groupBy: ({ kind }) => (kind === 'category' ? 'Catégories' : 'Autres'),
-		itemToString: ({ label }) => label,
-		itemToValue: ({ value }) => value,
-	});
-
-	const { isLoading: searchLoading } = useQuery({
-		queryKey: ['search', debouncedSearch],
-		queryFn: async () => {
-			const results = await getSearchResults({
-				data: { searchTerm: debouncedSearch },
-			});
-			set([...results]);
-			return results;
-		},
-		enabled: debouncedSearch !== '',
-	});
-
 	return (
 		<>
-			<Container maxW="container.xl" pt={8} pb={16}>
-				<Box py={16} textAlign="center">
-					<Heading size="5xl" fontWeight="black" mb={4}>
-						Nature Urbaine
-					</Heading>
-					<Text fontSize="lg" color="fg.muted" maxW="650px" mx="auto">
-						Explorez la beauté cachée de nos villes à travers nos reportages
-						photographiques et les interviews inspirantes de nos explorateurs
-						urbains.
-					</Text>
-					<Combobox.Root
-						mx="auto"
-						collection={collection}
-						mt={8}
-						width="500px"
-						onInputValueChange={(e) =>
-							e.reason === 'input-change' && setSearch(e.inputValue)
-						}
+			<Box as="section" borderBottom="1px solid" borderColor="border.muted">
+				<Container maxW="container.xl" pt={{ base: 12, md: 28 }} pb={16}>
+					<Heading
+						as="h1"
+						fontFamily="heading"
+						fontSize={{ base: '48px', md: '76px' }}
+						fontWeight={350}
+						lineHeight={0.95}
+						letterSpacing="-0.025em"
+						color="fg"
+						maxW="900px"
 					>
-						<Combobox.Control>
-							<Combobox.Input
-								placeholder="Rechercher un lieu, une catégorie..."
-								borderRadius="full"
-								px={5}
-								py={3}
-							/>
-						</Combobox.Control>
-						<Portal>
-							<Combobox.Positioner>
-								<Combobox.Content>
-									{searchLoading || search !== debouncedSearch ? (
-										<Center py={4}>
-											<Spinner />
-										</Center>
-									) : collection.items.length === 0 ? (
-										<Combobox.Empty>
-											Aucun résultat trouvé pour "{debouncedSearch}"
-										</Combobox.Empty>
-									) : (
-										collection.group().map(([group, items]) => (
-											<Combobox.ItemGroup key={group}>
-												<Combobox.ItemGroupLabel>
-													{group}
-												</Combobox.ItemGroupLabel>
-												<VStack align="stretch" gap={0}>
-													{items.map(({ kind, value, label }) => (
-														<ChakraLink
-															key={value}
-															asChild
-															p={2}
-															_hover={{
-																textDecor: 'none',
-																bgColor: 'bg.muted',
-															}}
-														>
-															<Link
-																to={`/reports/$kind/$id`}
-																params={{ kind, id: value }}
-															>
-																{label}
-															</Link>
-														</ChakraLink>
-													))}
-												</VStack>
-											</Combobox.ItemGroup>
-										))
-									)}
-								</Combobox.Content>
-							</Combobox.Positioner>
-						</Portal>
-					</Combobox.Root>
-				</Box>
+						Une bibliothèque vivante du{' '}
+						<Text
+							as="em"
+							fontStyle="italic"
+							fontWeight={400}
+							color="primary.fg"
+						>
+							paysage urbain
+						</Text>
+						.
+					</Heading>
+					<Text
+						fontSize={{ base: 'md', md: 'lg' }}
+						lineHeight={1.5}
+						color="fg.muted"
+						maxW="640px"
+						mt={7}
+					>
+						Plateforme collaborative dédiée aux professionnels de l'aménagement
+						des espaces extérieurs, maîtres d'ouvrage et maîtres d'œuvre.
+						Inspirez-vous d'une riche collection de projets et de banques
+						d'images, partagée par des passionnés du paysage urbain.
+					</Text>
+					<Box mt={10}>
+						<SearchCombobox size="lg" />
+					</Box>
+				</Container>
+			</Box>
+			<Features />
+			<Container maxW="container.xl" py={16}>
 				<Box>
 					<Flex justify="space-between" align="center">
 						<Flex direction="column" align="flex-start">
@@ -167,7 +102,7 @@ function App() {
 				<Box mt={16}>
 					<Flex justify="space-between" align="center">
 						<Flex direction="column" align="flex-start">
-							<Heading>Derniers reportages</Heading>
+							<Heading>Dernières interviews</Heading>
 							<Text color="fg.muted">
 								Plongez dans les récits inspirants de nos explorateurs urbains
 							</Text>

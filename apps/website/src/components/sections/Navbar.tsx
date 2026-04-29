@@ -30,7 +30,6 @@ const Navbar = () => {
 							<Wordmark />
 						</Link>
 					</ChakraLink>
-
 					<AbsoluteCenter axis="horizontal">
 						<HStack gap="22px" fontSize="13px">
 							{navbarLinks.map(({ label, to }) => (
@@ -53,7 +52,6 @@ const Navbar = () => {
 							))}
 						</HStack>
 					</AbsoluteCenter>
-
 					<HStack gap={3}>
 						<Button
 							variant="outline"
@@ -66,17 +64,21 @@ const Navbar = () => {
 						>
 							<LuSearch /> Rechercher
 						</Button>
-						<Button
-							size="sm"
-							borderRadius="full"
-							bgColor="secondary.solid"
-							color="secondary.contrast"
-							fontWeight={500}
-							px="16px"
-							_hover={{ bgColor: 'secondary.emphasized' }}
-						>
-							Contribuer
-						</Button>
+						<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
+							<Link to="/contribuer">
+								<Button
+									size="sm"
+									borderRadius="full"
+									bgColor="secondary.solid"
+									color="secondary.contrast"
+									fontWeight={500}
+									px="16px"
+									_hover={{ bgColor: 'secondary.emphasized' }}
+								>
+									Contribuer
+								</Button>
+							</Link>
+						</ChakraLink>
 					</HStack>
 				</Flex>
 			</Container>
