@@ -169,9 +169,63 @@
           "primaryKey": false,
           "notNull": false
         },
-        "location": {
-          "name": "location",
-          "type": "geometry(Point)",
+        "project_name": {
+          "name": "project_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location_details_country": {
+          "name": "location_details_country",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location_details_city": {
+          "name": "location_details_city",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location_details_postal_code": {
+          "name": "location_details_postal_code",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location_details_address": {
+          "name": "location_details_address",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location_details_department_code": {
+          "name": "location_details_department_code",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location_details_department": {
+          "name": "location_details_department",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location_details_region": {
+          "name": "location_details_region",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location_details_city_stratum": {
+          "name": "location_details_city_stratum",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location_details_nb_populations": {
+          "name": "location_details_nb_populations",
+          "type": "numeric",
           "primaryKey": false,
           "notNull": false
         },
@@ -194,15 +248,45 @@
           "primaryKey": false,
           "notNull": false
         },
-        "city_stratum": {
-          "name": "city_stratum",
+        "project_details_photo_author": {
+          "name": "project_details_photo_author",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
-        "nb_populations": {
-          "name": "nb_populations",
+        "project_details_wordpress_post_id": {
+          "name": "project_details_wordpress_post_id",
           "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "project_details_project_owner": {
+          "name": "project_details_project_owner",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "project_details_project_management": {
+          "name": "project_details_project_management",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "project_details_delivery_year": {
+          "name": "project_details_delivery_year",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "project_details_project_cost": {
+          "name": "project_details_project_cost",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "project_details_project_area": {
+          "name": "project_details_project_area",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -374,9 +458,63 @@
           "primaryKey": false,
           "notNull": false
         },
-        "version_location": {
-          "name": "version_location",
-          "type": "geometry(Point)",
+        "version_project_name": {
+          "name": "version_project_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_location_details_country": {
+          "name": "version_location_details_country",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_location_details_city": {
+          "name": "version_location_details_city",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_location_details_postal_code": {
+          "name": "version_location_details_postal_code",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_location_details_address": {
+          "name": "version_location_details_address",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_location_details_department_code": {
+          "name": "version_location_details_department_code",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_location_details_department": {
+          "name": "version_location_details_department",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_location_details_region": {
+          "name": "version_location_details_region",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_location_details_city_stratum": {
+          "name": "version_location_details_city_stratum",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_location_details_nb_populations": {
+          "name": "version_location_details_nb_populations",
+          "type": "numeric",
           "primaryKey": false,
           "notNull": false
         },
@@ -399,15 +537,45 @@
           "primaryKey": false,
           "notNull": false
         },
-        "version_city_stratum": {
-          "name": "version_city_stratum",
+        "version_project_details_photo_author": {
+          "name": "version_project_details_photo_author",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
-        "version_nb_populations": {
-          "name": "version_nb_populations",
+        "version_project_details_wordpress_post_id": {
+          "name": "version_project_details_wordpress_post_id",
           "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_project_details_project_owner": {
+          "name": "version_project_details_project_owner",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_project_details_project_management": {
+          "name": "version_project_details_project_management",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_project_details_delivery_year": {
+          "name": "version_project_details_delivery_year",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_project_details_project_cost": {
+          "name": "version_project_details_project_cost",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_project_details_project_area": {
+          "name": "version_project_details_project_area",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -2495,6 +2663,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "2c463416-c84e-4c52-bfc6-be325ad9f367",
+  "id": "71b3ef0e-48b1-4495-b783-bcfb9d6507e4",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
