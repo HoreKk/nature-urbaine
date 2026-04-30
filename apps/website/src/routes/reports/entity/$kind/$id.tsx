@@ -1,5 +1,4 @@
 import { Icon, Skeleton } from '@chakra-ui/react';
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { useState, type JSX } from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
@@ -9,6 +8,10 @@ import { reportToProjectCardProps } from '@/components/cards/projectCardProps';
 import PaginatedListLayout from '@/components/standard/PaginatedListLayout';
 import PictureLightbox from '@/components/standard/PictureLightbox';
 import { ENTITY_CONTENT } from '@/content/entity-search';
+import {
+	createPaginatedQueryOptions,
+	usePaginatedResource,
+} from '@/hooks/use-paginated-resource';
 import {
 	getCategoryListQuery,
 	getEntityByKind,
@@ -29,12 +32,7 @@ export const Route = createFileRoute('/reports/entity/$kind/$id')({
 		if (!Number.isFinite(id) || id <= 0) throw notFound({ routeId: Route.id });
 		const listQuery = getEntityListQuery({ kind, id, page: 1 });
 
-		context.queryClient.prefetchQuery(
-			queryOptions({
-				queryKey: listQuery.queryKey,
-				queryFn: listQuery.queryFn,
-			}),
-		);
+		context.queryClient.prefetchQuery(createPaginatedQueryOptions(listQuery));
 
 		const entity = await getEntityByKind({ kind, id });
 		if (!entity) throw notFound({ routeId: Route.id });
@@ -45,20 +43,15 @@ export const Route = createFileRoute('/reports/entity/$kind/$id')({
 
 function RouteComponent(): JSX.Element {
 	const { kind, id, entity } = Route.useLoaderData();
-	const [page, setPage] = useState(1);
 	const [selected, setSelected] = useState<PictureWithReport | null>(null);
 
 	if (kind === 'tag') {
-		const listQuery = getTagListQuery({ id, page });
-		const { data: list, isLoading } = useSuspenseQuery(
-			queryOptions({
-				queryKey: listQuery.queryKey,
-				queryFn: listQuery.queryFn,
-			}),
-		);
-
-		const content = ENTITY_CONTENT.tag;
-		const totalDocs = list.totalDocs ?? 0;
+		const { docs, totalDocs, isLoading, page, setPage, content } =
+			usePaginatedResource({
+				getListQuery: (currentPage) =>
+					getTagListQuery({ id, page: currentPage }),
+				content: ENTITY_CONTENT.tag,
+			});
 
 		return (
 			<>
@@ -77,13 +70,13 @@ function RouteComponent(): JSX.Element {
 						lg: 'repeat(4, 1fr)',
 					}}
 					gridGap={6}
-					isEmpty={list.docs.length === 0}
+					isEmpty={docs.length === 0}
 					emptyGridColumn="span 4"
 					emptyIcon={<Icon as={RiErrorWarningFill} />}
 					emptyTitle={content.emptyTitle}
 					emptyDescription={content.emptyDescription}
 				>
-					{list.docs.map((picture) => (
+					{docs.map((picture) => (
 						<Skeleton key={picture.id} loading={isLoading}>
 							<PictureCard picture={picture} onSelect={setSelected} />
 						</Skeleton>
@@ -94,15 +87,12 @@ function RouteComponent(): JSX.Element {
 		);
 	}
 
-	const listQuery = getCategoryListQuery({ id, page });
-	const { data: list, isLoading } = useSuspenseQuery(
-		queryOptions({
-			queryKey: listQuery.queryKey,
-			queryFn: listQuery.queryFn,
-		}),
-	);
-	const content = ENTITY_CONTENT.category;
-	const totalDocs = list.totalDocs ?? 0;
+	const { docs, totalDocs, isLoading, page, setPage, content } =
+		usePaginatedResource({
+			getListQuery: (currentPage) =>
+				getCategoryListQuery({ id, page: currentPage }),
+			content: ENTITY_CONTENT.category,
+		});
 
 	return (
 		<PaginatedListLayout
@@ -115,13 +105,13 @@ function RouteComponent(): JSX.Element {
 			onPageChange={setPage}
 			gridTemplateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
 			gridGap={8}
-			isEmpty={list.docs.length === 0}
+			isEmpty={docs.length === 0}
 			emptyGridColumn="span 3"
 			emptyIcon={<Icon as={RiErrorWarningFill} />}
 			emptyTitle={content.emptyTitle}
 			emptyDescription={content.emptyDescription}
 		>
-			{list.docs.map((report) => (
+			{docs.map((report) => (
 				<Skeleton key={report.id} loading={isLoading}>
 					<ProjectCard {...reportToProjectCardProps(report)} />
 				</Skeleton>

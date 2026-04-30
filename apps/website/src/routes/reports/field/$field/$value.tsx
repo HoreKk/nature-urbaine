@@ -1,12 +1,15 @@
 import { Icon, Skeleton } from '@chakra-ui/react';
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, notFound } from '@tanstack/react-router';
-import { useState, type JSX } from 'react';
+import type { JSX } from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
 import ProjectCard from '@/components/cards/ProjectCard';
 import { reportToProjectCardProps } from '@/components/cards/projectCardProps';
 import PaginatedListLayout from '@/components/standard/PaginatedListLayout';
 import { FIELD_CONTENT } from '@/content/entity-search';
+import {
+	createPaginatedQueryOptions,
+	usePaginatedResource,
+} from '@/hooks/use-paginated-resource';
 import {
 	getFieldByKind,
 	type FieldKind,
@@ -26,12 +29,7 @@ export const Route = createFileRoute('/reports/field/$field/$value')({
 
 		const listQuery = getFieldListQuery({ field, value, page: 1 });
 
-		context.queryClient.prefetchQuery(
-			queryOptions({
-				queryKey: listQuery.queryKey,
-				queryFn: listQuery.queryFn,
-			}),
-		);
+		context.queryClient.prefetchQuery(createPaginatedQueryOptions(listQuery));
 
 		const fieldData = await getFieldByKind({ field, value });
 		if (!fieldData) throw notFound({ routeId: Route.id });
@@ -42,19 +40,12 @@ export const Route = createFileRoute('/reports/field/$field/$value')({
 
 function RouteComponent(): JSX.Element {
 	const { field, value, fieldData } = Route.useLoaderData();
-	const [page, setPage] = useState(1);
-
-	const listQuery = getFieldListQuery({ field, value, page });
-
-	const { data: reports, isLoading } = useSuspenseQuery(
-		queryOptions({
-			queryKey: listQuery.queryKey,
-			queryFn: listQuery.queryFn,
-		}),
-	);
-
-	const totalDocs = reports.totalDocs ?? 0;
-	const content = FIELD_CONTENT[field];
+	const { docs, totalDocs, isLoading, page, setPage, content } =
+		usePaginatedResource({
+			getListQuery: (currentPage) =>
+				getFieldListQuery({ field, value, page: currentPage }),
+			content: FIELD_CONTENT[field],
+		});
 
 	return (
 		<PaginatedListLayout
@@ -67,12 +58,12 @@ function RouteComponent(): JSX.Element {
 			onPageChange={setPage}
 			gridTemplateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
 			gridGap={8}
-			isEmpty={reports.docs.length === 0}
+			isEmpty={docs.length === 0}
 			emptyIcon={<Icon as={RiErrorWarningFill} />}
 			emptyTitle={content.emptyTitle}
 			emptyDescription={content.emptyDescription}
 		>
-			{reports.docs.map((report) => (
+			{docs.map((report) => (
 				<Skeleton key={report.id} loading={isLoading}>
 					<ProjectCard {...reportToProjectCardProps(report)} />
 				</Skeleton>
