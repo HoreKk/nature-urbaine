@@ -44,6 +44,7 @@ export const Route = createFileRoute('/reports/')({
 export const filterSchema = z.object({
 	category: z.array(z.coerce.number<number>()).optional(),
 	search: z.string().optional(),
+	city: z.string().optional(),
 });
 
 const defaultValues: z.input<typeof filterSchema> = {

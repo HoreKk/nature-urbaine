@@ -27,3 +27,7 @@ export function formatDepartmentLabel(
 ) {
 	return [departmentCode, department].filter(Boolean).join(' - ');
 }
+
+export function stripExtension(filename: string) {
+	return filename.replace(/\.[^.]+$/, '');
+}

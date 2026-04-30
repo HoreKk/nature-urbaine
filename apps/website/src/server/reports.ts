@@ -52,12 +52,19 @@ export const getReports = createServerFn({ method: 'GET' })
 		let where = {};
 
 		if (data.filters) {
-			const { category, search } = data.filters;
+			const { category, search, city } = data.filters;
 
 			if (category && category.length > 0) {
 				where = {
 					...where,
 					category: { in: category },
+				};
+			}
+
+			if (city && city.length > 0) {
+				where = {
+					...where,
+					'locationDetails.city': { equals: city },
 				};
 			}
 

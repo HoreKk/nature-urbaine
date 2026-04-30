@@ -2,22 +2,46 @@ import {
 	Center,
 	Link as ChakraLink,
 	Combobox,
+	Flex,
 	Portal,
 	Spinner,
+	Text,
 	useListCollection,
 	VStack,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
+import { Link, type LinkProps } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
 import { useState } from 'react';
 import { LuSearch } from 'react-icons/lu';
-import { getSearchResults } from '@/server/search';
+import { getSearchResults, type SearchResult } from '@/server/search';
 
-type SearchItem = {
-	kind: 'category';
-	value: string;
-	label: string;
+type SearchItem = SearchResult & { groupLabel: string };
+
+const GROUP_LABELS: Record<SearchResult['kind'], string> = {
+	category: 'Catégories',
+	tag: 'Étiquettes',
+	location: 'Lieux',
+};
+
+const itemToLinkProps = (item: SearchItem): LinkProps => {
+	switch (item.kind) {
+		case 'category':
+			return {
+				to: '/reports/$kind/$id',
+				params: { kind: 'category', id: item.value },
+			};
+		case 'tag':
+			return {
+				to: '/reports/tag/$id',
+				params: { id: item.value },
+			};
+		case 'location':
+			return {
+				to: '/reports/location/$city',
+				params: { city: item.value },
+			};
+	}
 };
 
 type SearchComboboxProps = {
@@ -27,7 +51,7 @@ type SearchComboboxProps = {
 };
 
 const SearchCombobox = ({
-	placeholder = 'Rechercher un lieu, une catégorie...',
+	placeholder = 'Rechercher un lieu, une catégorie, une étiquette...',
 	maxW = '640px',
 	size = 'md',
 }: SearchComboboxProps) => {
@@ -36,9 +60,9 @@ const SearchCombobox = ({
 
 	const { collection, set } = useListCollection<SearchItem>({
 		initialItems: [],
-		groupBy: ({ kind }) => (kind === 'category' ? 'Catégories' : 'Autres'),
+		groupBy: ({ groupLabel }) => groupLabel,
 		itemToString: ({ label }) => label,
-		itemToValue: ({ value }) => value,
+		itemToValue: ({ kind, value }) => `${kind}-${value}`,
 	});
 
 	const { isLoading } = useQuery({
@@ -47,7 +71,7 @@ const SearchCombobox = ({
 			const results = await getSearchResults({
 				data: { searchTerm: debouncedSearch },
 			});
-			set([...results]);
+			set(results.map((r) => ({ ...r, groupLabel: GROUP_LABELS[r.kind] })));
 			return results;
 		},
 		enabled: debouncedSearch !== '',
@@ -103,21 +127,29 @@ const SearchCombobox = ({
 								<Combobox.ItemGroup key={group}>
 									<Combobox.ItemGroupLabel>{group}</Combobox.ItemGroupLabel>
 									<VStack align="stretch" gap={0}>
-										{items.map(({ kind, value, label }) => (
+										{items.map((item) => (
 											<ChakraLink
-												key={value}
+												key={`${item.kind}-${item.value}`}
 												asChild
-												p={2}
+												px={2}
+												py={2}
 												_hover={{
 													textDecor: 'none',
 													bgColor: 'bg.muted',
 												}}
 											>
-												<Link
-													to={`/reports/$kind/$id`}
-													params={{ kind, id: value }}
-												>
-													{label}
+												<Link {...itemToLinkProps(item)}>
+													<Flex
+														align="center"
+														justify="space-between"
+														gap={3}
+														w="full"
+													>
+														<Text>{item.label}</Text>
+														{item.kind === 'tag' && item.hint && (
+															<Text textStyle="mono.s">{item.hint}</Text>
+														)}
+													</Flex>
 												</Link>
 											</ChakraLink>
 										))}
