@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
+import UnderConstruction from '../components/sections/UnderConstruction';
 
 export const Route = createFileRoute('/contribuer')({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	return <div>Hello "/contribuer"!</div>;
+	return <UnderConstruction />;
 }
