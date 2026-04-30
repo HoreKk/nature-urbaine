@@ -5,7 +5,13 @@ import { fetchOrReturnRealValue } from './tools';
 
 export type SearchResult =
 	| { kind: 'category'; label: string; value: string }
-	| { kind: 'tag'; label: string; value: string; hint?: string }
+	| {
+			kind: 'tag';
+			label: string;
+			value: string;
+			hint?: string;
+			parentName?: string;
+	  }
 	| { kind: 'location'; label: string; value: string };
 
 export const getSearchResults = createServerFn({ method: 'GET' })
@@ -52,15 +58,18 @@ export const getSearchResults = createServerFn({ method: 'GET' })
 
 		const tagResults: SearchResult[] = await Promise.all(
 			leafTags.map(async (tag) => {
-				const tagCategory = await fetchOrReturnRealValue(
-					tag.tagCategory,
-					'tag-categories',
-				);
+				const [tagCategory, parentTag] = await Promise.all([
+					fetchOrReturnRealValue(tag.tagCategory, 'tag-categories'),
+					tag.parentId
+						? fetchOrReturnRealValue(tag.parentId, 'tags')
+						: Promise.resolve(null),
+				]);
 				return {
 					kind: 'tag',
 					label: tag.name,
 					value: tag.id.toString(),
 					hint: tagCategory?.name,
+					parentName: parentTag?.name,
 				};
 			}),
 		);

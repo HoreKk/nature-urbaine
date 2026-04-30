@@ -1,8 +1,10 @@
 import {
+	Box,
 	Center,
 	Link as ChakraLink,
 	Combobox,
 	Flex,
+	Highlight,
 	Portal,
 	Spinner,
 	Text,
@@ -145,9 +147,20 @@ function SearchCombobox({
 														gap={3}
 														w="full"
 													>
-														<Text>{item.label}</Text>
+														<Box>
+															<Highlight
+																ignoreCase
+																query={debouncedSearch}
+																styles={{ fontWeight: 'bold' }}
+															>
+																{item.label}
+															</Highlight>
+														</Box>
 														{item.kind === 'tag' && item.hint && (
-															<Text textStyle="mono.s">{item.hint}</Text>
+															<Text textStyle="mono.s" color="fg.muted">
+																{item.hint}
+																{item.parentName && ` > ${item.parentName}`}
+															</Text>
 														)}
 													</Flex>
 												</Link>
