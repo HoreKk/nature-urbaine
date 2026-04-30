@@ -15,7 +15,7 @@ export const textStyles = defineTextStyles({
 			fontFamily: 'heading',
 			fontSize: { base: '48px', md: '76px' },
 			fontWeight: '350',
-			lineHeight: '0.95',
+			lineHeight: '1.05',
 			letterSpacing: '-0.025em',
 			color: 'fg',
 		},
@@ -70,6 +70,44 @@ export const textStyles = defineTextStyles({
 			fontSize: '11px',
 			textTransform: 'uppercase',
 			letterSpacing: '0.08em',
+			color: 'fg.subtle',
+		},
+	},
+	'stat.value': {
+		value: {
+			fontFamily: 'mono',
+			fontSize: { base: '48px', md: '72px' },
+			fontWeight: '400',
+			lineHeight: '1',
+			letterSpacing: '-0.02em',
+			color: 'fg',
+		},
+	},
+	'stat.caption': {
+		value: {
+			fontFamily: 'mono',
+			fontSize: '11px',
+			lineHeight: '1.4',
+			letterSpacing: '0.06em',
+			textTransform: 'uppercase',
+			color: 'fg.subtle',
+		},
+	},
+	'title.s': {
+		value: {
+			fontFamily: 'heading',
+			fontSize: '14px',
+			fontWeight: '400',
+			lineHeight: '1.2',
+			letterSpacing: '-0.005em',
+			color: 'fg',
+		},
+	},
+	'mono.s': {
+		value: {
+			fontFamily: 'mono',
+			fontSize: '12px',
+			lineHeight: '1',
 			color: 'fg.subtle',
 		},
 	},

@@ -1,9 +1,11 @@
 import {
 	Box,
+	Button,
 	Container,
 	Flex,
 	Grid,
 	Heading,
+	HStack,
 	Icon,
 	Text,
 } from '@chakra-ui/react';
@@ -16,7 +18,9 @@ import {
 } from '@/components/cards/projectCardProps';
 import ContributeCta from '@/components/sections/ContributeCta';
 import Features from '@/components/sections/Features';
+import LibraryStats from '@/components/sections/LibraryStats';
 import SearchCombobox from '@/components/standard/SearchCombobox';
+import { getLibraryStats } from '@/server/categories';
 import { getInterviews } from '@/server/interviews';
 import { getReports } from '@/server/reports';
 
@@ -24,12 +28,28 @@ export const Route = createFileRoute('/')({
 	loader: async () => ({
 		reports: await getReports({ data: { page: 1, pageSize: 3 } }),
 		interviews: await getInterviews({ data: { page: 1, pageSize: 3 } }),
+		stats: await getLibraryStats(),
 	}),
 	component: App,
 });
 
 function App() {
-	const { reports, interviews } = Route.useLoaderData();
+	const { reports, interviews, stats } = Route.useLoaderData();
+
+	const latestProjects = [
+		...reports.docs.map((report) => ({
+			key: `report-${report.id}`,
+			date: report.date,
+			props: reportToProjectCardProps(report),
+		})),
+		...interviews.docs.map((interview) => ({
+			key: `interview-${interview.id}`,
+			date: interview.publishedAt,
+			props: interviewToProjectCardProps(interview),
+		})),
+	]
+		.toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+		.slice(0, 3);
 
 	return (
 		<>
@@ -48,6 +68,17 @@ function App() {
 						Inspirez-vous d'une riche collection de projets et de banques
 						d'images, partagée par des passionnés du paysage urbain.
 					</Text>
+					<HStack gap={3} mt={9} flexWrap="wrap">
+						<Link to="/reports">
+							<Button>
+								Explorer les reportages
+								<Icon as={RiArrowRightLine} />
+							</Button>
+						</Link>
+						<Link to="/contribuer">
+							<Button variant="outline">Contribuer</Button>
+						</Link>
+					</HStack>
 					<Box mt={10}>
 						<SearchCombobox size="lg" />
 					</Box>
@@ -58,52 +89,26 @@ function App() {
 				<Box>
 					<Flex justify="space-between" align="center">
 						<Flex direction="column" align="flex-start">
-							<Heading>Derniers reportages</Heading>
+							<Heading>Dernières publications</Heading>
 							<Text color="fg.muted">
-								Découvrez nos dernières explorations urbaines
+								Reportages et interviews, par date de publication
 							</Text>
 						</Flex>
 						<Link to="/reports">
 							<Flex align="center" gap={1} color="primary.accent">
-								<Text>Voir tous les reportages</Text>
+								<Text>Voir toutes les publications</Text>
 								<Icon as={RiArrowRightLine} />
 							</Flex>
 						</Link>
 					</Flex>
 					<Grid templateColumns="repeat(3, 1fr)" gap={8} mt={4}>
-						{reports.docs.map((report) => (
-							<ProjectCard
-								key={report.id}
-								{...reportToProjectCardProps(report)}
-							/>
-						))}
-					</Grid>
-				</Box>
-				<Box mt={16}>
-					<Flex justify="space-between" align="center">
-						<Flex direction="column" align="flex-start">
-							<Heading>Dernières interviews</Heading>
-							<Text color="fg.muted">
-								Plongez dans les récits inspirants de nos explorateurs urbains
-							</Text>
-						</Flex>
-						<Link to="/interviews">
-							<Flex align="center" gap={1} color="primary.accent">
-								<Text>Voir toutes les interviews</Text>
-								<Icon as={RiArrowRightLine} />
-							</Flex>
-						</Link>
-					</Flex>
-					<Grid templateColumns="repeat(3, 1fr)" gap={8} mt={4}>
-						{interviews.docs.map((interview) => (
-							<ProjectCard
-								key={interview.id}
-								{...interviewToProjectCardProps(interview)}
-							/>
+						{latestProjects.map(({ key, props }) => (
+							<ProjectCard key={key} {...props} />
 						))}
 					</Grid>
 				</Box>
 			</Container>
+			<LibraryStats totals={stats.totals} categories={stats.categories} />
 			<ContributeCta />
 		</>
 	);

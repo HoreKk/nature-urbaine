@@ -13,7 +13,7 @@ import Wordmark from '@/components/standard/Wordmark';
 
 const navbarLinks: { label: string; to: LinkProps['to'] }[] = [
 	{ label: 'Accueil', to: '/' },
-	{ label: 'À la une', to: '/interviews' },
+	{ label: 'Interviews', to: '/interviews' },
 	{ label: 'Reportages', to: '/reports' },
 	{ label: 'Carte', to: '/carte' },
 	{ label: 'Contribuer', to: '/contribuer' },
