@@ -8,13 +8,13 @@ import ProjectCard from '@/components/cards/ProjectCard';
 import { reportToProjectCardProps } from '@/components/cards/projectCardProps';
 import PaginatedListLayout from '@/components/standard/PaginatedListLayout';
 import PictureLightbox from '@/components/standard/PictureLightbox';
+import { ENTITY_CONTENT } from '@/content/entity-search';
 import {
 	getCategoryListQuery,
 	getEntityByKind,
 	getEntityListQuery,
 	getTagListQuery,
 	LIMITS_BY_ENTITY,
-	ENTITY_COPY,
 	isEntityKind,
 } from '@/server/entity-search';
 import type { PictureWithReport } from '@/server/tags';
@@ -57,15 +57,15 @@ function RouteComponent(): JSX.Element {
 			}),
 		);
 
-		const copy = ENTITY_COPY.tag;
+		const content = ENTITY_CONTENT.tag;
 		const totalDocs = list.totalDocs ?? 0;
 
 		return (
 			<>
 				<PaginatedListLayout
-					eyebrow={`${copy.eyebrow} · ${totalDocs} ${copy.resultLabel}${totalDocs > 1 ? 's' : ''}`}
+					eyebrow={`${content.eyebrow} · ${totalDocs} ${content.resultLabel}${totalDocs > 1 ? 's' : ''}`}
 					title={entity.name}
-					description={entity.description || copy.description}
+					description={entity.description || content.description}
 					totalDocs={totalDocs}
 					limit={LIMITS_BY_ENTITY.tag}
 					page={page}
@@ -80,8 +80,8 @@ function RouteComponent(): JSX.Element {
 					isEmpty={list.docs.length === 0}
 					emptyGridColumn="span 4"
 					emptyIcon={<Icon as={RiErrorWarningFill} />}
-					emptyTitle={copy.emptyTitle}
-					emptyDescription={copy.emptyDescription}
+					emptyTitle={content.emptyTitle}
+					emptyDescription={content.emptyDescription}
 				>
 					{list.docs.map((picture) => (
 						<Skeleton key={picture.id} loading={isLoading}>
@@ -101,14 +101,14 @@ function RouteComponent(): JSX.Element {
 			queryFn: listQuery.queryFn,
 		}),
 	);
-	const copy = ENTITY_COPY.category;
+	const content = ENTITY_CONTENT.category;
 	const totalDocs = list.totalDocs ?? 0;
 
 	return (
 		<PaginatedListLayout
-			eyebrow={`${copy.eyebrow} · ${totalDocs} ${copy.resultLabel}${totalDocs > 1 ? 's' : ''}`}
+			eyebrow={`${content.eyebrow} · ${totalDocs} ${content.resultLabel}${totalDocs > 1 ? 's' : ''}`}
 			title={entity.name}
-			description={copy.description}
+			description={content.description}
 			totalDocs={totalDocs}
 			limit={LIMITS_BY_ENTITY.category}
 			page={page}
@@ -118,8 +118,8 @@ function RouteComponent(): JSX.Element {
 			isEmpty={list.docs.length === 0}
 			emptyGridColumn="span 3"
 			emptyIcon={<Icon as={RiErrorWarningFill} />}
-			emptyTitle={copy.emptyTitle}
-			emptyDescription={copy.emptyDescription}
+			emptyTitle={content.emptyTitle}
+			emptyDescription={content.emptyDescription}
 		>
 			{list.docs.map((report) => (
 				<Skeleton key={report.id} loading={isLoading}>

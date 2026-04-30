@@ -6,12 +6,12 @@ import { RiErrorWarningFill } from 'react-icons/ri';
 import ProjectCard from '@/components/cards/ProjectCard';
 import { reportToProjectCardProps } from '@/components/cards/projectCardProps';
 import PaginatedListLayout from '@/components/standard/PaginatedListLayout';
+import { FIELD_CONTENT } from '@/content/entity-search';
 import {
 	getFieldByKind,
 	type FieldKind,
 	getFieldListQuery,
 	LIMITS_BY_FIELD,
-	FIELD_COPY,
 	isFieldKind,
 } from '@/server/entity-search';
 
@@ -54,13 +54,13 @@ function RouteComponent(): JSX.Element {
 	);
 
 	const totalDocs = reports.totalDocs ?? 0;
-	const copy = FIELD_COPY[field];
+	const content = FIELD_CONTENT[field];
 
 	return (
 		<PaginatedListLayout
-			eyebrow={`${copy.eyebrow} · ${totalDocs} reportage${totalDocs > 1 ? 's' : ''}`}
+			eyebrow={`${content.eyebrow} · ${totalDocs} reportage${totalDocs > 1 ? 's' : ''}`}
 			title={fieldData.label}
-			description={copy.description}
+			description={content.description}
 			totalDocs={totalDocs}
 			limit={LIMITS_BY_FIELD[field]}
 			page={page}
@@ -69,8 +69,8 @@ function RouteComponent(): JSX.Element {
 			gridGap={8}
 			isEmpty={reports.docs.length === 0}
 			emptyIcon={<Icon as={RiErrorWarningFill} />}
-			emptyTitle={copy.emptyTitle}
-			emptyDescription={copy.emptyDescription}
+			emptyTitle={content.emptyTitle}
+			emptyDescription={content.emptyDescription}
 		>
 			{reports.docs.map((report) => (
 				<Skeleton key={report.id} loading={isLoading}>

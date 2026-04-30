@@ -1,13 +1,12 @@
 import type { PaginatedDocs } from '@nature-urbaine/database';
-import { getCategoryById } from './categories';
-import { getReports, type AugmentedReport } from './reports';
-import { getPicturesByTag, getTagById, type PictureWithReport } from './tags';
-
-export const ENTITY_KINDS = ['category', 'tag'] as const;
-export type EntityKind = (typeof ENTITY_KINDS)[number];
-
-export const FIELD_KINDS = ['city'] as const;
-export type FieldKind = (typeof FIELD_KINDS)[number];
+import { getCategoryById } from '@/server/categories';
+import { getReports, type AugmentedReport } from '@/server/reports';
+import {
+	getPicturesByTag,
+	getTagById,
+	type PictureWithReport,
+} from '@/server/tags';
+import type { EntityKind, FieldKind } from './kinds';
 
 export const LIMITS_BY_ENTITY: Record<EntityKind, number> = {
 	category: 15,
@@ -17,62 +16,6 @@ export const LIMITS_BY_ENTITY: Record<EntityKind, number> = {
 export const LIMITS_BY_FIELD: Record<FieldKind, number> = {
 	city: 15,
 };
-
-export const ENTITY_COPY: Record<
-	EntityKind,
-	{
-		eyebrow: string;
-		resultLabel: string;
-		description: string;
-		emptyTitle: string;
-		emptyDescription: string;
-	}
-> = {
-	category: {
-		eyebrow: 'Catégorie',
-		resultLabel: 'reportage',
-		description: 'Plongez dans nos explorations photographiques urbaines.',
-		emptyTitle: 'Aucun reportages trouvés',
-		emptyDescription:
-			"Essayez d'ajuster vos filtres ou votre recherche pour trouver ce que vous cherchez.",
-	},
-	tag: {
-		eyebrow: 'Étiquette',
-		resultLabel: 'photo',
-		description:
-			'Toutes les photos taguées avec cette étiquette, à travers nos reportages.',
-		emptyTitle: 'Aucune photo trouvée',
-		emptyDescription:
-			"Aucune photo n'est associée à cette étiquette pour le moment.",
-	},
-};
-
-export const FIELD_COPY: Record<
-	FieldKind,
-	{
-		eyebrow: string;
-		description: string;
-		emptyTitle: string;
-		emptyDescription: string;
-	}
-> = {
-	city: {
-		eyebrow: 'Lieu',
-		description:
-			'Tous les reportages photographiques recensés dans cette ville.',
-		emptyTitle: 'Aucun reportage trouvé',
-		emptyDescription:
-			"Aucun reportage n'est rattaché à cette ville pour le moment.",
-	},
-};
-
-export function isEntityKind(kind: string): kind is EntityKind {
-	return ENTITY_KINDS.includes(kind as EntityKind);
-}
-
-export function isFieldKind(kind: string): kind is FieldKind {
-	return FIELD_KINDS.includes(kind as FieldKind);
-}
 
 export async function getEntityByKind({
 	kind,
