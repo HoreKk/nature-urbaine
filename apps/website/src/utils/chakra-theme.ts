@@ -114,6 +114,8 @@ const config = defineConfig({
 		'html, body': {
 			backgroundColor: 'bg',
 			color: 'fg',
+			scrollbarWidth: 'thin',
+			scrollbarColor: 'gray transparent',
 		},
 	},
 });

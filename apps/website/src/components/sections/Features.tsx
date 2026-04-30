@@ -77,7 +77,14 @@ const Features = () => {
 				</Stack>
 			</Container>
 			<Container maxW="container.xl">
-				<Flex gap={5} overflowX="auto" pt={2} pb={4}>
+				<Flex
+					gap={5}
+					overflowX="auto"
+					pt={2}
+					pb={4}
+					scrollbarWidth="none"
+					css={{ '&::-webkit-scrollbar': { display: 'none' } }}
+				>
 					{features.map((f) => {
 						const card = (
 							<Box
