@@ -111,7 +111,7 @@ const LibraryStats = ({ totals, categories }: LibraryStatsProps) => {
 					{categories.map((cat, i) => (
 						<Link
 							key={cat.id}
-							to="/reports/$kind/$id"
+							to="/reports/entity/$kind/$id"
 							params={{ kind: 'category', id: cat.id.toString() }}
 						>
 							<Flex

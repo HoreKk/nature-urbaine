@@ -12,7 +12,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { Link, type LinkProps } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { LuSearch } from 'react-icons/lu';
 import { getSearchResults, type SearchResult } from '@/server/search';
 
@@ -24,25 +24,25 @@ const GROUP_LABELS: Record<SearchResult['kind'], string> = {
 	location: 'Lieux',
 };
 
-const itemToLinkProps = (item: SearchItem): LinkProps => {
+function itemToLinkProps(item: SearchItem): LinkProps {
 	switch (item.kind) {
 		case 'category':
 			return {
-				to: '/reports/$kind/$id',
+				to: '/reports/entity/$kind/$id',
 				params: { kind: 'category', id: item.value },
 			};
 		case 'tag':
 			return {
-				to: '/reports/tag/$id',
-				params: { id: item.value },
+				to: '/reports/entity/$kind/$id',
+				params: { kind: 'tag', id: item.value },
 			};
 		case 'location':
 			return {
-				to: '/reports/location/$city',
-				params: { city: item.value },
+				to: '/reports/field/$field/$value',
+				params: { field: 'city', value: item.value },
 			};
 	}
-};
+}
 
 type SearchComboboxProps = {
 	placeholder?: string;
@@ -50,11 +50,11 @@ type SearchComboboxProps = {
 	size?: 'sm' | 'md' | 'lg';
 };
 
-const SearchCombobox = ({
+function SearchCombobox({
 	placeholder = 'Rechercher un lieu, une catégorie, une étiquette...',
 	maxW = '640px',
 	size = 'md',
-}: SearchComboboxProps) => {
+}: SearchComboboxProps): JSX.Element {
 	const [search, setSearch] = useState('');
 	const debouncedSearch = useDebounce(search, 400);
 
@@ -162,6 +162,6 @@ const SearchCombobox = ({
 			</Portal>
 		</Combobox.Root>
 	);
-};
+}
 
 export default SearchCombobox;

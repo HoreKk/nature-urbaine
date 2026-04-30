@@ -17,9 +17,8 @@ import { Route as ReportsIndexRouteImport } from './routes/reports/index'
 import { Route as InterviewsIndexRouteImport } from './routes/interviews/index'
 import { Route as ReportsIdRouteImport } from './routes/reports/$id'
 import { Route as InterviewsIdRouteImport } from './routes/interviews/$id'
-import { Route as ReportsTagIdRouteImport } from './routes/reports/tag/$id'
-import { Route as ReportsLocationCityRouteImport } from './routes/reports/location/$city'
-import { Route as ReportsKindIdRouteImport } from './routes/reports/$kind/$id'
+import { Route as ReportsFieldFieldValueRouteImport } from './routes/reports/field/$field/$value'
+import { Route as ReportsEntityKindIdRouteImport } from './routes/reports/entity/$kind/$id'
 
 const ContribuerRoute = ContribuerRouteImport.update({
   id: '/contribuer',
@@ -61,19 +60,14 @@ const InterviewsIdRoute = InterviewsIdRouteImport.update({
   path: '/interviews/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReportsTagIdRoute = ReportsTagIdRouteImport.update({
-  id: '/reports/tag/$id',
-  path: '/reports/tag/$id',
+const ReportsFieldFieldValueRoute = ReportsFieldFieldValueRouteImport.update({
+  id: '/reports/field/$field/$value',
+  path: '/reports/field/$field/$value',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReportsLocationCityRoute = ReportsLocationCityRouteImport.update({
-  id: '/reports/location/$city',
-  path: '/reports/location/$city',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReportsKindIdRoute = ReportsKindIdRouteImport.update({
-  id: '/reports/$kind/$id',
-  path: '/reports/$kind/$id',
+const ReportsEntityKindIdRoute = ReportsEntityKindIdRouteImport.update({
+  id: '/reports/entity/$kind/$id',
+  path: '/reports/entity/$kind/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -86,9 +80,8 @@ export interface FileRoutesByFullPath {
   '/reports/$id': typeof ReportsIdRoute
   '/interviews/': typeof InterviewsIndexRoute
   '/reports/': typeof ReportsIndexRoute
-  '/reports/$kind/$id': typeof ReportsKindIdRoute
-  '/reports/location/$city': typeof ReportsLocationCityRoute
-  '/reports/tag/$id': typeof ReportsTagIdRoute
+  '/reports/entity/$kind/$id': typeof ReportsEntityKindIdRoute
+  '/reports/field/$field/$value': typeof ReportsFieldFieldValueRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -99,9 +92,8 @@ export interface FileRoutesByTo {
   '/reports/$id': typeof ReportsIdRoute
   '/interviews': typeof InterviewsIndexRoute
   '/reports': typeof ReportsIndexRoute
-  '/reports/$kind/$id': typeof ReportsKindIdRoute
-  '/reports/location/$city': typeof ReportsLocationCityRoute
-  '/reports/tag/$id': typeof ReportsTagIdRoute
+  '/reports/entity/$kind/$id': typeof ReportsEntityKindIdRoute
+  '/reports/field/$field/$value': typeof ReportsFieldFieldValueRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -113,9 +105,8 @@ export interface FileRoutesById {
   '/reports/$id': typeof ReportsIdRoute
   '/interviews/': typeof InterviewsIndexRoute
   '/reports/': typeof ReportsIndexRoute
-  '/reports/$kind/$id': typeof ReportsKindIdRoute
-  '/reports/location/$city': typeof ReportsLocationCityRoute
-  '/reports/tag/$id': typeof ReportsTagIdRoute
+  '/reports/entity/$kind/$id': typeof ReportsEntityKindIdRoute
+  '/reports/field/$field/$value': typeof ReportsFieldFieldValueRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -128,9 +119,8 @@ export interface FileRouteTypes {
     | '/reports/$id'
     | '/interviews/'
     | '/reports/'
-    | '/reports/$kind/$id'
-    | '/reports/location/$city'
-    | '/reports/tag/$id'
+    | '/reports/entity/$kind/$id'
+    | '/reports/field/$field/$value'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -141,9 +131,8 @@ export interface FileRouteTypes {
     | '/reports/$id'
     | '/interviews'
     | '/reports'
-    | '/reports/$kind/$id'
-    | '/reports/location/$city'
-    | '/reports/tag/$id'
+    | '/reports/entity/$kind/$id'
+    | '/reports/field/$field/$value'
   id:
     | '__root__'
     | '/'
@@ -154,9 +143,8 @@ export interface FileRouteTypes {
     | '/reports/$id'
     | '/interviews/'
     | '/reports/'
-    | '/reports/$kind/$id'
-    | '/reports/location/$city'
-    | '/reports/tag/$id'
+    | '/reports/entity/$kind/$id'
+    | '/reports/field/$field/$value'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -168,9 +156,8 @@ export interface RootRouteChildren {
   ReportsIdRoute: typeof ReportsIdRoute
   InterviewsIndexRoute: typeof InterviewsIndexRoute
   ReportsIndexRoute: typeof ReportsIndexRoute
-  ReportsKindIdRoute: typeof ReportsKindIdRoute
-  ReportsLocationCityRoute: typeof ReportsLocationCityRoute
-  ReportsTagIdRoute: typeof ReportsTagIdRoute
+  ReportsEntityKindIdRoute: typeof ReportsEntityKindIdRoute
+  ReportsFieldFieldValueRoute: typeof ReportsFieldFieldValueRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -231,25 +218,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InterviewsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reports/tag/$id': {
-      id: '/reports/tag/$id'
-      path: '/reports/tag/$id'
-      fullPath: '/reports/tag/$id'
-      preLoaderRoute: typeof ReportsTagIdRouteImport
+    '/reports/field/$field/$value': {
+      id: '/reports/field/$field/$value'
+      path: '/reports/field/$field/$value'
+      fullPath: '/reports/field/$field/$value'
+      preLoaderRoute: typeof ReportsFieldFieldValueRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reports/location/$city': {
-      id: '/reports/location/$city'
-      path: '/reports/location/$city'
-      fullPath: '/reports/location/$city'
-      preLoaderRoute: typeof ReportsLocationCityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reports/$kind/$id': {
-      id: '/reports/$kind/$id'
-      path: '/reports/$kind/$id'
-      fullPath: '/reports/$kind/$id'
-      preLoaderRoute: typeof ReportsKindIdRouteImport
+    '/reports/entity/$kind/$id': {
+      id: '/reports/entity/$kind/$id'
+      path: '/reports/entity/$kind/$id'
+      fullPath: '/reports/entity/$kind/$id'
+      preLoaderRoute: typeof ReportsEntityKindIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -264,9 +244,8 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsIdRoute: ReportsIdRoute,
   InterviewsIndexRoute: InterviewsIndexRoute,
   ReportsIndexRoute: ReportsIndexRoute,
-  ReportsKindIdRoute: ReportsKindIdRoute,
-  ReportsLocationCityRoute: ReportsLocationCityRoute,
-  ReportsTagIdRoute: ReportsTagIdRoute,
+  ReportsEntityKindIdRoute: ReportsEntityKindIdRoute,
+  ReportsFieldFieldValueRoute: ReportsFieldFieldValueRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
