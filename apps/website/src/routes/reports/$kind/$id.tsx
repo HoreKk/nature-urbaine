@@ -1,12 +1,4 @@
-import {
-	Box,
-	Container,
-	Grid,
-	Heading,
-	Icon,
-	Skeleton,
-	Text,
-} from '@chakra-ui/react';
+import { Box, Container, Grid, Icon, Skeleton } from '@chakra-ui/react';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -14,6 +6,7 @@ import { RiErrorWarningFill } from 'react-icons/ri';
 import ProjectCard from '@/components/cards/ProjectCard';
 import { reportToProjectCardProps } from '@/components/cards/projectCardProps';
 import ContributeCta from '@/components/sections/ContributeCta';
+import PageHeader from '@/components/sections/PageHeader';
 import UIPagination from '@/components/standard/Pagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import { getCategoryById } from '@/server/categories';
@@ -70,16 +63,11 @@ function RouteComponent() {
 
 	return (
 		<>
-			<Box py={12} bgColor="bg.emphasized">
-				<Container maxW="container.xl">
-					<Heading size="5xl" fontWeight="black">
-						Reportages dans la catégorie "{category.name}"
-					</Heading>
-					<Text fontSize="xl" color="fg.muted">
-						Plongez dans nos explorations photographiques urbaines
-					</Text>
-				</Container>
-			</Box>
+			<PageHeader
+				eyebrow={`Catégorie · ${totalDocs} reportage${totalDocs > 1 ? 's' : ''}`}
+				title={category.name}
+				description="Plongez dans nos explorations photographiques urbaines."
+			/>
 			<Container maxW="container.xl" mt={10}>
 				<Grid templateColumns="repeat(3, 1fr)" gap={8}>
 					{reports.docs.length === 0 ? (

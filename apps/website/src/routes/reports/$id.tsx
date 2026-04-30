@@ -95,7 +95,8 @@ function RouteComponent() {
 			<Container maxW="container.xl" pt={8} pb={12}>
 				<Flex justifyContent="space-between">
 					<Flex flexDir="column" gap={4}>
-						<Heading size="5xl" fontWeight="black">
+						<Text textStyle="kicker">Reportage · {report.category.name}</Text>
+						<Heading as="h1" textStyle="heading.xl">
 							{report.name}
 						</Heading>
 						{report.projectName ? (

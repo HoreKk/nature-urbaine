@@ -20,6 +20,16 @@ export const textStyles = defineTextStyles({
 			color: 'fg',
 		},
 	},
+	'heading.xl': {
+		value: {
+			fontFamily: 'heading',
+			fontSize: { base: '40px', md: '64px' },
+			fontWeight: '400',
+			lineHeight: '1.05',
+			letterSpacing: '-0.02em',
+			color: 'fg',
+		},
+	},
 	'heading.lg': {
 		value: {
 			fontFamily: 'heading',

@@ -3,7 +3,6 @@ import {
 	Container,
 	Flex,
 	Grid,
-	Heading,
 	Icon,
 	Skeleton,
 	Tag,
@@ -22,6 +21,7 @@ import z from 'zod';
 import ProjectCard from '@/components/cards/ProjectCard';
 import { reportToProjectCardProps } from '@/components/cards/projectCardProps';
 import ContributeCta from '@/components/sections/ContributeCta';
+import PageHeader from '@/components/sections/PageHeader';
 import UIPagination from '@/components/standard/Pagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useAppForm } from '@/hooks/form-context';
@@ -103,16 +103,19 @@ function RouteComponent() {
 
 	return (
 		<>
-			<Box py={12} bgColor="bg.emphasized">
-				<Container maxW="container.xl">
-					<Heading size="5xl" fontWeight="black">
-						Reportages
-					</Heading>
-					<Text fontSize="xl" color="fg.muted">
-						Plongez dans nos explorations photographiques urbaines
-					</Text>
-				</Container>
-			</Box>
+			<PageHeader
+				eyebrow="Catalogue"
+				title={
+					<>
+						Reportages{' '}
+						<Text as="em" textStyle="emphasis" fontWeight={400}>
+							photos
+						</Text>
+						.
+					</>
+				}
+				description="Les projets en France et à l'étranger, indexés et tagués. Plongez dans nos explorations photographiques urbaines."
+			/>
 			<Container
 				as="form"
 				maxW="container.xl"

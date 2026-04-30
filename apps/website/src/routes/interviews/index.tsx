@@ -2,7 +2,6 @@ import {
 	Box,
 	Container,
 	Grid,
-	Heading,
 	Icon,
 	Skeleton,
 	Tag,
@@ -20,6 +19,7 @@ import type z from 'zod';
 import ProjectCard from '@/components/cards/ProjectCard';
 import { interviewToProjectCardProps } from '@/components/cards/projectCardProps';
 import ContributeCta from '@/components/sections/ContributeCta';
+import PageHeader from '@/components/sections/PageHeader';
 import UIPagination from '@/components/standard/Pagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useAppForm } from '@/hooks/form-context';
@@ -78,16 +78,19 @@ function RouteComponent() {
 
 	return (
 		<>
-			<Box py={12} bgColor="bg.emphasized">
-				<Container maxW="container.xl">
-					<Heading size="5xl" fontWeight="black">
-						Interviews
-					</Heading>
-					<Text fontSize="xl" color="fg.muted">
-						Des rencontres avec des acteurs de la nature urbaine
-					</Text>
-				</Container>
-			</Box>
+			<PageHeader
+				eyebrow="À la une"
+				title={
+					<>
+						À la rencontre des{' '}
+						<Text as="em" textStyle="emphasis" fontWeight={400}>
+							faiseurs
+						</Text>
+						.
+					</>
+				}
+				description="Des rencontres avec les paysagistes, urbanistes et maîtres d'œuvre qui dessinent le paysage urbain."
+			/>
 
 			<Container
 				as="form"

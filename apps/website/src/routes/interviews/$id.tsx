@@ -72,9 +72,18 @@ function RouteComponent() {
 			/>
 
 			{/* Hero — matches the listing page header pattern */}
-			<Box py={12} bgColor="bg.emphasized">
+			<Box
+				as="section"
+				py={{ base: 10, md: 14 }}
+				bgColor="bg"
+				borderBottom="1px solid"
+				borderColor="border.muted"
+			>
 				<Container maxW="container.xl">
-					<Heading size="5xl" fontWeight="black" mb={4} maxW="container.md">
+					<Text textStyle="kicker" mb={4}>
+						Interview · À la rencontre de
+					</Text>
+					<Heading as="h1" textStyle="heading.xl" mb={4} maxW="container.md">
 						{interview.name}
 					</Heading>
 

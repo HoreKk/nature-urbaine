@@ -12,7 +12,12 @@ export const UIBreadcrumb = ({
 	currentLinkLabel,
 }: UIBreadcrumbProps) => {
 	return (
-		<Box py={4} bgColor="bg.muted" borderY="1px solid" borderColor="border">
+		<Box
+			py={3}
+			bgColor="bg"
+			borderBottom="1px solid"
+			borderColor="border.muted"
+		>
 			<Container maxW="container.xl">
 				<Breadcrumb.Root>
 					<Breadcrumb.List>
