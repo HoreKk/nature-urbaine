@@ -1,11 +1,26 @@
-import { Box, Button, Container, Link, Stack, Text } from '@chakra-ui/react';
+import {
+	Alert,
+	Box,
+	Button,
+	Container,
+	Link,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
 import { createFileRoute, Link as RouterLink } from '@tanstack/react-router';
+import { useState } from 'react';
 import z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
 import { useAppForm } from '@/hooks/form-context';
+import { getAllCategories } from '@/server/categories';
+import { createSubmission } from '@/server/submissions';
 
 export const Route = createFileRoute('/contribuer')({
 	component: RouteComponent,
+	loader: async () => {
+		const categories = await getAllCategories();
+		return { categories };
+	},
 });
 
 const submissionSchema = z.object({
@@ -21,7 +36,8 @@ const submissionSchema = z.object({
 		.min(1900)
 		.max(2100),
 	address: z.string().min(1, "L'adresse est requise"),
-	contributorEmail: z.email('Adresse email invalide'),
+	contributorEmail: z.string().email('Adresse email invalide'),
+	honeypot: z.string().optional(),
 });
 
 const defaultValues: z.input<typeof submissionSchema> = {
@@ -31,32 +47,57 @@ const defaultValues: z.input<typeof submissionSchema> = {
 	deliveryYear: '' as unknown as number,
 	address: '',
 	contributorEmail: '',
+	honeypot: '',
 };
 
-const CATEGORY_OPTIONS = [
-	{ label: 'Parc urbain', value: 'parc-urbain' },
-	{ label: 'Jardin partagé', value: 'jardin-partage' },
-	{ label: 'Toit végétalisé', value: 'toit-vegetalise' },
-	{ label: 'Mur végétal', value: 'mur-vegetal' },
-	{ label: 'Coulée verte', value: 'coulee-verte' },
-	{ label: 'Place végétalisée', value: 'place-vegetalisee' },
-	{ label: 'Forêt urbaine', value: 'foret-urbaine' },
-	{ label: 'Corridor écologique', value: 'corridor-ecologique' },
-	{ label: 'Agriculture urbaine', value: 'agriculture-urbaine' },
-	{ label: 'Berge renaturée', value: 'berge-renaturee' },
-	{ label: 'Aire de jeux naturelle', value: 'aire-jeux-naturelle' },
-	{ label: 'Autre', value: 'autre' },
-];
-
 function RouteComponent() {
+	const { categories } = Route.useLoaderData();
+	const [submitted, setSubmitted] = useState(false);
+	const [submitError, setSubmitError] = useState<string | null>(null);
+
+	const categoryOptions = categories.map((cat) => ({
+		label: cat.name,
+		value: String(cat.id),
+	}));
+
 	const form = useAppForm({
 		defaultValues,
 		validators: { onSubmit: submissionSchema },
-		onSubmit: ({ value, formApi }) => {
-			console.log('Submission:', value);
-			formApi.reset();
+		onSubmit: async ({ value, formApi }) => {
+			setSubmitError(null);
+			try {
+				await createSubmission({ data: value });
+				formApi.reset();
+				setSubmitted(true);
+			} catch {
+				setSubmitError('Une erreur est survenue. Veuillez réessayer.');
+			}
 		},
 	});
+
+	if (submitted) {
+		return (
+			<>
+				<PageHeader
+					eyebrow="Contribuer"
+					title="Proposez votre projet."
+					description="Renseignez quelques informations sur votre projet. Notre équipe revient vers vous après validation pour la mise en forme et la publication."
+				/>
+				<Container maxW="container.md" py={{ base: 10, md: 16 }}>
+					<Alert.Root status="success">
+						<Alert.Indicator />
+						<Alert.Content>
+							<Alert.Title>Contribution envoyée</Alert.Title>
+							<Alert.Description>
+								Merci pour votre contribution. Notre équipe l'examinera et vous
+								contactera à l'adresse indiquée.
+							</Alert.Description>
+						</Alert.Content>
+					</Alert.Root>
+				</Container>
+			</>
+		);
+	}
 
 	return (
 		<>
@@ -105,7 +146,7 @@ function RouteComponent() {
 								<field.SelectField
 									label="Catégorie"
 									placeholder="Choisir une catégorie"
-									options={CATEGORY_OPTIONS}
+									options={categoryOptions}
 									required
 								/>
 							)}
@@ -137,6 +178,32 @@ function RouteComponent() {
 								/>
 							)}
 						</form.AppField>
+						{/* Honeypot — must remain empty */}
+						<form.AppField name="honeypot">
+							{(field) => (
+								<Box
+									aria-hidden="true"
+									position="absolute"
+									left="-9999px"
+									tabIndex={-1}
+								>
+									<input
+										type="text"
+										autoComplete="off"
+										value={field.state.value ?? ''}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</Box>
+							)}
+						</form.AppField>
+						{submitError && (
+							<Alert.Root status="error">
+								<Alert.Indicator />
+								<Alert.Content>
+									<Alert.Description>{submitError}</Alert.Description>
+								</Alert.Content>
+							</Alert.Root>
+						)}
 						<form.Subscribe selector={(state) => state.isSubmitting}>
 							{(isSubmitting) => (
 								<Button type="submit" alignSelf="flex-start" px={6}>
