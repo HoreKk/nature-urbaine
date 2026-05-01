@@ -272,6 +272,8 @@ These are spec asks that aren't captured by the data model alone — surface the
 - **Migrations:** never hand-edit DB; use `pnpm migrate:create` then `pnpm migrate`.
 - **Seeds:** keep in `packages/database` and runnable in both `seed:dev` and `seed:prod`.
 - **ADRs:** when an ambiguity in the cahier is resolved, write `docs/adr/NNNN-<slug>.md` so the decision survives. Reference contradicted ADRs explicitly per `docs/agents/domain.md`.
+- **JSX structure comments:** do **not** use `{/* Section label */}` comments to describe or name blocks of JSX (e.g. `{/* Hero */}`, `{/* Sidebar */}`, `{/* Nav links */}`). JSX structure should be self-evident from component names and props. The only permitted `{/* … */}` comments are those documenting non-obvious behaviour (e.g. security mechanisms like a honeypot field).
+- **Blank lines between JSX blocks:** do **not** use blank lines to visually separate sibling JSX elements or component groups. Rely on component decomposition and indentation for structure instead.
 
 ## 12. Open questions
 

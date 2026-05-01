@@ -86,7 +86,6 @@ function RouteComponent() {
 				currentLinkLabel={interview.name}
 			/>
 
-			{/* Hero — matches the listing page header pattern */}
 			<Box
 				as="section"
 				py={{ base: 10, md: 14 }}
@@ -108,7 +107,6 @@ function RouteComponent() {
 						alignItems="center"
 						mt={4}
 					>
-						{/* Interviewee */}
 						<Flex alignItems="center" gap={2}>
 							<Flex
 								w={9}
@@ -166,9 +164,7 @@ function RouteComponent() {
 
 			<Container maxW="container.xl" pt={10} pb={16}>
 				<Grid templateColumns="repeat(12, 1fr)" gap={8}>
-					{/* Main content */}
 					<GridItem colSpan={{ base: 12, md: 8 }}>
-						{/* Summary — accent border uses primary token */}
 						<Box
 							bgColor="bg.muted"
 							p={6}
@@ -188,7 +184,6 @@ function RouteComponent() {
 							</Text>
 						</Box>
 
-						{/* 3 rich text Q&A blocks */}
 						<Flex flexDir="column" gap={10}>
 							<QuestionBlock
 								question="Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?"
@@ -211,7 +206,6 @@ function RouteComponent() {
 						</Flex>
 					</GridItem>
 
-					{/* Sticky sidebar */}
 					<GridItem
 						colSpan={{ base: 12, md: 4 }}
 						position="sticky"

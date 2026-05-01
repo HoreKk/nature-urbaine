@@ -60,14 +60,12 @@ const Navbar = () => {
 		<Box as="nav" borderBottom="1px solid" borderColor="border.muted">
 			<Container maxW="container.xl" py="20px" position="relative">
 				<Flex align="center" justify="space-between" gap={6}>
-					{/* Logo */}
 					<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
 						<Link to="/">
 							<Wordmark />
 						</Link>
 					</ChakraLink>
 
-					{/* Desktop centered nav links */}
 					<AbsoluteCenter
 						axis="horizontal"
 						display={{ base: 'none', md: 'block' }}
@@ -79,7 +77,6 @@ const Navbar = () => {
 						</HStack>
 					</AbsoluteCenter>
 
-					{/* Desktop right-side CTAs */}
 					<HStack gap={3} display={{ base: 'none', md: 'flex' }}>
 						<Button variant="outline" size="sm" px="14px" color="fg.muted">
 							<LuSearch /> Rechercher
@@ -93,7 +90,6 @@ const Navbar = () => {
 						</ChakraLink>
 					</HStack>
 
-					{/* Mobile hamburger */}
 					<IconButton
 						aria-label="Ouvrir le menu"
 						variant="ghost"
@@ -106,7 +102,6 @@ const Navbar = () => {
 				</Flex>
 			</Container>
 
-			{/* Mobile Drawer */}
 			<Drawer.Root
 				open={open}
 				onOpenChange={(e) => setOpen(e.open)}
