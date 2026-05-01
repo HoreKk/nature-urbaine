@@ -110,34 +110,40 @@ function RouteComponent() {
 				/>
 			</ChakraImage>
 			<Container maxW="container.xl" pt={8} pb={12}>
-				<Flex justifyContent="space-between">
-					<Flex flexDir="column" gap={4}>
-						<Text textStyle="kicker">Reportage · {report.category.name}</Text>
-						<Heading as="h1" textStyle="heading.xl">
-							{report.name}
-						</Heading>
-						{report.projectName ? (
-							<Text fontSize="xl" color="fg.muted">
-								{report.projectName}
-							</Text>
-						) : null}
-						<Text fontSize="lg" color="fg.muted" whiteSpace="pre-line">
-							{report.description}
+				<Flex flexDir="column" gap={4}>
+					<Text textStyle="kicker">Reportage · {report.category.name}</Text>
+					<Heading as="h1" textStyle="heading.xl">
+						{report.name}
+					</Heading>
+					{report.projectName ? (
+						<Text fontSize="xl" color="fg.muted">
+							{report.projectName}
 						</Text>
-						<Flex alignItems="center" gap={6} mt={4}>
-							<Flex flexDir="column" gap={2}>
-								<Text color="fg.muted">Date de publication</Text>
-								<Text>{publicationDate}</Text>
-							</Flex>
-							<Separator orientation="vertical" height="full" />
-							<Flex flexDir="column" gap={2}>
-								<Text color="fg.muted">Localisation</Text>
-								<Text>
-									{locationLabel ||
-										report.locationDetails?.address ||
-										'Non renseignée'}
-								</Text>
-							</Flex>
+					) : null}
+					<Text fontSize="lg" color="fg.muted" whiteSpace="pre-line">
+						{report.description}
+					</Text>
+					<Flex
+						alignItems={{ base: 'flex-start', md: 'center' }}
+						flexDir={{ base: 'column', md: 'row' }}
+						gap={{ base: 3, md: 6 }}
+						mt={4}
+					>
+						<Flex flexDir="column" gap={2}>
+							<Text color="fg.muted">Date de publication</Text>
+							<Text>{publicationDate}</Text>
+						</Flex>
+						<Separator
+							orientation={{ base: 'horizontal', md: 'vertical' }}
+							height={{ base: 'auto', md: 'full' }}
+						/>
+						<Flex flexDir="column" gap={2}>
+							<Text color="fg.muted">Localisation</Text>
+							<Text>
+								{locationLabel ||
+									report.locationDetails?.address ||
+									'Non renseignée'}
+							</Text>
 						</Flex>
 					</Flex>
 				</Flex>

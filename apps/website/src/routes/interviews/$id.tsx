@@ -102,7 +102,12 @@ function RouteComponent() {
 						{interview.name}
 					</Heading>
 
-					<Flex gap={6} flexWrap="wrap" alignItems="center" mt={4}>
+					<Flex
+						gap={{ base: 4, md: 6 }}
+						flexWrap="wrap"
+						alignItems="center"
+						mt={4}
+					>
 						{/* Interviewee */}
 						<Flex alignItems="center" gap={2}>
 							<Flex
@@ -125,7 +130,11 @@ function RouteComponent() {
 							</Flex>
 						</Flex>
 
-						<Separator orientation="vertical" height={8} />
+						<Separator
+							orientation="vertical"
+							height={8}
+							display={{ base: 'none', md: 'block' }}
+						/>
 
 						<Flex alignItems="center" gap={2}>
 							<Icon as={RiMapPinLine} boxSize={4} color="fg.muted" />
@@ -135,7 +144,11 @@ function RouteComponent() {
 							</Text>
 						</Flex>
 
-						<Separator orientation="vertical" height={8} />
+						<Separator
+							orientation="vertical"
+							height={8}
+							display={{ base: 'none', md: 'block' }}
+						/>
 
 						<Flex alignItems="center" gap={2}>
 							<Icon as={RiCalendarLine} boxSize={4} color="fg.muted" />

@@ -20,20 +20,27 @@ export const UIBreadcrumb = ({
 		>
 			<Container maxW="container.xl">
 				<Breadcrumb.Root>
-					<Breadcrumb.List>
+					<Breadcrumb.List flexWrap="nowrap" overflow="hidden">
 						{links.map((link, index) => (
 							<Fragment key={link.to}>
-								<Breadcrumb.Item>
+								<Breadcrumb.Item flexShrink={0}>
 									<Breadcrumb.Link asChild outline="none">
 										<Link to={link.to}>{link.label}</Link>
 									</Breadcrumb.Link>
 								</Breadcrumb.Item>
-								{index < links.length - 1 && <Breadcrumb.Separator />}
+								{index < links.length - 1 && (
+									<Breadcrumb.Separator flexShrink={0} />
+								)}
 							</Fragment>
 						))}
-						<Breadcrumb.Separator />
-						<Breadcrumb.Item key="current">
-							<Breadcrumb.CurrentLink>
+						<Breadcrumb.Separator flexShrink={0} />
+						<Breadcrumb.Item key="current" overflow="hidden" minW={0}>
+							<Breadcrumb.CurrentLink
+								overflow="hidden"
+								textOverflow="ellipsis"
+								whiteSpace="nowrap"
+								display="block"
+							>
 								{currentLinkLabel}
 							</Breadcrumb.CurrentLink>
 						</Breadcrumb.Item>
