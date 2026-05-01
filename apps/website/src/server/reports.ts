@@ -10,7 +10,6 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { filterSchema } from '@/routes/reports';
 import { baseProcedure } from './db';
-import { fetchOrReturnRealValue } from './tools';
 
 export interface AugmentedReport extends Omit<
 	Report,
@@ -19,22 +18,6 @@ export interface AugmentedReport extends Omit<
 	thumbnail: Media;
 	category: Category;
 	relatedPictures: Picture[];
-}
-
-async function augmentReports(reports: Report[]): Promise<AugmentedReport[]> {
-	const augmentedDocs = await Promise.all(
-		reports.map(async (report) => ({
-			...report,
-			thumbnail: await fetchOrReturnRealValue(report.thumbnail, 'media'),
-			category: await fetchOrReturnRealValue(report.category, 'categories'),
-			relatedPictures: await Promise.all(
-				report.relatedPictures?.docs?.map((picture) =>
-					fetchOrReturnRealValue(picture, 'pictures'),
-				) ?? [],
-			),
-		})),
-	);
-	return augmentedDocs;
 }
 
 export const getReports = createServerFn({ method: 'GET' })
@@ -79,35 +62,29 @@ export const getReports = createServerFn({ method: 'GET' })
 			}
 		}
 
-		const tmpReports = await context.db.find({
+		const reports = await context.db.find({
 			collection: 'reports',
 			limit: pageSize,
 			page,
-			depth: 1,
+			depth: 2,
 			sort: '-date',
 			where,
 		});
 
-		const augmentedReports = {
-			...tmpReports,
-			docs: await augmentReports(tmpReports.docs),
-		} as PaginatedDocs<AugmentedReport>;
-
-		return augmentedReports;
+		return reports as PaginatedDocs<AugmentedReport>;
 	});
 
 export const getReportById = createServerFn({ method: 'GET' })
 	.inputValidator(z.number().min(1))
 	.middleware([baseProcedure])
 	.handler(async ({ data: id, context }) => {
-		const tmpReport = await context.db.findByID({
+		const report = await context.db.findByID({
 			collection: 'reports',
 			id,
+			depth: 2,
 		});
 
-		if (!tmpReport) throw notFound();
+		if (!report) throw notFound();
 
-		const [augmentedReport] = await augmentReports([tmpReport]);
-
-		return augmentedReport;
+		return report as AugmentedReport;
 	});

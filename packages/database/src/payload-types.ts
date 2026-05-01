@@ -72,6 +72,7 @@ export interface Config {
     interviews: Interview;
     pictures: Picture;
     categories: Category;
+    submissions: Submission;
     tags: Tag;
     'tag-categories': TagCategory;
     users: User;
@@ -100,6 +101,7 @@ export interface Config {
     interviews: InterviewsSelect<false> | InterviewsSelect<true>;
     pictures: PicturesSelect<false> | PicturesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    submissions: SubmissionsSelect<false> | SubmissionsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     'tag-categories': TagCategoriesSelect<false> | TagCategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -354,6 +356,35 @@ export interface Interview {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submissions".
+ */
+export interface Submission {
+  id: number;
+  name: string;
+  description: string;
+  category: number | Category;
+  deliveryYear: number;
+  address: string;
+  /**
+   * Auto-dérivé de l'autocomplétion BAN lors de la soumission
+   */
+  locationDetails?: {
+    city?: string | null;
+    postcode?: string | null;
+    department?: string | null;
+    region?: string | null;
+    citycode?: string | null;
+  };
+  contributorEmail: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  rejectionNote?: string | null;
+  promoted?: boolean | null;
+  promotedReport?: (number | null) | Report;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -420,6 +451,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'categories';
         value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'submissions';
+        value: number | Submission;
       } | null)
     | ({
         relationTo: 'tags';
@@ -603,6 +638,33 @@ export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   relatedReports?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submissions_select".
+ */
+export interface SubmissionsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  category?: T;
+  deliveryYear?: T;
+  address?: T;
+  locationDetails?:
+    | T
+    | {
+        city?: T;
+        postcode?: T;
+        department?: T;
+        region?: T;
+        citycode?: T;
+      };
+  contributorEmail?: T;
+  status?: T;
+  rejectionNote?: T;
+  promoted?: T;
+  promotedReport?: T;
   updatedAt?: T;
   createdAt?: T;
 }
