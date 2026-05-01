@@ -96,7 +96,7 @@ function App() {
 							</Text>
 						</Flex>
 						<Link to="/reports">
-							<Flex align="center" gap={1} color="primary.accent">
+							<Flex align="center" gap={1} color="primary.fg">
 								<Text>Voir toutes les publications</Text>
 								<Icon as={RiArrowRightLine} />
 							</Flex>

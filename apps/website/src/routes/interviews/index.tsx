@@ -145,7 +145,7 @@ function RouteComponent() {
 						)}
 					</Wrap>
 					<Text>
-						<Text as="span" color="primary.accent" fontWeight="bold">
+						<Text as="span" color="primary.fg" fontWeight="bold">
 							{totalDocs}
 						</Text>{' '}
 						interview{totalDocs !== 1 ? 's' : ''} trouvée

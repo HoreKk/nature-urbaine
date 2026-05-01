@@ -207,7 +207,7 @@ function RouteComponent() {
 						</Wrap>
 					</Flex>
 					<Text>
-						<Text as="span" color="primary.accent" fontWeight="bold">
+						<Text as="span" color="primary.fg" fontWeight="bold">
 							{totalDocs}
 						</Text>{' '}
 						reportages trouvés
