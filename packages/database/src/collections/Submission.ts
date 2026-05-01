@@ -6,11 +6,11 @@ export const Submissions: CollectionConfig = {
 		singular: "Contribution",
 		plural: "Contributions",
 	},
+	defaultSort: "-createdAt",
 	admin: {
 		useAsTitle: "name",
 		defaultColumns: ["name", "category", "status", "createdAt"],
 		listSearchableFields: ["name", "contributorEmail"],
-		defaultSort: "-createdAt",
 	},
 	access: {
 		create: () => true,
@@ -55,7 +55,8 @@ export const Submissions: CollectionConfig = {
 			type: "group",
 			label: "Localisation (BAN)",
 			admin: {
-				description: "Auto-dérivé de l'autocomplétion BAN lors de la soumission",
+				description:
+					"Auto-dérivé de l'autocomplétion BAN lors de la soumission",
 			},
 			fields: [
 				{
