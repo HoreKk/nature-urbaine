@@ -25,6 +25,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { useAppForm } from '@/hooks/form-context';
 import type { SafeInterview } from '@/server/interviews';
 import { getInterviews, interviewFilterSchema } from '@/server/interviews';
+import { cardGridColumns } from '@/utils/grid';
 
 const LIMIT_PER_PAGE = 12;
 
@@ -154,10 +155,10 @@ function RouteComponent() {
 			</Box>
 
 			<Container maxW="container.xl" mt={10}>
-				<Grid templateColumns="repeat(3, 1fr)" gap={8}>
+				<Grid templateColumns={cardGridColumns} gap={8}>
 					{interviews.length === 0 ? (
 						<EmptyState
-							gridColumn="span 3"
+							gridColumn={{ base: 'span 1', md: 'span 2', lg: 'span 3' }}
 							size="lg"
 							icon={<Icon as={RiErrorWarningFill} />}
 							title="Aucune interview trouvée"

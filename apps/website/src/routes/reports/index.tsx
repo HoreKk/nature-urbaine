@@ -27,6 +27,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { useAppForm } from '@/hooks/form-context';
 import { getAllCategories } from '@/server/categories';
 import { getReports } from '@/server/reports';
+import { cardGridColumns } from '@/utils/grid';
 
 const LIMIT_PER_PAGE = 15;
 
@@ -214,10 +215,10 @@ function RouteComponent() {
 				</Container>
 			</Box>
 			<Container maxW="container.xl" mt={10}>
-				<Grid templateColumns="repeat(3, 1fr)" gap={8}>
+				<Grid templateColumns={cardGridColumns} gap={8}>
 					{reports.length === 0 ? (
 						<EmptyState
-							gridColumn="span 3"
+							gridColumn={{ base: 'span 1', md: 'span 2', lg: 'span 3' }}
 							size="lg"
 							icon={<Icon as={RiErrorWarningFill} />}
 							title="Aucun reportages trouvés"

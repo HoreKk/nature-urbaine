@@ -23,6 +23,7 @@ import SearchCombobox from '@/components/standard/SearchCombobox';
 import { getLibraryStats } from '@/server/categories';
 import { getInterviews } from '@/server/interviews';
 import { getReports } from '@/server/reports';
+import { cardGridColumns } from '@/utils/grid';
 
 export const Route = createFileRoute('/')({
 	loader: async () => ({
@@ -101,7 +102,7 @@ function App() {
 							</Flex>
 						</Link>
 					</Flex>
-					<Grid templateColumns="repeat(3, 1fr)" gap={8} mt={4}>
+					<Grid templateColumns={cardGridColumns} gap={8} mt={4}>
 						{latestProjects.map(({ key, props }) => (
 							<ProjectCard key={key} {...props} />
 						))}
