@@ -1,5 +1,5 @@
-import { Box, Button, Container, Stack } from '@chakra-ui/react';
-import { createFileRoute } from '@tanstack/react-router';
+import { Box, Button, Container, Link, Stack, Text } from '@chakra-ui/react';
+import { createFileRoute, Link as RouterLink } from '@tanstack/react-router';
 import z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
 import { useAppForm } from '@/hooks/form-context';
@@ -8,30 +8,36 @@ export const Route = createFileRoute('/contact')({
 	component: RouteComponent,
 });
 
-const contributionSchema = z.object({
-	name: z.string().min(1, 'Le nom est requis'),
+const contactSchema = z.object({
+	firstName: z.string().min(1, 'Le prénom est requis'),
+	lastName: z.string().min(1, 'Le nom est requis'),
 	email: z.email('Adresse email invalide'),
-	projectTitle: z.string().min(1, 'Le titre du projet est requis'),
-	city: z.string().min(1, 'La ville est requise'),
-	description: z
-		.string()
-		.min(20, 'La description doit contenir au moins 20 caractères'),
+	sector: z.string().min(1, "Le secteur d'activité est requis"),
+	message: z.string().min(1, 'Le message est requis'),
 });
 
-const defaultValues: z.input<typeof contributionSchema> = {
-	name: '',
+const defaultValues: z.input<typeof contactSchema> = {
+	firstName: '',
+	lastName: '',
 	email: '',
-	projectTitle: '',
-	city: '',
-	description: '',
+	sector: '',
+	message: '',
 };
+
+const SECTOR_OPTIONS = [
+	{ label: 'Paysagiste', value: 'paysagiste' },
+	{ label: "Maîtrise d'ouvrage (MOA)", value: 'MOA' },
+	{ label: "Maîtrise d'œuvre (MOE)", value: 'MOE' },
+	{ label: 'Urbaniste', value: 'urbaniste' },
+	{ label: 'Autre', value: 'autre' },
+];
 
 function RouteComponent() {
 	const form = useAppForm({
 		defaultValues,
-		validators: { onSubmit: contributionSchema },
+		validators: { onSubmit: contactSchema },
 		onSubmit: ({ value, formApi }) => {
-			console.log('Contribution submitted:', value);
+			console.log('Contact submitted:', value);
 			formApi.reset();
 		},
 	});
@@ -39,11 +45,17 @@ function RouteComponent() {
 	return (
 		<>
 			<PageHeader
-				eyebrow="Contact · Contribution"
-				title="Proposez votre projet."
-				description="Renseignez quelques informations sur votre projet. Notre équipe revient vers vous après validation pour la mise en forme et la publication."
+				eyebrow="Contact"
+				title="Une question ?"
+				description="Renseignez le formulaire ci-dessous. Notre équipe vous répondra dans les meilleurs délais."
 			/>
 			<Container maxW="container.md" py={{ base: 10, md: 16 }}>
+				<Text mb={8} color="fg.muted">
+					Vous souhaitez proposer un projet ?{' '}
+					<Link asChild color="fg">
+						<RouterLink to="/contribuer">Contribuer.</RouterLink>
+					</Link>
+				</Text>
 				<Box
 					as="form"
 					onSubmit={(e) => {
@@ -53,41 +65,52 @@ function RouteComponent() {
 					}}
 				>
 					<Stack gap={6}>
-						<form.AppField name="name">
+						<form.AppField name="firstName">
 							{(field) => (
-								<field.TextField label="Nom" placeholder="Votre nom" />
+								<field.TextField
+									label="Prénom"
+									placeholder="Votre prénom"
+									required
+								/>
+							)}
+						</form.AppField>
+						<form.AppField name="lastName">
+							{(field) => (
+								<field.TextField label="Nom" placeholder="Votre nom" required />
 							)}
 						</form.AppField>
 						<form.AppField name="email">
 							{(field) => (
-								<field.TextField label="Email" placeholder="vous@exemple.com" />
-							)}
-						</form.AppField>
-						<form.AppField name="projectTitle">
-							{(field) => (
 								<field.TextField
-									label="Titre du projet"
-									placeholder="Ex. Réaménagement de la place Jourdan"
+									label="Email"
+									placeholder="vous@exemple.com"
+									required
 								/>
 							)}
 						</form.AppField>
-						<form.AppField name="city">
+						<form.AppField name="sector">
 							{(field) => (
-								<field.TextField label="Ville" placeholder="Ex. Paris" />
+								<field.SelectField
+									label="Secteur d'activité"
+									placeholder="Choisir un secteur"
+									options={SECTOR_OPTIONS}
+									required
+								/>
 							)}
 						</form.AppField>
-						<form.AppField name="description">
+						<form.AppField name="message">
 							{(field) => (
-								<field.TextField
-									label="Description"
-									placeholder="Décrivez votre projet en quelques phrases"
+								<field.TextareaField
+									label="Message"
+									placeholder="Votre message…"
+									required
 								/>
 							)}
 						</form.AppField>
 						<form.Subscribe selector={(state) => state.isSubmitting}>
 							{(isSubmitting) => (
 								<Button type="submit" alignSelf="flex-start" px={6}>
-									{isSubmitting ? 'Envoi…' : 'Envoyer ma contribution'}
+									{isSubmitting ? 'Envoi…' : 'Envoyer'}
 								</Button>
 							)}
 						</form.Subscribe>
