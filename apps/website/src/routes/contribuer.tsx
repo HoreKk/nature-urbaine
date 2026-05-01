@@ -30,7 +30,7 @@ const submissionSchema = z.object({
 		.min(1, 'La description est requise')
 		.max(500, 'La description ne doit pas dépasser 500 caractères'),
 	category: z.string().min(1, 'La catégorie est requise'),
-	deliveryYear: z
+	deliveryYear: z.coerce
 		.number({ message: "L'année de livraison est requise" })
 		.int()
 		.min(1900)
@@ -44,7 +44,7 @@ const defaultValues: z.input<typeof submissionSchema> = {
 	name: '',
 	description: '',
 	category: '',
-	deliveryYear: '' as unknown as number,
+	deliveryYear: undefined as unknown as number,
 	address: '',
 	contributorEmail: '',
 	honeypot: '',
