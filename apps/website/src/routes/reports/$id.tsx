@@ -102,7 +102,7 @@ function RouteComponent() {
 				]}
 				currentLinkLabel={report.name}
 			/>
-			<ChakraImage asChild height={200} width="full">
+			<ChakraImage asChild height={{ base: 240, md: 380 }} width="full">
 				<Image
 					src={getBackendUrl(report.thumbnail.url)}
 					alt={report.thumbnail.alt || report.name}
