@@ -24,6 +24,21 @@ import { getInterviewById } from '@/server/interviews';
 export const Route = createFileRoute('/interviews/$id')({
 	component: RouteComponent,
 	loader: async ({ params }) => getInterviewById({ data: Number(params.id) }),
+	head: ({ loaderData: interview }) => {
+		if (!interview) return {};
+		const description = interview.summary
+			? interview.summary.slice(0, 160)
+			: `Interview avec ${interview.interviewee} — Nature Urbaine`;
+		return {
+			meta: [
+				{ title: `${interview.name} — Nature Urbaine` },
+				{ name: 'description', content: description },
+				{ property: 'og:title', content: interview.name },
+				{ property: 'og:description', content: description },
+				{ property: 'og:type', content: 'article' },
+			],
+		};
+	},
 });
 
 type QuestionBlockProps = {

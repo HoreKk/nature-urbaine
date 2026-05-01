@@ -26,6 +26,23 @@ import {
 export const Route = createFileRoute('/reports/$id')({
 	component: RouteComponent,
 	loader: async ({ params }) => getReportById({ data: Number(params.id) }),
+	head: ({ loaderData: report }) => {
+		if (!report) return {};
+		const description = report.description
+			? report.description.slice(0, 160)
+			: `Reportage Nature Urbaine — ${report.category.name}`;
+		const imageUrl = getBackendUrl(report.thumbnail.url);
+		return {
+			meta: [
+				{ title: `${report.name} — Nature Urbaine` },
+				{ name: 'description', content: description },
+				{ property: 'og:title', content: report.name },
+				{ property: 'og:description', content: description },
+				{ property: 'og:image', content: imageUrl },
+				{ property: 'og:type', content: 'article' },
+			],
+		};
+	},
 });
 
 function RouteComponent() {
