@@ -21,8 +21,8 @@ const footerColumns: FooterColumn[] = [
 	{
 		title: 'Découvrir',
 		links: [
-			{ label: 'Interviews', to: '/interviews' },
 			{ label: 'Reportages', to: '/reports' },
+			{ label: 'Interviews', to: '/interviews' },
 			{ label: 'Carte', to: '/carte' },
 		],
 	},
