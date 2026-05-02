@@ -1,7 +1,7 @@
 import {
 	Center,
 	Combobox,
-	Field,
+	Field as ChakraField,
 	Mark,
 	Portal,
 	Spinner,
@@ -11,6 +11,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from '@uidotdev/usehooks';
 import { useState } from 'react';
+import { Field } from '@/components/ui/field';
 import { type DefaultFieldProps, useFieldContext } from '@/hooks/form-context';
 import { normalizeString } from '@/utils/tools';
 
@@ -143,9 +144,10 @@ export function AddressAutocompleteField({
 	}
 
 	return (
-		<Field.Root
-			invalid={field.state.meta.errors.length > 0}
+		<Field
 			required={required}
+			invalid={field.state.meta.errors.length > 0}
+			errorText={field.state.meta.errors.map((e) => e.message).join(', ')}
 		>
 			<Combobox.Root
 				collection={collection}
@@ -158,10 +160,11 @@ export function AddressAutocompleteField({
 				positioning={{ flip: false }}
 			>
 				<Combobox.Label>
-					{label} <Field.RequiredIndicator />
+					{label} <ChakraField.RequiredIndicator />
 				</Combobox.Label>
 				<Combobox.Control>
 					<Combobox.Input
+						bg="bg"
 						placeholder={placeholder}
 						onFocus={() => setIsFocused(true)}
 						onBlur={handleBlur}
@@ -174,10 +177,7 @@ export function AddressAutocompleteField({
 					</Combobox.Positioner>
 				</Portal>
 			</Combobox.Root>
-			<Field.ErrorText>
-				{field.state.meta.errors.map((e) => e.message).join(', ')}
-			</Field.ErrorText>
-		</Field.Root>
+		</Field>
 	);
 }
 

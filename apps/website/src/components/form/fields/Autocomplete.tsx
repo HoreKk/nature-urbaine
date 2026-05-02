@@ -1,13 +1,13 @@
 import {
 	Badge,
 	Combobox,
-	Field,
 	Highlight,
 	Portal,
 	type UseListCollectionReturn,
 	useComboboxContext,
 	Wrap,
 } from '@chakra-ui/react';
+import { Field } from '@/components/ui/field';
 import { type DefaultFieldProps, useFieldContext } from '@/hooks/form-context';
 
 interface AutocompleteFieldProps extends DefaultFieldProps {
@@ -32,7 +32,10 @@ export function AutocompleteField({
 	const field = useFieldContext<string[]>();
 
 	return (
-		<Field.Root invalid={field.state.meta.errors.length > 0}>
+		<Field
+			invalid={field.state.meta.errors.length > 0}
+			errorText={field.state.meta.errors.map((e) => e.message).join(', ')}
+		>
 			<Combobox.Root
 				collection={collection}
 				placeholder={placeholder}
@@ -52,7 +55,7 @@ export function AutocompleteField({
 					</Wrap>
 				)}
 				<Combobox.Control>
-					<Combobox.Input placeholder={placeholder} />
+					<Combobox.Input bg="bg" placeholder={placeholder} />
 					<Combobox.IndicatorGroup>
 						<Combobox.ClearTrigger />
 						<Combobox.Trigger />
@@ -69,10 +72,7 @@ export function AutocompleteField({
 					</Combobox.Positioner>
 				</Portal>
 			</Combobox.Root>
-			<Field.ErrorText>
-				{field.state.meta.errors.map((error) => error.message).join(', ')}
-			</Field.ErrorText>
-		</Field.Root>
+		</Field>
 	);
 }
 

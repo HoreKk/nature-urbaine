@@ -1,4 +1,5 @@
-import { createListCollection, Field, Portal, Select } from '@chakra-ui/react';
+import { createListCollection, Portal, Select } from '@chakra-ui/react';
+import { Field } from '@/components/ui/field';
 import { type DefaultFieldProps, useFieldContext } from '@/hooks/form-context';
 
 interface SelectOption {
@@ -20,19 +21,18 @@ export function SelectField({
 	const collection = createListCollection({ items: options });
 
 	return (
-		<Field.Root
-			invalid={field.state.meta.errors.length > 0}
+		<Field
+			label={label}
 			required={required}
+			invalid={field.state.meta.errors.length > 0}
+			errorText={field.state.meta.errors[0]?.message}
 		>
-			<Field.Label>
-				{label} <Field.RequiredIndicator />
-			</Field.Label>
 			<Select.Root
 				collection={collection}
 				value={field.state.value ? [field.state.value] : []}
 				onValueChange={(details) => field.handleChange(details.value[0] ?? '')}
 			>
-				<Select.Trigger>
+				<Select.Trigger bg="bg">
 					<Select.ValueText placeholder={placeholder} />
 				</Select.Trigger>
 				<Portal>
@@ -47,7 +47,6 @@ export function SelectField({
 					</Select.Positioner>
 				</Portal>
 			</Select.Root>
-			<Field.ErrorText>{field.state.meta.errors[0]?.message}</Field.ErrorText>
-		</Field.Root>
+		</Field>
 	);
 }
