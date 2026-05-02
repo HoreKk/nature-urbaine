@@ -8,9 +8,9 @@ export const buttonRecipe = defineRecipe({
 	variants: {
 		variant: {
 			solid: {
-				bg: 'secondary.solid',
-				color: 'secondary.contrast',
-				_hover: { bg: 'secondary.emphasized' },
+				bg: 'primary.solid',
+				color: 'primary.contrast',
+				_hover: { bg: 'primary.emphasized' },
 			},
 			outline: {
 				bg: 'bg',

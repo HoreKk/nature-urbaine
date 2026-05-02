@@ -12,7 +12,7 @@ import { LuArrowRight } from 'react-icons/lu';
 
 const ContributeCta = () => {
 	return (
-		<Box as="section" bgColor="primary.muted" py={{ base: 16, md: 24 }}>
+		<Box as="section" bgColor="bg" py={{ base: 16, md: 24 }}>
 			<Container maxW="container.lg">
 				<Flex
 					direction={{ base: 'column', md: 'row' }}

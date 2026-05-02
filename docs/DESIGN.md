@@ -28,8 +28,8 @@
 
 | Need                                 | Token                              |
 | ------------------------------------ | ---------------------------------- |
-| Page background                      | `bg` (= `paper.50`)                |
-| Subtle alt surface (footer, info)    | `bg.subtle` (= `paper.100`)        |
+| Default page surface (most pages)    | `bg.subtle` (= `paper.100`)        |
+| Lighter alt surface (cards, insets)  | `bg` (= `paper.50`)                |
 | Stronger alt surface (placeholder)   | `bg.muted` (= `paper.200`)         |
 | Primary text                         | `fg`                               |
 | Secondary text, captions             | `fg.muted`                         |
@@ -92,13 +92,13 @@ The recipes in [`textStyles.ts`](apps/website/src/utils/recipes/textStyles.ts) c
 
 ### Button (recipe in [`recipes/button.ts`](apps/website/src/utils/recipes/button.ts))
 
-| Variant   | When to use                                   |
-| --------- | --------------------------------------------- |
-| `solid`   | Primary action — dark neutral pill (default). |
-| `outline` | Secondary action — outlined pill.             |
-| `ghost`   | Tertiary — neutral hover only.                |
+| Variant   | When to use                                         |
+| --------- | --------------------------------------------------- |
+| `solid`   | Primary action — primary terracotta pill (default). |
+| `outline` | Secondary action — outlined pill.                   |
+| `ghost`   | Tertiary — neutral hover only.                      |
 
-For the **accent / leaf** CTA from the handoff (e.g. "Contribuer", "Envoyer la proposition"), use `solid` with `bg="primary.solid"` `_hover={{ bg: "primary.emphasized" }}` `color="primary.contrast"` overrides. (A dedicated `accent` variant is not yet defined; if you find yourself reaching for it more than twice, propose adding it to the recipe.)
+For the **accent / leaf** CTA from the handoff (e.g. "Contribuer", "Envoyer la proposition"), use `solid` — the recipe already applies `primary.solid` by default.
 
 Sizes: `sm` for header / inline actions (`px="14px"` is the convention from `Navbar.tsx`), default for primary CTAs. Icon-only buttons are 36×36 square with `p={0}`.
 
