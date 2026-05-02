@@ -162,7 +162,7 @@ function RouteComponent() {
 						</form.AppField>
 						<form.AppField name="address">
 							{(field) => (
-								<field.TextField
+								<field.AddressAutocompleteField
 									label="Adresse"
 									placeholder="Ex. 12 rue de la Paix, Paris"
 									required

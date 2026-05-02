@@ -1,4 +1,5 @@
 import { createFormHook, createFormHookContexts } from '@tanstack/react-form';
+import { AddressAutocompleteField } from '@/components/form/fields/AddressAutocomplete';
 import { AutocompleteField } from '@/components/form/fields/Autocomplete';
 import { SelectField } from '@/components/form/fields/Select';
 import { TextField } from '@/components/form/fields/Text';
@@ -13,6 +14,7 @@ export const { useAppForm } = createFormHook({
 		TextareaField,
 		SelectField,
 		AutocompleteField,
+		AddressAutocompleteField,
 	},
 	formComponents: {},
 	fieldContext,
