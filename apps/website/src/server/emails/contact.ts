@@ -2,7 +2,7 @@ import { getPayload, payloadConfig } from '@nature-urbaine/database';
 import { renderContactEmail } from '@nature-urbaine/emails';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
-import { readContactEmailConfig } from './contact-env';
+import { readEmailConfig } from './email-env';
 
 const createContactSchema = z.object({
 	firstName: z.string().min(1, 'Le prenom est requis'),
@@ -27,7 +27,7 @@ export const createContact = createServerFn({ method: 'POST' })
 	.inputValidator(createContactSchema)
 	.handler(async ({ data }) => {
 		try {
-			const emailConfig = readContactEmailConfig();
+			const emailConfig = readEmailConfig();
 			const payload = await getPayload({ config: payloadConfig });
 			const rendered = await renderContactEmail({
 				firstName: data.firstName,

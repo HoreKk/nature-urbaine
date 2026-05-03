@@ -26,7 +26,7 @@ sector       (secteur d'activité, required, select: paysagiste | MOA | MOE | ur
 message      (required, multiline)
 ```
 
-No persistence — the form sends an email to the operator via `payload.sendEmail` (Payload Nodemailer adapter backed by SMTP). The contact email is rendered from `@nature-urbaine/emails` (React Email templates + plain-text fallback) and uses env-driven config (`CONTACT_EMAIL_TO`, `CONTACT_EMAIL_FROM`, `CONTACT_EMAIL_FROM_NAME`, `SMTP_*`). In local development, Maildev runs without auth (`localhost:1025`, `SMTP_SECURE=false`); production can use authenticated SMTP (for example Resend SMTP).
+No persistence — the form sends an email to the operator via `payload.sendEmail` (Payload Nodemailer adapter backed by SMTP). The contact email is rendered from `@nature-urbaine/emails` (React Email templates + plain-text fallback) and uses env-driven config (`TO_EMAIL`, `EMAIL_FROM`, with fallback to `CONTACT_EMAIL_TO` / `CONTACT_EMAIL_FROM`, plus `CONTACT_EMAIL_FROM_NAME`, `SMTP_*`). In local development, Maildev runs without auth (`localhost:1025`, `SMTP_SECURE=false`); production can use authenticated SMTP (for example Resend SMTP).
 
 ### `/contribuer`
 
@@ -42,6 +42,8 @@ locationDetails       (auto-derived from BAN, hidden in form)
 pictures              (Chakra <FileUpload />, 1–5 photos, standard size/mime defaults)
 contributorEmail      (required, validated)
 ```
+
+On successful submission, keep writing to `Submission` and also send an operator notification email rendered from `@nature-urbaine/emails` (same layout/design language as contact template) to the shared recipient config.
 
 System / admin fields:
 
@@ -79,9 +81,9 @@ One line below the page header on each form, linking to the other ("Vous souhait
 
 Email only. No name fields on the public form. A future user-account system may revisit this — not in scope today.
 
-### Notifications (deferred)
+### Notifications
 
-When email transport lands, send: (a) operator notification on new submission, (b) contributor email on rejection (with `rejectionNote`). No acknowledgement email on acceptance — the published reportage is the acknowledgement.
+Send: (a) operator notification on new submission, (b) contributor email on rejection (with `rejectionNote`). No acknowledgement email on acceptance — the published reportage is the acknowledgement.
 
 ## Considered alternatives
 

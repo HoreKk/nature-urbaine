@@ -13,6 +13,7 @@ import z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
 import { useAppForm } from '@/hooks/form-context';
 import { getAllCategories } from '@/server/categories';
+import { sendSubmissionNotification } from '@/server/emails/submission';
 import { createSubmission } from '@/server/submissions';
 
 export const Route = createFileRoute('/contribuer')({
@@ -52,7 +53,7 @@ const defaultValues: z.input<typeof submissionSchema> = {
 
 function RouteComponent() {
 	const { categories } = Route.useLoaderData();
-	const [submitted, setSubmitted] = useState(false);
+	const [submitSuccess, setSubmitSuccess] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 
 	const categoryOptions = categories.map((cat) => ({
@@ -65,39 +66,29 @@ function RouteComponent() {
 		validators: { onSubmit: submissionSchema },
 		onSubmit: async ({ value, formApi }) => {
 			setSubmitError(null);
+			setSubmitSuccess(false);
 			try {
 				await createSubmission({ data: value });
+				const categoryLabel =
+					categoryOptions.find((option) => option.value === value.category)
+						?.label ?? value.category;
+				await sendSubmissionNotification({
+					data: {
+						name: value.name,
+						description: value.description,
+						category: categoryLabel,
+						deliveryYear: value.deliveryYear,
+						address: value.address,
+						contributorEmail: value.contributorEmail,
+					},
+				});
 				formApi.reset();
-				setSubmitted(true);
+				setSubmitSuccess(true);
 			} catch {
 				setSubmitError('Une erreur est survenue. Veuillez réessayer.');
 			}
 		},
 	});
-
-	if (submitted) {
-		return (
-			<>
-				<PageHeader
-					eyebrow="Contribuer"
-					title="Proposez votre projet."
-					description="Renseignez quelques informations sur votre projet. Notre équipe revient vers vous après validation pour la mise en forme et la publication."
-				/>
-				<Container maxW="container.md" py={{ base: 10, md: 16 }}>
-					<Alert.Root status="success">
-						<Alert.Indicator />
-						<Alert.Content>
-							<Alert.Title>Contribution envoyée</Alert.Title>
-							<Alert.Description>
-								Merci pour votre contribution. Notre équipe l'examinera et vous
-								contactera à l'adresse indiquée.
-							</Alert.Description>
-						</Alert.Content>
-					</Alert.Root>
-				</Container>
-			</>
-		);
-	}
 
 	return (
 		<>
@@ -201,6 +192,17 @@ function RouteComponent() {
 								<Alert.Indicator />
 								<Alert.Content>
 									<Alert.Description>{submitError}</Alert.Description>
+								</Alert.Content>
+							</Alert.Root>
+						)}
+						{submitSuccess && (
+							<Alert.Root status="success" variant="surface">
+								<Alert.Indicator />
+								<Alert.Content>
+									<Alert.Description>
+										Merci, votre contribution a bien ete envoyee. Notre equipe
+										l'examinera et vous contactera a l'adresse indiquee.
+									</Alert.Description>
 								</Alert.Content>
 							</Alert.Root>
 						)}
