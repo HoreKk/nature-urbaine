@@ -37,6 +37,19 @@ const submissionSchema = z.object({
 		.min(1900)
 		.max(2100),
 	address: z.string().min(1, "L'adresse est requise"),
+	pictures: z
+		.array(
+			z
+				.instanceof(File)
+				.refine((file) => file.type.startsWith('image/'), {
+					message: 'Seules les images sont acceptées',
+				})
+				.refine((file) => file.size <= 5 * 1024 * 1024, {
+					message: 'Chaque image doit faire 5 Mo maximum',
+				}),
+		)
+		.min(1, 'Ajoutez au moins une image')
+		.max(5, 'Vous pouvez ajouter au maximum 5 images'),
 	contributorEmail: z.string().email('Adresse email invalide'),
 	honeypot: z.string().optional(),
 });
@@ -47,6 +60,7 @@ const defaultValues: z.input<typeof submissionSchema> = {
 	category: '',
 	deliveryYear: undefined as unknown as number,
 	address: '',
+	pictures: [],
 	contributorEmail: '',
 	honeypot: '',
 };
@@ -165,6 +179,16 @@ function RouteComponent() {
 								<field.TextField
 									label="Votre email"
 									placeholder="vous@exemple.com"
+									required
+								/>
+							)}
+						</form.AppField>
+						<form.AppField name="pictures">
+							{(field) => (
+								<field.FilesField
+									label="Images du projet"
+									accept={['image/*']}
+									helperText="Formats image uniquement, 5 images maximum, 5 Mo par image."
 									required
 								/>
 							)}
