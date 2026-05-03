@@ -13,7 +13,6 @@ import type z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
 import { useAppForm } from '@/hooks/form-context';
 import { getAllCategories } from '@/server/categories';
-import { sendSubmissionNotification } from '@/server/emails/submission';
 import {
 	clientSubmissionSchema,
 	SUBMISSION_DESCRIPTION_MAX_LENGTH,
@@ -84,14 +83,6 @@ function RouteComponent() {
 						deliveryYear: Number(value.deliveryYear),
 						pictures,
 					},
-				});
-
-				const categoryLabel =
-					categoryOptions.find((option) => option.value === value.category)
-						?.label ?? value.category;
-
-				await sendSubmissionNotification({
-					data: { ...value, category: categoryLabel },
 				});
 
 				formApi.reset();
