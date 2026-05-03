@@ -8,8 +8,13 @@ import type {
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
-import { filterSchema } from '@/routes/reports';
 import { baseProcedure } from './db';
+
+export const filterSchema = z.object({
+	category: z.array(z.coerce.number<number>()).optional(),
+	search: z.string().optional(),
+	city: z.string().optional(),
+});
 
 export interface AugmentedReport extends Omit<
 	Report,

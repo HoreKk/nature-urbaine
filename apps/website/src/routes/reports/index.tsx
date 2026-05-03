@@ -12,7 +12,7 @@ import {
 	Wrap,
 } from '@chakra-ui/react';
 import { useStore } from '@tanstack/react-form';
-import { queryOptions, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
 import { useState } from 'react';
@@ -25,6 +25,7 @@ import PageHeader from '@/components/sections/PageHeader';
 import UIPagination from '@/components/standard/Pagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useAppForm } from '@/hooks/form-context';
+import { filterSchema, reportsQueryOptions } from '@/queries/reports';
 import { getAllCategories } from '@/server/categories';
 import { getReports } from '@/server/reports';
 import { cardGridColumns } from '@/utils/grid';
@@ -40,12 +41,6 @@ export const Route = createFileRoute('/reports/')({
 		const categories = await getAllCategories();
 		return { reports, categories };
 	},
-});
-
-export const filterSchema = z.object({
-	category: z.array(z.coerce.number<number>()).optional(),
-	search: z.string().optional(),
-	city: z.string().optional(),
 });
 
 const defaultValues: z.input<typeof filterSchema> = {
@@ -79,17 +74,11 @@ function RouteComponent() {
 	const debouncedSearch = useDebounce(search, 400);
 	const formValues = { ...restFormValues, search: debouncedSearch };
 
-	const { data, isEnabled, isFetching } = useQuery(
-		queryOptions({
-			queryKey: ['reports', page, formValues],
-			queryFn: () =>
-				getReports({
-					data: { page, pageSize: LIMIT_PER_PAGE, filters: formValues },
-				}),
-			enabled: page !== 1 || filterForm.state.isDirty,
-			initialData: loaderReports,
-		}),
-	);
+	const { data, isEnabled, isFetching } = useQuery({
+		...reportsQueryOptions(page, formValues, LIMIT_PER_PAGE),
+		enabled: page !== 1 || filterForm.state.isDirty,
+		initialData: loaderReports,
+	});
 
 	const filters = (
 		Object.keys(formValues) as (keyof typeof formValues)[]

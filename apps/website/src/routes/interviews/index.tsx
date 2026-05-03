@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import type { PaginatedDocs } from '@nature-urbaine/database';
 import { useStore } from '@tanstack/react-form';
-import { queryOptions, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
 import { useState } from 'react';
@@ -23,8 +23,12 @@ import PageHeader from '@/components/sections/PageHeader';
 import UIPagination from '@/components/standard/Pagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useAppForm } from '@/hooks/form-context';
+import {
+	interviewFilterSchema,
+	interviewsQueryOptions,
+} from '@/queries/interviews';
 import type { SafeInterview } from '@/server/interviews';
-import { getInterviews, interviewFilterSchema } from '@/server/interviews';
+import { getInterviews } from '@/server/interviews';
 import { cardGridColumns } from '@/utils/grid';
 
 const LIMIT_PER_PAGE = 12;
@@ -59,17 +63,11 @@ function RouteComponent() {
 	const debouncedSearch = useDebounce(search, 400);
 	const formValues = { search: debouncedSearch };
 
-	const { data, isEnabled, isFetching } = useQuery(
-		queryOptions({
-			queryKey: ['interviews', page, formValues],
-			queryFn: () =>
-				getInterviews({
-					data: { page, pageSize: LIMIT_PER_PAGE, filters: formValues },
-				}),
-			enabled: page !== 1 || filterForm.state.isDirty,
-			initialData: loaderInterviews,
-		}),
-	);
+	const { data, isEnabled, isFetching } = useQuery({
+		...interviewsQueryOptions(page, formValues, LIMIT_PER_PAGE),
+		enabled: page !== 1 || filterForm.state.isDirty,
+		initialData: loaderInterviews,
+	});
 
 	const hasActiveSearch = debouncedSearch && debouncedSearch.length > 0;
 

@@ -221,6 +221,22 @@ When adding a new server function:
 3. Use `baseProcedure` for DB access.
 4. Augment outputs with `fetchOrReturnRealValue` rather than depending on `depth` from Payload.
 
+## 7b. Query layer (`src/queries/`)
+
+A canonical **query layer** lives at `apps/website/src/queries/`, one file per entity. This layer owns all `queryOptions` factories and normalises errors into a typed shape before they reach the UI.
+
+**Rule:** route files and components never define `queryOptions` inline. They always import from `@/queries/*`. The `server/` files only export `createServerFn` definitions — never `queryOptions`.
+
+| File            | Exports                                                                          |
+| --------------- | -------------------------------------------------------------------------------- |
+| `reports.ts`    | `reportsQueryOptions`, `reportByIdQueryOptions`                                  |
+| `interviews.ts` | `interviewsQueryOptions`, `interviewByIdQueryOptions`                            |
+| `categories.ts` | `categoriesQueryOptions`, `categoryByIdQueryOptions`, `libraryStatsQueryOptions` |
+| `tags.ts`       | `tagByIdQueryOptions`, `picturesByTagQueryOptions`                               |
+| `search.ts`     | `searchQueryOptions`                                                             |
+
+**Rationale:** A separate `packages/api` with oRPC/tRPC was evaluated and rejected because (a) the website is the only consumer — no mobile app or external client — and (b) tRPC/oRPC would introduce an HTTP roundtrip, losing the zero-latency Payload Local API advantage. The convention problem (queryOptions scattered inline in route files) is solved by the `queries/` layer at zero infrastructure cost.
+
 ## 8. Tag taxonomy details
 
 The spec is precise; record any reinterpretation in an ADR rather than drifting silently.
@@ -268,7 +284,8 @@ These are spec asks that aren't captured by the data model alone — surface the
 ## 11. Conventions
 
 - **Language:** code identifiers in English (`reports`, `interviews`, `pictures`); user-facing labels and CMS field labels in French. Migrations and seed comments in English.
-- **File-based routing:** add new routes under `apps/website/src/routes/` and let TanStack Router regenerate `routeTree.gen.ts`. Prefer flat segments like `routes/reports/$id.tsx` over deeply nested folders.
+- **Server functions:** add to `src/server/` — one file per collection, always use `baseProcedure`, validate with Zod.
+- **Query layer:** add `queryOptions` factories to `src/queries/` — never inline in route files or components. Import from `@/queries/*`.
 - **Styling:** Chakra UI primitives + design-system CSS variables. Avoid raw inline styles.
 - **Forms:** TanStack Form + Zod. Re-use `useAppForm` from `apps/website/src/hooks/form-context.ts`.
 - **Migrations:** never hand-edit DB; use `pnpm migrate:create` then `pnpm migrate`.
