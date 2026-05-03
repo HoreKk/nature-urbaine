@@ -13,7 +13,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Image } from '@unpic/react';
 import { UIBreadcrumb } from '@/components/standard/Breadcrumb';
 import UICarousel from '@/components/standard/Carousel';
-import { getReportById } from '@/server/reports';
+import { findReportById } from '@/server/report-catalog';
 import { getBackendUrl } from '@/utils/backend-url';
 import {
 	formatDepartmentLabel,
@@ -25,7 +25,7 @@ import {
 
 export const Route = createFileRoute('/reports/$id')({
 	component: RouteComponent,
-	loader: async ({ params }) => getReportById({ data: Number(params.id) }),
+	loader: async ({ params }) => findReportById({ data: Number(params.id) }),
 	head: ({ loaderData: report }) => {
 		if (!report) return {};
 		const description = report.description

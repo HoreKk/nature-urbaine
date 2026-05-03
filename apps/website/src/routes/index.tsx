@@ -22,12 +22,12 @@ import LibraryStats from '@/components/sections/LibraryStats';
 import SearchCombobox from '@/components/standard/SearchCombobox';
 import { getLibraryStats } from '@/server/categories';
 import { getInterviews } from '@/server/interviews';
-import { getReports } from '@/server/reports';
+import { findReportCatalog } from '@/server/report-catalog';
 import { cardGridColumns } from '@/utils/grid';
 
 export const Route = createFileRoute('/')({
 	loader: async () => ({
-		reports: await getReports({ data: { page: 1, pageSize: 3 } }),
+		reports: await findReportCatalog({ data: { page: 1, pageSize: 3 } }),
 		interviews: await getInterviews({ data: { page: 1, pageSize: 3 } }),
 		stats: await getLibraryStats(),
 	}),

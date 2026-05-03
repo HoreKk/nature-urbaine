@@ -25,25 +25,27 @@ import PageHeader from '@/components/sections/PageHeader';
 import UIPagination from '@/components/standard/Pagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useAppForm } from '@/hooks/form-context';
-import { filterSchema, reportsQueryOptions } from '@/queries/reports';
+import {
+	REPORT_CATALOG_PAGE_SIZE,
+	reportCatalogFilterSchema,
+	reportCatalogQueryOptions,
+} from '@/queries/report-catalog';
 import { getAllCategories } from '@/server/categories';
-import { getReports } from '@/server/reports';
+import { findReportCatalog } from '@/server/report-catalog';
 import { cardGridColumns } from '@/utils/grid';
-
-const LIMIT_PER_PAGE = 15;
 
 export const Route = createFileRoute('/reports/')({
 	component: RouteComponent,
 	loader: async () => {
-		const reports = await getReports({
-			data: { page: 1, pageSize: LIMIT_PER_PAGE },
+		const reports = await findReportCatalog({
+			data: { page: 1, pageSize: REPORT_CATALOG_PAGE_SIZE },
 		});
 		const categories = await getAllCategories();
 		return { reports, categories };
 	},
 });
 
-const defaultValues: z.input<typeof filterSchema> = {
+const defaultValues: z.input<typeof reportCatalogFilterSchema> = {
 	category: [],
 	search: '',
 };
@@ -64,7 +66,7 @@ function RouteComponent() {
 
 	const filterForm = useAppForm({
 		defaultValues,
-		validators: { onChange: filterSchema },
+		validators: { onChange: reportCatalogFilterSchema },
 	});
 
 	const { search, ...restFormValues } = useStore(
@@ -75,7 +77,7 @@ function RouteComponent() {
 	const formValues = { ...restFormValues, search: debouncedSearch };
 
 	const { data, isEnabled, isFetching } = useQuery({
-		...reportsQueryOptions(page, formValues, LIMIT_PER_PAGE),
+		...reportCatalogQueryOptions(page, formValues),
 		enabled: page !== 1 || filterForm.state.isDirty,
 		initialData: loaderReports,
 	});
@@ -225,7 +227,7 @@ function RouteComponent() {
 			<Box mt={16}>
 				<UIPagination
 					totalDocs={totalDocs}
-					limit={LIMIT_PER_PAGE}
+					limit={REPORT_CATALOG_PAGE_SIZE}
 					page={page}
 					onPageChange={setPage}
 				/>

@@ -13,12 +13,14 @@ import {
 	usePaginatedResource,
 } from '@/hooks/use-paginated-resource';
 import {
-	getCategoryListQuery,
+	REPORT_CATALOG_PAGE_SIZE,
+	reportCatalogQueryOptions,
+} from '@/queries/report-catalog';
+import {
 	getEntityByKind,
-	getEntityListQuery,
 	getTagListQuery,
-	LIMITS_BY_ENTITY,
 	isEntityKind,
+	TAG_PICTURES_PAGE_SIZE,
 } from '@/server/entity-search';
 import type { PictureWithReport } from '@/server/tags';
 
@@ -30,9 +32,16 @@ export const Route = createFileRoute('/reports/entity/$kind/$id')({
 		const kind = params.kind;
 
 		if (!Number.isFinite(id) || id <= 0) throw notFound({ routeId: Route.id });
-		const listQuery = getEntityListQuery({ kind, id, page: 1 });
 
-		context.queryClient.prefetchQuery(createPaginatedQueryOptions(listQuery));
+		if (kind === 'category') {
+			context.queryClient.prefetchQuery(
+				reportCatalogQueryOptions(1, { category: [id] }),
+			);
+		} else {
+			context.queryClient.prefetchQuery(
+				createPaginatedQueryOptions(getTagListQuery({ id, page: 1 })),
+			);
+		}
 
 		const entity = await getEntityByKind({ kind, id });
 		if (!entity) throw notFound({ routeId: Route.id });
@@ -60,7 +69,7 @@ function RouteComponent(): JSX.Element {
 					title={entity.name}
 					description={entity.description || content.description}
 					totalDocs={totalDocs}
-					limit={LIMITS_BY_ENTITY.tag}
+					limit={TAG_PICTURES_PAGE_SIZE}
 					page={page}
 					onPageChange={setPage}
 					gridTemplateColumns={{
@@ -90,7 +99,7 @@ function RouteComponent(): JSX.Element {
 	const { docs, totalDocs, isLoading, page, setPage, content } =
 		usePaginatedResource({
 			getListQuery: (currentPage) =>
-				getCategoryListQuery({ id, page: currentPage }),
+				reportCatalogQueryOptions(currentPage, { category: [id] }),
 			content: ENTITY_CONTENT.category,
 		});
 
@@ -100,7 +109,7 @@ function RouteComponent(): JSX.Element {
 			title={entity.name}
 			description={content.description}
 			totalDocs={totalDocs}
-			limit={LIMITS_BY_ENTITY.category}
+			limit={REPORT_CATALOG_PAGE_SIZE}
 			page={page}
 			onPageChange={setPage}
 			gridTemplateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}

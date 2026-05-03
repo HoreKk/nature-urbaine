@@ -1,6 +1,6 @@
 import { RiCameraLensLine, RiMicLine } from 'react-icons/ri';
 import type { SafeInterview } from '@/server/interviews';
-import type { AugmentedReport } from '@/server/reports';
+import type { AugmentedReport } from '@/server/report-catalog';
 import { getBackendUrl } from '@/utils/backend-url';
 
 export const reportToProjectCardProps = (report: AugmentedReport) => ({

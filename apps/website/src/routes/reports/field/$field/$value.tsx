@@ -6,17 +6,24 @@ import ProjectCard from '@/components/cards/ProjectCard';
 import { reportToProjectCardProps } from '@/components/cards/projectCardProps';
 import PaginatedListLayout from '@/components/standard/PaginatedListLayout';
 import { FIELD_CONTENT } from '@/content/entity-search';
+import { usePaginatedResource } from '@/hooks/use-paginated-resource';
 import {
-	createPaginatedQueryOptions,
-	usePaginatedResource,
-} from '@/hooks/use-paginated-resource';
+	REPORT_CATALOG_PAGE_SIZE,
+	type ReportCatalogFilter,
+	reportCatalogQueryOptions,
+} from '@/queries/report-catalog';
 import {
 	getFieldByKind,
 	type FieldKind,
-	getFieldListQuery,
-	LIMITS_BY_FIELD,
 	isFieldKind,
 } from '@/server/entity-search';
+
+function fieldFilter(field: FieldKind, value: string): ReportCatalogFilter {
+	switch (field) {
+		case 'city':
+			return { city: value };
+	}
+}
 
 export const Route = createFileRoute('/reports/field/$field/$value')({
 	component: RouteComponent,
@@ -27,9 +34,9 @@ export const Route = createFileRoute('/reports/field/$field/$value')({
 
 		if (!value) throw notFound({ routeId: Route.id });
 
-		const listQuery = getFieldListQuery({ field, value, page: 1 });
-
-		context.queryClient.prefetchQuery(createPaginatedQueryOptions(listQuery));
+		context.queryClient.prefetchQuery(
+			reportCatalogQueryOptions(1, fieldFilter(field, value)),
+		);
 
 		const fieldData = await getFieldByKind({ field, value });
 		if (!fieldData) throw notFound({ routeId: Route.id });
@@ -43,7 +50,7 @@ function RouteComponent(): JSX.Element {
 	const { docs, totalDocs, isLoading, page, setPage, content } =
 		usePaginatedResource({
 			getListQuery: (currentPage) =>
-				getFieldListQuery({ field, value, page: currentPage }),
+				reportCatalogQueryOptions(currentPage, fieldFilter(field, value)),
 			content: FIELD_CONTENT[field],
 		});
 
@@ -53,7 +60,7 @@ function RouteComponent(): JSX.Element {
 			title={fieldData.label}
 			description={content.description}
 			totalDocs={totalDocs}
-			limit={LIMITS_BY_FIELD[field]}
+			limit={REPORT_CATALOG_PAGE_SIZE}
 			page={page}
 			onPageChange={setPage}
 			gridTemplateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
