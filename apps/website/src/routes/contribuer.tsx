@@ -9,11 +9,17 @@ import {
 } from '@chakra-ui/react';
 import { createFileRoute, Link as RouterLink } from '@tanstack/react-router';
 import { useState } from 'react';
-import z from 'zod';
+import type z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
 import { useAppForm } from '@/hooks/form-context';
 import { getAllCategories } from '@/server/categories';
 import { sendSubmissionNotification } from '@/server/emails/submission';
+import {
+	clientSubmissionSchema,
+	SUBMISSION_DESCRIPTION_MAX_LENGTH,
+	SUBMISSION_MAX_PICTURE_SIZE_LABEL,
+	SUBMISSION_MAX_PICTURES,
+} from '@/server/submission-contract';
 import { createSubmission } from '@/server/submissions';
 
 export const Route = createFileRoute('/contribuer')({
@@ -24,37 +30,7 @@ export const Route = createFileRoute('/contribuer')({
 	},
 });
 
-const submissionSchema = z.object({
-	name: z.string().min(1, 'Le titre du projet est requis'),
-	description: z
-		.string()
-		.min(1, 'La description est requise')
-		.max(500, 'La description ne doit pas dépasser 500 caractères'),
-	category: z.string().min(1, 'La catégorie est requise'),
-	deliveryYear: z.coerce
-		.number({ message: "L'année de livraison est requise" })
-		.int()
-		.min(1900)
-		.max(2100),
-	address: z.string().min(1, "L'adresse est requise"),
-	pictures: z
-		.array(
-			z
-				.instanceof(File)
-				.refine((file) => file.type.startsWith('image/'), {
-					message: 'Seules les images sont acceptées',
-				})
-				.refine((file) => file.size <= 5 * 1024 * 1024, {
-					message: 'Chaque image doit faire 5 Mo maximum',
-				}),
-		)
-		.min(1, 'Ajoutez au moins une image')
-		.max(5, 'Vous pouvez ajouter au maximum 5 images'),
-	contributorEmail: z.string().email('Adresse email invalide'),
-	honeypot: z.string().optional(),
-});
-
-const defaultValues: z.input<typeof submissionSchema> = {
+const defaultValues: z.input<typeof clientSubmissionSchema> = {
 	name: '',
 	description: '',
 	category: '',
@@ -87,7 +63,7 @@ function RouteComponent() {
 
 	const form = useAppForm({
 		defaultValues,
-		validators: { onSubmit: submissionSchema },
+		validators: { onSubmit: clientSubmissionSchema },
 		onSubmit: async ({ value, formApi }) => {
 			setSubmitError(null);
 			setSubmitSuccess(false);
@@ -104,22 +80,20 @@ function RouteComponent() {
 				await createSubmission({
 					data: {
 						...value,
+						category: Number(value.category),
+						deliveryYear: Number(value.deliveryYear),
 						pictures,
 					},
 				});
+
 				const categoryLabel =
 					categoryOptions.find((option) => option.value === value.category)
 						?.label ?? value.category;
+
 				await sendSubmissionNotification({
-					data: {
-						name: value.name,
-						description: value.description,
-						category: categoryLabel,
-						deliveryYear: value.deliveryYear,
-						address: value.address,
-						contributorEmail: value.contributorEmail,
-					},
+					data: { ...value, category: categoryLabel },
 				});
+
 				formApi.reset();
 				setSubmitSuccess(true);
 			} catch {
@@ -164,8 +138,8 @@ function RouteComponent() {
 							{(field) => (
 								<field.TextareaField
 									label="Description"
-									placeholder="Décrivez votre projet en quelques phrases (500 caractères max)"
-									maxLength={500}
+									placeholder={`Décrivez votre projet en quelques phrases (${SUBMISSION_DESCRIPTION_MAX_LENGTH} caractères max)`}
+									maxLength={SUBMISSION_DESCRIPTION_MAX_LENGTH}
 									required
 								/>
 							)}
@@ -212,7 +186,7 @@ function RouteComponent() {
 								<field.FilesField
 									label="Images du projet"
 									accept={['image/*']}
-									helperText="Formats image uniquement, 5 images maximum, 5 Mo par image."
+									helperText={`Formats image uniquement, ${SUBMISSION_MAX_PICTURES} images maximum, ${SUBMISSION_MAX_PICTURE_SIZE_LABEL} par image.`}
 									required
 								/>
 							)}

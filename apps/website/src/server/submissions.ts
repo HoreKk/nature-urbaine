@@ -1,55 +1,13 @@
 import { createServerFn } from '@tanstack/react-start';
-import { z } from 'zod';
 import { baseProcedure } from './db';
-
-const maxSubmissionPictures = 5;
-const maxSubmissionPictureSize = 5 * 1024 * 1024;
-
-const submissionPictureSchema = z.object({
-	name: z.string().min(1),
-	type: z.string().min(1),
-	size: z.number().int().positive().max(maxSubmissionPictureSize),
-	base64: z.string().min(1),
-});
-
-const createSubmissionSchema = z.object({
-	name: z.string().min(1, 'Le titre du projet est requis'),
-	description: z
-		.string()
-		.min(1, 'La description est requise')
-		.max(500, 'La description ne doit pas dépasser 500 caractères'),
-	category: z.coerce.number().int().min(1, 'La catégorie est requise'),
-	deliveryYear: z.coerce.number().int().min(1900).max(2100),
-	address: z.string().min(1, "L'adresse est requise"),
-	locationDetails: z
-		.object({
-			city: z.string().optional(),
-			postcode: z.string().optional(),
-			department: z.string().optional(),
-			region: z.string().optional(),
-			citycode: z.string().optional(),
-		})
-		.optional(),
-	pictures: z
-		.array(submissionPictureSchema)
-		.min(1, 'Ajoutez au moins une image')
-		.max(maxSubmissionPictures, 'Vous pouvez ajouter au maximum 5 images'),
-	contributorEmail: z.string().email('Adresse email invalide'),
-	honeypot: z.string().optional(),
-});
+import { wireSubmissionSchema } from './submission-contract';
 
 export const createSubmission = createServerFn({ method: 'POST' })
-	.inputValidator(createSubmissionSchema)
+	.inputValidator(wireSubmissionSchema)
 	.middleware([baseProcedure])
 	.handler(async ({ data, context }) => {
 		if (data.honeypot) {
 			return { id: 0 };
-		}
-
-		for (const picture of data.pictures) {
-			if (!picture.type.startsWith('image/')) {
-				throw new Error('Seules les images sont acceptees.');
-			}
 		}
 
 		const uploadedPictures = await Promise.all(
