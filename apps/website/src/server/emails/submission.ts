@@ -1,5 +1,5 @@
 import { renderSubmissionEmail } from '@nature-urbaine/emails';
-import { getParisTimestamp, sendTemplatedEmail } from './emails/send-email';
+import { getParisTimestamp, sendTemplatedEmail } from './send-email';
 
 interface SubmissionEmailData {
 	name: string;
