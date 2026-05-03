@@ -24,6 +24,7 @@ import UIPagination from '@/components/standard/Pagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useAppForm } from '@/hooks/form-context';
 import {
+	INTERVIEWS_PAGE_SIZE,
 	interviewFilterSchema,
 	interviewsQueryOptions,
 } from '@/queries/interviews';
@@ -31,13 +32,11 @@ import type { SafeInterview } from '@/server/interviews';
 import { getInterviews } from '@/server/interviews';
 import { cardGridColumns } from '@/utils/grid';
 
-const LIMIT_PER_PAGE = 12;
-
 export const Route = createFileRoute('/interviews/')({
 	component: RouteComponent,
 	loader: async () => {
 		const interviews = await getInterviews({
-			data: { page: 1, pageSize: LIMIT_PER_PAGE },
+			data: { page: 1, pageSize: INTERVIEWS_PAGE_SIZE },
 		});
 		return { interviews };
 	},
@@ -64,7 +63,7 @@ function RouteComponent() {
 	const formValues = { search: debouncedSearch };
 
 	const { data, isEnabled, isFetching } = useQuery({
-		...interviewsQueryOptions(page, formValues, LIMIT_PER_PAGE),
+		...interviewsQueryOptions(page, formValues, INTERVIEWS_PAGE_SIZE),
 		enabled: page !== 1 || filterForm.state.isDirty,
 		initialData: loaderInterviews,
 	});
@@ -175,7 +174,7 @@ function RouteComponent() {
 			<Box mt={16}>
 				<UIPagination
 					totalDocs={totalDocs}
-					limit={LIMIT_PER_PAGE}
+					limit={INTERVIEWS_PAGE_SIZE}
 					page={page}
 					onPageChange={setPage}
 				/>

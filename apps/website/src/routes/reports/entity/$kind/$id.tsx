@@ -17,11 +17,10 @@ import {
 	reportCatalogQueryOptions,
 } from '@/queries/report-catalog';
 import {
-	getEntityByKind,
-	getTagListQuery,
-	isEntityKind,
+	picturesByTagQueryOptions,
 	TAG_PICTURES_PAGE_SIZE,
-} from '@/server/entity-search';
+} from '@/queries/tags';
+import { getEntityByKind, isEntityKind } from '@/server/entity-search';
 import type { PictureWithReport } from '@/server/tags';
 
 export const Route = createFileRoute('/reports/entity/$kind/$id')({
@@ -39,7 +38,7 @@ export const Route = createFileRoute('/reports/entity/$kind/$id')({
 			);
 		} else {
 			context.queryClient.prefetchQuery(
-				createPaginatedQueryOptions(getTagListQuery({ id, page: 1 })),
+				createPaginatedQueryOptions(picturesByTagQueryOptions(id, 1)),
 			);
 		}
 
@@ -58,7 +57,7 @@ function RouteComponent(): JSX.Element {
 		const { docs, totalDocs, isLoading, page, setPage, content } =
 			usePaginatedResource({
 				getListQuery: (currentPage) =>
-					getTagListQuery({ id, page: currentPage }),
+					picturesByTagQueryOptions(id, currentPage),
 				content: ENTITY_CONTENT.tag,
 			});
 

@@ -1,6 +1,8 @@
 import { queryOptions } from '@tanstack/react-query';
 import { getPicturesByTag, getTagById } from '@/server/tags';
 
+export const TAG_PICTURES_PAGE_SIZE = 24;
+
 export const tagByIdQueryOptions = (id: number) =>
 	queryOptions({
 		queryKey: ['tags', id],
@@ -10,9 +12,8 @@ export const tagByIdQueryOptions = (id: number) =>
 export const picturesByTagQueryOptions = (
 	tagId: number,
 	page: number,
-	pageSize = 20,
-) =>
-	queryOptions({
-		queryKey: ['pictures', 'by-tag', tagId, page],
-		queryFn: () => getPicturesByTag({ data: { tagId, page, pageSize } }),
-	});
+	pageSize = TAG_PICTURES_PAGE_SIZE,
+) => ({
+	queryKey: ['pictures', 'by-tag', tagId, page] as const,
+	queryFn: () => getPicturesByTag({ data: { tagId, page, pageSize } }),
+});
