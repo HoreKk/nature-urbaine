@@ -1,8 +1,18 @@
-import { Box, Button, Container, Link, Stack, Text } from '@chakra-ui/react';
+import {
+	Alert,
+	Box,
+	Button,
+	Container,
+	Link,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
 import { createFileRoute, Link as RouterLink } from '@tanstack/react-router';
+import { useState } from 'react';
 import z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
 import { useAppForm } from '@/hooks/form-context';
+import { createContact } from '@/server/emails/contact';
 
 export const Route = createFileRoute('/contact')({
 	component: RouteComponent,
@@ -33,12 +43,22 @@ const SECTOR_OPTIONS = [
 ];
 
 function RouteComponent() {
+	const [submitSuccess, setSubmitSuccess] = useState(false);
+	const [submitError, setSubmitError] = useState<string | null>(null);
+
 	const form = useAppForm({
 		defaultValues,
 		validators: { onSubmit: contactSchema },
-		onSubmit: ({ value, formApi }) => {
-			console.log('Contact submitted:', value);
-			formApi.reset();
+		onSubmit: async ({ value, formApi }) => {
+			setSubmitError(null);
+			setSubmitSuccess(false);
+			try {
+				await createContact({ data: value });
+				formApi.reset();
+				setSubmitSuccess(true);
+			} catch {
+				setSubmitError('Une erreur est survenue. Veuillez reessayer.');
+			}
 		},
 	});
 
@@ -114,6 +134,25 @@ function RouteComponent() {
 								</Button>
 							)}
 						</form.Subscribe>
+						{submitError && (
+							<Alert.Root status="error">
+								<Alert.Indicator />
+								<Alert.Content>
+									<Alert.Description>{submitError}</Alert.Description>
+								</Alert.Content>
+							</Alert.Root>
+						)}
+						{submitSuccess && (
+							<Alert.Root status="success" variant="surface">
+								<Alert.Indicator />
+								<Alert.Content>
+									<Alert.Description>
+										Merci, votre message a bien été envoyé. Notre équipe vous
+										répondra rapidement.
+									</Alert.Description>
+								</Alert.Content>
+							</Alert.Root>
+						)}
 					</Stack>
 				</Box>
 			</Container>

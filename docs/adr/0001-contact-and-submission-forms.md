@@ -26,7 +26,7 @@ sector       (secteur d'activité, required, select: paysagiste | MOA | MOE | ur
 message      (required, multiline)
 ```
 
-No persistence — the form sends an email to the operator. Email transport is **not yet wired** (nodemailer setup deferred). Until it is, the submit handler logs and resets; the route is otherwise production-shaped.
+No persistence — the form sends an email to the operator via `payload.sendEmail` (Payload Nodemailer adapter backed by SMTP). The contact email is rendered from `@nature-urbaine/emails` (React Email templates + plain-text fallback) and uses env-driven config (`CONTACT_EMAIL_TO`, `CONTACT_EMAIL_FROM`, `CONTACT_EMAIL_FROM_NAME`, `SMTP_*`). In local development, Maildev runs without auth (`localhost:1025`, `SMTP_SECURE=false`); production can use authenticated SMTP (for example Resend SMTP).
 
 ### `/contribuer`
 

@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
+import { nodemailerAdapter } from "@payloadcms/email-nodemailer";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig, type Plugin } from "payload";
 import sharp from "sharp";
@@ -17,6 +18,36 @@ import { Users } from "./collections/Users";
 
 const filename = fileURLToPath(import.meta.url);
 const packageDir = path.dirname(filename);
+
+function parseBoolean(value: string | undefined, fallback: boolean): boolean {
+	if (!value) return fallback;
+	return ["1", "true", "yes", "on"].includes(value.toLowerCase());
+}
+
+function buildEmailAdapter() {
+	if (!process.env.SMTP_HOST || !process.env.SMTP_PORT) return undefined;
+
+	const smtpUser = process.env.SMTP_USER;
+	const smtpPass = process.env.SMTP_PASS;
+	const hasAuth = Boolean(smtpUser && smtpPass);
+
+	return nodemailerAdapter({
+		defaultFromAddress:
+			process.env.CONTACT_EMAIL_FROM ?? "no-reply@nature-urbaine.fr",
+		defaultFromName: process.env.CONTACT_EMAIL_FROM_NAME ?? "Nature Urbaine",
+		transportOptions: {
+			host: process.env.SMTP_HOST,
+			port: Number(process.env.SMTP_PORT),
+			secure: parseBoolean(process.env.SMTP_SECURE, false),
+			auth: hasAuth
+				? {
+						user: smtpUser,
+						pass: smtpPass,
+					}
+				: undefined,
+		},
+	});
+}
 
 export interface BuildPayloadConfigOptions {
 	importMapBaseDir?: string;
@@ -50,6 +81,7 @@ export const buildPayloadConfig = ({
 		],
 		editor: lexicalEditor(),
 		secret: process.env.PAYLOAD_SECRET || "",
+		email: buildEmailAdapter(),
 		typescript: {
 			outputFile: path.resolve(packageDir, "./payload-types.ts"),
 		},
