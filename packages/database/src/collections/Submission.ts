@@ -93,6 +93,14 @@ export const Submissions: CollectionConfig = {
 			required: true,
 		},
 		{
+			name: "pictures",
+			type: "relationship",
+			relationTo: "media",
+			label: "Images soumises",
+			hasMany: true,
+			required: true,
+		},
+		{
 			name: "status",
 			type: "select",
 			label: "Statut",

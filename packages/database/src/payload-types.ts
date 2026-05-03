@@ -376,6 +376,7 @@ export interface Submission {
     citycode?: string | null;
   };
   contributorEmail: string;
+  pictures: (number | Media)[];
   status: 'pending' | 'accepted' | 'rejected';
   rejectionNote?: string | null;
   promoted?: boolean | null;
@@ -661,6 +662,7 @@ export interface SubmissionsSelect<T extends boolean = true> {
         citycode?: T;
       };
   contributorEmail?: T;
+  pictures?: T;
   status?: T;
   rejectionNote?: T;
   promoted?: T;

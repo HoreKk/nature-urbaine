@@ -65,6 +65,16 @@ const defaultValues: z.input<typeof submissionSchema> = {
 	honeypot: '',
 };
 
+async function toBase64(file: File): Promise<string> {
+	const arrayBuffer = await file.arrayBuffer();
+	let binary = '';
+	const bytes = new Uint8Array(arrayBuffer);
+	for (const byte of bytes) {
+		binary += String.fromCharCode(byte);
+	}
+	return btoa(binary);
+}
+
 function RouteComponent() {
 	const { categories } = Route.useLoaderData();
 	const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -82,7 +92,21 @@ function RouteComponent() {
 			setSubmitError(null);
 			setSubmitSuccess(false);
 			try {
-				await createSubmission({ data: value });
+				const pictures = await Promise.all(
+					value.pictures.map(async (picture) => ({
+						name: picture.name,
+						type: picture.type,
+						size: picture.size,
+						base64: await toBase64(picture),
+					})),
+				);
+
+				await createSubmission({
+					data: {
+						...value,
+						pictures,
+					},
+				});
 				const categoryLabel =
 					categoryOptions.find((option) => option.value === value.category)
 						?.label ?? value.category;
