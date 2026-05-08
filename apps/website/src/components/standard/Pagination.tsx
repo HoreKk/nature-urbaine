@@ -1,10 +1,10 @@
 import {
-	AbsoluteCenter,
 	Box,
 	ButtonGroup,
 	Container,
 	IconButton,
 	Pagination,
+	Stack,
 	Text,
 } from '@chakra-ui/react';
 import type { PaginatedDocs } from '@nature-urbaine/database';
@@ -24,6 +24,7 @@ const UIPagination = ({
 	limit,
 }: UIPaginationProps) => {
 	const currentPage = page || 1;
+
 	return (
 		<Box
 			position="relative"
@@ -31,22 +32,23 @@ const UIPagination = ({
 			borderColor="border.emphasized"
 			bgColor="bg.muted"
 		>
-			<Container
-				maxW="container.xl"
-				display="flex"
-				justifyContent="space-between"
-				py={8}
-			>
-				<Text mr={4} alignSelf="center">
-					Affichage de {(currentPage - 1) * limit + 1} -{' '}
-					{Math.min(currentPage * limit, totalDocs)} sur {totalDocs} résultats
-				</Text>
-				<AbsoluteCenter>
+			<Container maxW="container.xl" py={{ base: 5, md: 8 }}>
+				<Stack
+					direction={{ base: 'column-reverse', md: 'row' }}
+					align="center"
+					justify="space-between"
+					gap={3}
+				>
+					<Text color="fg.muted" fontSize={{ base: 'sm', md: 'md' }}>
+						Affichage de {(currentPage - 1) * limit + 1} -{' '}
+						{Math.min(currentPage * limit, totalDocs)} sur {totalDocs} résultats
+					</Text>
 					<Pagination.Root
 						count={totalDocs}
 						pageSize={limit}
 						page={currentPage}
 						onPageChange={(newPage) => onPageChange(newPage.page)}
+						siblingCount={1}
 					>
 						<ButtonGroup variant="ghost" size="sm">
 							<Pagination.PrevTrigger asChild>
@@ -70,8 +72,7 @@ const UIPagination = ({
 							</Pagination.NextTrigger>
 						</ButtonGroup>
 					</Pagination.Root>
-				</AbsoluteCenter>
-				<Box />
+				</Stack>
 			</Container>
 		</Box>
 	);
