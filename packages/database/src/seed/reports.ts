@@ -1,6 +1,12 @@
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Payload } from "payload";
+import {
+	categorySeedKey,
+	DEFAULT_THUMBNAIL_SEED_KEY,
+	reportSeedKey,
+} from "../utils/seed-key";
+import { upsertBySeedKey } from "../utils/seed-upsert";
 import { cleanString, readExcelSheet } from "../utils/tools";
 
 type ExcelReport = {
@@ -45,11 +51,23 @@ export default async function seedReports(payload: Payload) {
 		"../../../../apps/cms-payload/public/hero-section.jpg",
 	);
 
-	const defaultMedia = await payload.create({
+	const existingDefaultMedia = await payload.find({
 		collection: "media",
-		data: { alt: "Default Thumbnail" },
-		filePath: localFilePath,
+		limit: 1,
+		pagination: false,
+		where: { seedKey: { equals: DEFAULT_THUMBNAIL_SEED_KEY } },
 	});
+
+	const defaultMedia =
+		existingDefaultMedia.docs[0] ??
+		(await payload.create({
+			collection: "media",
+			data: {
+				alt: "Default Thumbnail",
+				seedKey: DEFAULT_THUMBNAIL_SEED_KEY,
+			},
+			filePath: localFilePath,
+		}));
 
 	const sortedData = [...data].toSorted((a, b) => {
 		const aFrench = isFrench(a.PAYS) ? 0 : 1;
@@ -65,14 +83,18 @@ export default async function seedReports(payload: Payload) {
 			? `${city}, ${projectName}`
 			: `${country}, ${city}, ${projectName}`;
 
-		const reportCategory = categories.docs.find((cat) =>
-			cat.name.includes(cleanString(report.CATEGORIE)),
-		);
+		const cleanedCategoryName = cleanString(report.CATEGORIE);
+		const targetCategorySeedKey = categorySeedKey(cleanedCategoryName);
+		const reportCategory =
+			categories.docs.find((cat) => cat.seedKey === targetCategorySeedKey) ??
+			categories.docs.find((cat) => cat.name.includes(cleanedCategoryName));
 
-		if (!reportCategory)
-			throw new Error(
-				`Catégorie introuvable pour le rapport: ${report.CATEGORIE}`,
+		if (!reportCategory) {
+			console.warn(
+				`Catégorie introuvable pour le rapport "${report.PROJET}": ${report.CATEGORIE}. Ligne ignorée.`,
 			);
+			continue;
+		}
 
 		const dateStr = report["DATE PHOTO"].toString();
 
@@ -118,37 +140,17 @@ export default async function seedReports(payload: Payload) {
 			},
 		};
 
-		const existingReport = await payload.find({
-			collection: "reports",
-			limit: 1,
-			where: {
-				and: [
-					{
-						name: {
-							equals: name,
-						},
-					},
-					{
-						date: {
-							equals: formattedDate,
-						},
-					},
-				],
-			},
+		const seedKey = reportSeedKey({
+			wordpressPostId: report["code WORD PRESS"],
+			pays: report.PAYS,
+			ville: report.VILLE,
+			projet: report.PROJET,
+			datePhoto: report["DATE PHOTO"],
 		});
 
-		if (existingReport.docs[0]) {
-			await payload.update({
-				collection: "reports",
-				id: existingReport.docs[0].id,
-				draft: false,
-				data: reportData,
-			});
-			continue;
-		}
-
-		await payload.create({
+		await upsertBySeedKey(payload, {
 			collection: "reports",
+			seedKey,
 			draft: false,
 			data: reportData,
 		});

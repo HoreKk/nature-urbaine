@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { seedKeyField } from "../utils/seed-key-field";
 
 export const Interviews: CollectionConfig = {
 	slug: "interviews",
@@ -10,6 +11,7 @@ export const Interviews: CollectionConfig = {
 		useAsTitle: "name",
 	},
 	fields: [
+		seedKeyField,
 		{
 			name: "name",
 			type: "text",

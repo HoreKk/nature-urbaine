@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { getSeasonFromDate } from "../utils/hooks";
+import { seedKeyField } from "../utils/seed-key-field";
 
 export const Reports: CollectionConfig = {
 	slug: "reports",
@@ -16,6 +17,7 @@ export const Reports: CollectionConfig = {
 		useAsTitle: "name",
 	},
 	fields: [
+		seedKeyField,
 		{
 			name: "thumbnail",
 			type: "upload",

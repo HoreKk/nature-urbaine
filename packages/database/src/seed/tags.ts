@@ -1,5 +1,6 @@
 import type { Payload } from "payload";
-import type { Tag, TagCategory } from "../payload-types";
+import { tagCategorySeedKey, tagSeedKey } from "../utils/seed-key";
+import { upsertBySeedKey } from "../utils/seed-upsert";
 import { cleanString, readExcelSheet } from "../utils/tools";
 
 type ExcelTags = {
@@ -43,46 +44,25 @@ export default async function seedTags(payload: Payload) {
 		const tagName = cleanString(item.tag);
 		const parentName = cleanString(item.parent);
 
-		const tagCategories = await payload.find({
+		const tagCategory = await upsertBySeedKey(payload, {
 			collection: "tag-categories",
-			where: { name: { equals: tagCategoryName } },
-			limit: 1,
+			seedKey: tagCategorySeedKey(tagCategoryName),
+			data: { name: tagCategoryName },
 		});
 
-		let tagCategory = null;
-
-		if (tagCategories.totalDocs === 0) {
-			tagCategory = await payload.create({
-				collection: "tag-categories",
-				data: { name: tagCategoryName },
-			});
-		} else {
-			tagCategory = tagCategories.docs[0] as TagCategory;
-		}
-
-		const parentTag = await payload.find({
+		const parentTag = await upsertBySeedKey(payload, {
 			collection: "tags",
-			where: { name: { equals: parentName } },
-			limit: 1,
+			seedKey: tagSeedKey(parentName),
+			data: { name: parentName, tagCategory: tagCategory.id },
 		});
 
-		let tagParent = null;
-
-		if (parentTag.totalDocs === 0) {
-			tagParent = await payload.create({
-				collection: "tags",
-				data: { name: parentName, tagCategory: tagCategory.id },
-			});
-		} else {
-			tagParent = parentTag.docs[0] as Tag;
-		}
-
-		await payload.create({
+		await upsertBySeedKey(payload, {
 			collection: "tags",
+			seedKey: tagSeedKey(tagName, parentName),
 			data: {
 				name: tagName,
 				tagCategory: tagCategory.id,
-				parentId: tagParent.id,
+				parentId: parentTag.id,
 			},
 		});
 	}

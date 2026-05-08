@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { seedKeyField } from "../utils/seed-key-field";
 
 export const Categories: CollectionConfig = {
 	slug: "categories",
@@ -10,6 +11,7 @@ export const Categories: CollectionConfig = {
 		useAsTitle: "name",
 	},
 	fields: [
+		seedKeyField,
 		{
 			name: "name",
 			type: "text",
