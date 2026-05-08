@@ -1,5 +1,5 @@
 import type { Payload } from "payload";
-import { readExcelSheet } from "../utils/tools";
+import { cleanString, readExcelSheet } from "../utils/tools";
 
 type ExcelCategory = {
 	CATEGORIES: string;
@@ -12,7 +12,7 @@ export default async function seedCategories(payload: Payload) {
 	) as ExcelCategory[];
 
 	for (const item of data) {
-		const name = item.CATEGORIES.trim();
+		const name = cleanString(item.CATEGORIES);
 		await payload.create({
 			collection: "categories",
 			data: {

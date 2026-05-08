@@ -1,5 +1,10 @@
 import XLSX from "xlsx";
 
+export function cleanString(value: string | number | undefined | null): string {
+	if (value === undefined || value === null) return "";
+	return value.toString().replace(/-/g, " ").replace(/\s+/g, " ").trim();
+}
+
 export function readExcelSheet(
 	filePath: string,
 	sheetName: string,

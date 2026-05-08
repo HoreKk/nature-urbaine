@@ -1,6 +1,6 @@
 import type { Payload } from "payload";
 import type { Tag, TagCategory } from "../payload-types";
-import { readExcelSheet } from "../utils/tools";
+import { cleanString, readExcelSheet } from "../utils/tools";
 
 type ExcelTags = {
 	category: string;
@@ -24,8 +24,8 @@ export default async function seedTags(payload: Payload) {
 			continue;
 		}
 
-		const parents = item.parent.split(",").map((p) => p.trim());
-		const tags = item.tag.split(",").map((t) => t.trim());
+		const parents = item.parent.split(",").map((p) => cleanString(p));
+		const tags = item.tag.split(",").map((t) => cleanString(t));
 
 		for (const parent of parents) {
 			for (const tag of tags) {
@@ -39,9 +39,9 @@ export default async function seedTags(payload: Payload) {
 	}
 
 	for (const item of expandedData) {
-		const tagCategoryName = item.category.trim();
-		const tagName = item.tag.trim();
-		const parentName = item.parent.trim();
+		const tagCategoryName = cleanString(item.category);
+		const tagName = cleanString(item.tag);
+		const parentName = cleanString(item.parent);
 
 		const tagCategories = await payload.find({
 			collection: "tag-categories",

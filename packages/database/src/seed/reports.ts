@@ -1,7 +1,7 @@
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Payload } from "payload";
-import { readExcelSheet } from "../utils/tools";
+import { cleanString, readExcelSheet } from "../utils/tools";
 
 type ExcelReport = {
 	PAYS: string;
@@ -51,11 +51,22 @@ export default async function seedReports(payload: Payload) {
 		filePath: localFilePath,
 	});
 
-	for (const report of data) {
-		const name = `${report.PROJET.trim()}, ${report.VILLE.trim()}`;
+	const sortedData = [...data].toSorted((a, b) => {
+		const aFrench = isFrench(a.PAYS) ? 0 : 1;
+		const bFrench = isFrench(b.PAYS) ? 0 : 1;
+		return aFrench - bFrench;
+	});
+
+	for (const report of sortedData) {
+		const country = formatCountry(report.PAYS);
+		const city = cleanString(report.VILLE);
+		const projectName = cleanString(report.PROJET);
+		const name = isFrench(report.PAYS)
+			? `${city}, ${projectName}`
+			: `${country}, ${city}, ${projectName}`;
 
 		const reportCategory = categories.docs.find((cat) =>
-			cat.name.includes(report.CATEGORIE.trim()),
+			cat.name.includes(cleanString(report.CATEGORIE)),
 		);
 
 		if (!reportCategory)
@@ -79,17 +90,17 @@ export default async function seedReports(payload: Payload) {
 
 		const reportData = {
 			name,
-			projectName: report.PROJET?.trim() || "",
+			projectName,
 			description:
 				report["Description projet "] || "Aucune description disponible.",
 			locationDetails: {
-				country: formatCountry(report.PAYS),
-				city: report.VILLE?.trim() || "",
+				country,
+				city,
 				postalCode: formatPostalCode(report["CODE POSTAL"]),
-				address: report.Adresse?.trim() || "",
+				address: cleanString(report.Adresse),
 				departmentCode: formatDepartmentCode(report.DPT),
-				department: report.DEPARTEMENT?.trim() || "",
-				region: report.REGION?.trim() || "",
+				department: cleanString(report.DEPARTEMENT),
+				region: cleanString(report.REGION),
 				cityStratum: report["STRATE DE LA VILLE"] || "",
 				nbPopulations: parseOptionalNumber(report["NB habitant.e.s"]),
 			},
@@ -97,13 +108,13 @@ export default async function seedReports(payload: Payload) {
 			date: formattedDate,
 			thumbnail: defaultMedia.id,
 			projectDetails: {
-				photoAuthor: report["AUTEUR.E"]?.trim() || "",
+				photoAuthor: cleanString(report["AUTEUR.E"]),
 				wordpressPostId: parseOptionalNumber(report["code WORD PRESS"]),
-				projectOwner: report.MOA?.trim() || "",
-				projectManagement: report.MOE?.trim() || "",
+				projectOwner: cleanString(report.MOA),
+				projectManagement: cleanString(report.MOE),
 				deliveryYear: parseOptionalNumber(report["ANNE LIVRAISON"]),
-				projectCost: report.COUT?.toString().trim() || "",
-				projectArea: report.SUPERFICIE?.toString().trim() || "",
+				projectCost: cleanString(report.COUT),
+				projectArea: cleanString(report.SUPERFICIE),
 			},
 		};
 
@@ -159,10 +170,15 @@ function parseOptionalNumber(value: number | string | undefined | null) {
 }
 
 function formatCountry(value: string | undefined) {
-	const country = value?.replace(/^_+/, "").trim();
+	const country = cleanString(value?.replace(/^_+/, ""));
 	if (!country) return "";
 
 	return country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
+}
+
+function isFrench(value: string | undefined) {
+	const country = formatCountry(value);
+	return !country || country === "France";
 }
 
 function formatPostalCode(value: string | undefined) {
