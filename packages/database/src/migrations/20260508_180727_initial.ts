@@ -6,8 +6,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum_reports_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__reports_v_version_season" AS ENUM('spring', 'summer', 'autumn', 'winter');
   CREATE TYPE "public"."enum__reports_v_version_status" AS ENUM('draft', 'published');
+  CREATE TYPE "public"."enum_submissions_status" AS ENUM('pending', 'accepted', 'rejected');
   CREATE TABLE "media" (
   	"id" serial PRIMARY KEY NOT NULL,
+  	"seed_key" varchar,
   	"alt" varchar NOT NULL,
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
@@ -24,6 +26,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   
   CREATE TABLE "reports" (
   	"id" serial PRIMARY KEY NOT NULL,
+  	"seed_key" varchar,
   	"thumbnail_id" integer,
   	"name" varchar,
   	"description" varchar,
@@ -55,6 +58,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TABLE "_reports_v" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"parent_id" integer,
+  	"version_seed_key" varchar,
   	"version_thumbnail_id" integer,
   	"version_name" varchar,
   	"version_description" varchar,
@@ -88,6 +92,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   
   CREATE TABLE "interviews" (
   	"id" serial PRIMARY KEY NOT NULL,
+  	"seed_key" varchar,
   	"name" varchar NOT NULL,
   	"interviewee" varchar NOT NULL,
   	"interviewee_role" varchar NOT NULL,
@@ -139,14 +144,45 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   
   CREATE TABLE "categories" (
   	"id" serial PRIMARY KEY NOT NULL,
+  	"seed_key" varchar,
   	"name" varchar NOT NULL,
   	"description" varchar,
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
   
+  CREATE TABLE "submissions" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"name" varchar NOT NULL,
+  	"description" varchar NOT NULL,
+  	"category_id" integer NOT NULL,
+  	"delivery_year" numeric NOT NULL,
+  	"address" varchar NOT NULL,
+  	"location_details_city" varchar,
+  	"location_details_postcode" varchar,
+  	"location_details_department" varchar,
+  	"location_details_region" varchar,
+  	"location_details_citycode" varchar,
+  	"contributor_email" varchar NOT NULL,
+  	"status" "enum_submissions_status" DEFAULT 'pending' NOT NULL,
+  	"rejection_note" varchar,
+  	"promoted" boolean DEFAULT false,
+  	"promoted_report_id" integer,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+  );
+  
+  CREATE TABLE "submissions_rels" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"order" integer,
+  	"parent_id" integer NOT NULL,
+  	"path" varchar NOT NULL,
+  	"media_id" integer
+  );
+  
   CREATE TABLE "tags" (
   	"id" serial PRIMARY KEY NOT NULL,
+  	"seed_key" varchar,
   	"name" varchar NOT NULL,
   	"description" varchar,
   	"tag_category_id" integer NOT NULL,
@@ -157,6 +193,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   
   CREATE TABLE "tag_categories" (
   	"id" serial PRIMARY KEY NOT NULL,
+  	"seed_key" varchar,
   	"name" varchar NOT NULL,
   	"description" varchar,
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
@@ -207,6 +244,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"interviews_id" integer,
   	"pictures_id" integer,
   	"categories_id" integer,
+  	"submissions_id" integer,
   	"tags_id" integer,
   	"tag_categories_id" integer,
   	"users_id" integer
@@ -244,6 +282,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "pictures" ADD CONSTRAINT "pictures_report_id_reports_id_fk" FOREIGN KEY ("report_id") REFERENCES "public"."reports"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "pictures_rels" ADD CONSTRAINT "pictures_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."pictures"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "pictures_rels" ADD CONSTRAINT "pictures_rels_tags_fk" FOREIGN KEY ("tags_id") REFERENCES "public"."tags"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "submissions" ADD CONSTRAINT "submissions_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "submissions" ADD CONSTRAINT "submissions_promoted_report_id_reports_id_fk" FOREIGN KEY ("promoted_report_id") REFERENCES "public"."reports"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "submissions_rels" ADD CONSTRAINT "submissions_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."submissions"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "submissions_rels" ADD CONSTRAINT "submissions_rels_media_fk" FOREIGN KEY ("media_id") REFERENCES "public"."media"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "tags" ADD CONSTRAINT "tags_tag_category_id_tag_categories_id_fk" FOREIGN KEY ("tag_category_id") REFERENCES "public"."tag_categories"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "tags" ADD CONSTRAINT "tags_parent_id_id_tags_id_fk" FOREIGN KEY ("parent_id_id") REFERENCES "public"."tags"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "users_sessions" ADD CONSTRAINT "users_sessions_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
@@ -253,20 +295,24 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_interviews_fk" FOREIGN KEY ("interviews_id") REFERENCES "public"."interviews"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_pictures_fk" FOREIGN KEY ("pictures_id") REFERENCES "public"."pictures"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_categories_fk" FOREIGN KEY ("categories_id") REFERENCES "public"."categories"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_submissions_fk" FOREIGN KEY ("submissions_id") REFERENCES "public"."submissions"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_tags_fk" FOREIGN KEY ("tags_id") REFERENCES "public"."tags"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_tag_categories_fk" FOREIGN KEY ("tag_categories_id") REFERENCES "public"."tag_categories"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_users_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."payload_preferences"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_users_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+  CREATE UNIQUE INDEX "media_seed_key_idx" ON "media" USING btree ("seed_key");
   CREATE INDEX "media_updated_at_idx" ON "media" USING btree ("updated_at");
   CREATE INDEX "media_created_at_idx" ON "media" USING btree ("created_at");
   CREATE UNIQUE INDEX "media_filename_idx" ON "media" USING btree ("filename");
+  CREATE UNIQUE INDEX "reports_seed_key_idx" ON "reports" USING btree ("seed_key");
   CREATE INDEX "reports_thumbnail_idx" ON "reports" USING btree ("thumbnail_id");
   CREATE INDEX "reports_category_idx" ON "reports" USING btree ("category_id");
   CREATE INDEX "reports_updated_at_idx" ON "reports" USING btree ("updated_at");
   CREATE INDEX "reports_created_at_idx" ON "reports" USING btree ("created_at");
   CREATE INDEX "reports__status_idx" ON "reports" USING btree ("_status");
   CREATE INDEX "_reports_v_parent_idx" ON "_reports_v" USING btree ("parent_id");
+  CREATE INDEX "_reports_v_version_version_seed_key_idx" ON "_reports_v" USING btree ("version_seed_key");
   CREATE INDEX "_reports_v_version_version_thumbnail_idx" ON "_reports_v" USING btree ("version_thumbnail_id");
   CREATE INDEX "_reports_v_version_version_category_idx" ON "_reports_v" USING btree ("version_category_id");
   CREATE INDEX "_reports_v_version_version_updated_at_idx" ON "_reports_v" USING btree ("version_updated_at");
@@ -275,6 +321,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "_reports_v_created_at_idx" ON "_reports_v" USING btree ("created_at");
   CREATE INDEX "_reports_v_updated_at_idx" ON "_reports_v" USING btree ("updated_at");
   CREATE INDEX "_reports_v_latest_idx" ON "_reports_v" USING btree ("latest");
+  CREATE UNIQUE INDEX "interviews_seed_key_idx" ON "interviews" USING btree ("seed_key");
   CREATE INDEX "interviews_updated_at_idx" ON "interviews" USING btree ("updated_at");
   CREATE INDEX "interviews_created_at_idx" ON "interviews" USING btree ("created_at");
   CREATE INDEX "pictures_report_idx" ON "pictures" USING btree ("report_id");
@@ -286,12 +333,23 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "pictures_rels_parent_idx" ON "pictures_rels" USING btree ("parent_id");
   CREATE INDEX "pictures_rels_path_idx" ON "pictures_rels" USING btree ("path");
   CREATE INDEX "pictures_rels_tags_id_idx" ON "pictures_rels" USING btree ("tags_id");
+  CREATE UNIQUE INDEX "categories_seed_key_idx" ON "categories" USING btree ("seed_key");
   CREATE INDEX "categories_updated_at_idx" ON "categories" USING btree ("updated_at");
   CREATE INDEX "categories_created_at_idx" ON "categories" USING btree ("created_at");
+  CREATE INDEX "submissions_category_idx" ON "submissions" USING btree ("category_id");
+  CREATE INDEX "submissions_promoted_report_idx" ON "submissions" USING btree ("promoted_report_id");
+  CREATE INDEX "submissions_updated_at_idx" ON "submissions" USING btree ("updated_at");
+  CREATE INDEX "submissions_created_at_idx" ON "submissions" USING btree ("created_at");
+  CREATE INDEX "submissions_rels_order_idx" ON "submissions_rels" USING btree ("order");
+  CREATE INDEX "submissions_rels_parent_idx" ON "submissions_rels" USING btree ("parent_id");
+  CREATE INDEX "submissions_rels_path_idx" ON "submissions_rels" USING btree ("path");
+  CREATE INDEX "submissions_rels_media_id_idx" ON "submissions_rels" USING btree ("media_id");
+  CREATE UNIQUE INDEX "tags_seed_key_idx" ON "tags" USING btree ("seed_key");
   CREATE INDEX "tags_tag_category_idx" ON "tags" USING btree ("tag_category_id");
   CREATE INDEX "tags_parent_id_idx" ON "tags" USING btree ("parent_id_id");
   CREATE INDEX "tags_updated_at_idx" ON "tags" USING btree ("updated_at");
   CREATE INDEX "tags_created_at_idx" ON "tags" USING btree ("created_at");
+  CREATE UNIQUE INDEX "tag_categories_seed_key_idx" ON "tag_categories" USING btree ("seed_key");
   CREATE INDEX "tag_categories_updated_at_idx" ON "tag_categories" USING btree ("updated_at");
   CREATE INDEX "tag_categories_created_at_idx" ON "tag_categories" USING btree ("created_at");
   CREATE INDEX "users_sessions_order_idx" ON "users_sessions" USING btree ("_order");
@@ -311,6 +369,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "payload_locked_documents_rels_interviews_id_idx" ON "payload_locked_documents_rels" USING btree ("interviews_id");
   CREATE INDEX "payload_locked_documents_rels_pictures_id_idx" ON "payload_locked_documents_rels" USING btree ("pictures_id");
   CREATE INDEX "payload_locked_documents_rels_categories_id_idx" ON "payload_locked_documents_rels" USING btree ("categories_id");
+  CREATE INDEX "payload_locked_documents_rels_submissions_id_idx" ON "payload_locked_documents_rels" USING btree ("submissions_id");
   CREATE INDEX "payload_locked_documents_rels_tags_id_idx" ON "payload_locked_documents_rels" USING btree ("tags_id");
   CREATE INDEX "payload_locked_documents_rels_tag_categories_id_idx" ON "payload_locked_documents_rels" USING btree ("tag_categories_id");
   CREATE INDEX "payload_locked_documents_rels_users_id_idx" ON "payload_locked_documents_rels" USING btree ("users_id");
@@ -334,6 +393,8 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "pictures" CASCADE;
   DROP TABLE "pictures_rels" CASCADE;
   DROP TABLE "categories" CASCADE;
+  DROP TABLE "submissions" CASCADE;
+  DROP TABLE "submissions_rels" CASCADE;
   DROP TABLE "tags" CASCADE;
   DROP TABLE "tag_categories" CASCADE;
   DROP TABLE "users_sessions" CASCADE;
@@ -347,5 +408,6 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum_reports_season";
   DROP TYPE "public"."enum_reports_status";
   DROP TYPE "public"."enum__reports_v_version_season";
-  DROP TYPE "public"."enum__reports_v_version_status";`)
+  DROP TYPE "public"."enum__reports_v_version_status";
+  DROP TYPE "public"."enum_submissions_status";`)
 }
