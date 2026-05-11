@@ -27,8 +27,7 @@
 		"generate:types": "PAYLOAD_CONFIG_PATH=./src/default-config.ts payload generate:types",
 		"seed:dev": "NODE_ENV=development PAYLOAD_DROP_DATABASE=true payload run ./src/seed/index.ts",
 		"seed:prod": "NODE_ENV=production payload run ./src/seed/index.ts",
-		"seed:update": "PAYLOAD_CONFIG_PATH=./src/default-config.ts payload run ./src/seed/update.ts",
-		"seed:backfill-keys": "PAYLOAD_CONFIG_PATH=./src/default-config.ts payload run ./src/seed/backfill-seed-keys.ts"
+		"seed:update": "PAYLOAD_CONFIG_PATH=./src/default-config.ts payload run ./src/seed/update.ts"
 	},
 	"dependencies": {
 		"@payloadcms/db-postgres": "3.84.1",
