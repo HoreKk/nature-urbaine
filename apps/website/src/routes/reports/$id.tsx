@@ -87,10 +87,6 @@ function RouteComponent() {
 		},
 		{ label: 'Coût', value: report.projectDetails?.projectCost },
 		{ label: 'Superficie', value: report.projectDetails?.projectArea },
-		{
-			label: 'Code WordPress',
-			value: formatOptionalInteger(report.projectDetails?.wordpressPostId),
-		},
 	].filter((item) => item.value);
 
 	return (

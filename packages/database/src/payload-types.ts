@@ -201,14 +201,14 @@ export interface Report {
   category: number | Category;
   date: string;
   season?: ('spring' | 'summer' | 'autumn' | 'winter') | null;
+  wordpressPostId?: number | null;
   projectDetails?: {
-    photoAuthor?: string | null;
-    wordpressPostId?: number | null;
     projectOwner?: string | null;
     projectManagement?: string | null;
     deliveryYear?: number | null;
     projectCost?: string | null;
     projectArea?: string | null;
+    photoAuthor?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -585,16 +585,16 @@ export interface ReportsSelect<T extends boolean = true> {
   category?: T;
   date?: T;
   season?: T;
+  wordpressPostId?: T;
   projectDetails?:
     | T
     | {
-        photoAuthor?: T;
-        wordpressPostId?: T;
         projectOwner?: T;
         projectManagement?: T;
         deliveryYear?: T;
         projectCost?: T;
         projectArea?: T;
+        photoAuthor?: T;
       };
   updatedAt?: T;
   createdAt?: T;

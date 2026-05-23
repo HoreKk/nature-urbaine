@@ -179,25 +179,19 @@ export const Reports: CollectionConfig = {
 			},
 		},
 		{
+			name: "wordpressPostId",
+			type: "number",
+			label: "Code WordPress",
+			admin: {
+				position: "sidebar",
+				readOnly: true,
+			},
+		},
+		{
 			name: "projectDetails",
 			type: "group",
 			label: "Détails du projet",
 			fields: [
-				{
-					type: "row",
-					fields: [
-						{
-							name: "photoAuthor",
-							type: "text",
-							label: "Auteur",
-						},
-						{
-							name: "wordpressPostId",
-							type: "number",
-							label: "Code WordPress",
-						},
-					],
-				},
 				{
 					type: "row",
 					fields: [
@@ -232,6 +226,11 @@ export const Reports: CollectionConfig = {
 							label: "Superficie",
 						},
 					],
+				},
+				{
+					name: "photoAuthor",
+					type: "text",
+					label: "Auteur des photographies",
 				},
 			],
 		},
