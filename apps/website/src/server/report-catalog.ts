@@ -26,7 +26,11 @@ export interface AugmentedReport extends Omit<
 > {
 	thumbnail: Media;
 	category: Category;
-	relatedPictures: Picture[];
+	relatedPictures: {
+		docs?: Picture[];
+		hasNextPage?: boolean;
+		totalDocs?: number;
+	};
 }
 
 function buildWhere(filter: ReportCatalogFilter) {

@@ -141,9 +141,10 @@ function RouteComponent() {
 				<Grid templateColumns="repeat(12, 1fr)">
 					<GridItem colSpan={{ base: 12, md: 8 }} mr={{ base: 0, md: 8 }}>
 						<Box bgColor="bg.muted" p={8} borderRadius="lg" boxShadow="sm">
-							{report.relatedPictures.length > 0 ? (
+							{report.relatedPictures.docs &&
+							report.relatedPictures.docs.length > 0 ? (
 								<UICarousel
-									images={report.relatedPictures.map((picture) => ({
+									images={report.relatedPictures.docs.map((picture) => ({
 										label: picture.filename || picture.alt || 'Photo associée',
 										url: getBackendUrl(picture.url),
 									}))}
