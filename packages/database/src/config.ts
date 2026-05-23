@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { nodemailerAdapter } from "@payloadcms/email-nodemailer";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { fr } from "@payloadcms/translations/languages/fr";
 import { buildConfig, type Plugin } from "payload";
 import sharp from "sharp";
 
@@ -64,6 +65,10 @@ export const buildPayloadConfig = ({
 			importMap: {
 				baseDir: importMapBaseDir ?? packageDir,
 			},
+		},
+		i18n: {
+			fallbackLanguage: "fr",
+			supportedLanguages: { fr },
 		},
 		routes: {
 			admin: "/",
