@@ -35,6 +35,8 @@ type ExcelReport = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const DEFAULT_CATEGORY_NAME = "ESPACES-PUBLICS";
+
 export default async function seedReports(payload: Payload) {
 	const data = readExcelSheet(
 		"./src/seed/historic-data.xlsx",
@@ -85,9 +87,17 @@ export default async function seedReports(payload: Payload) {
 
 		const cleanedCategoryName = cleanString(report.CATEGORIE);
 		const targetCategorySeedKey = categorySeedKey(cleanedCategoryName);
+		const fallbackCategorySeedKey = categorySeedKey(
+			cleanString(DEFAULT_CATEGORY_NAME),
+		);
 		const reportCategory =
-			categories.docs.find((cat) => cat.seedKey === targetCategorySeedKey) ??
-			categories.docs.find((cat) => cat.name.includes(cleanedCategoryName));
+			(cleanedCategoryName
+				? (categories.docs.find(
+						(cat) => cat.seedKey === targetCategorySeedKey,
+					) ??
+					categories.docs.find((cat) => cat.name.includes(cleanedCategoryName)))
+				: undefined) ??
+			categories.docs.find((cat) => cat.seedKey === fallbackCategorySeedKey);
 
 		if (!reportCategory) {
 			console.warn(
