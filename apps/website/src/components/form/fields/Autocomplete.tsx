@@ -1,12 +1,14 @@
 import {
-	Badge,
 	Combobox,
 	Highlight,
 	Portal,
+	Tag,
 	type UseListCollectionReturn,
 	useComboboxContext,
 	Wrap,
 } from '@chakra-ui/react';
+import { useState } from 'react';
+import { LuCheck } from 'react-icons/lu';
 import { Field } from '@/components/ui/field';
 import { type DefaultFieldProps, useFieldContext } from '@/hooks/form-context';
 
@@ -30,6 +32,14 @@ export function AutocompleteField({
 	multiple,
 }: AutocompleteFieldProps) {
 	const field = useFieldContext<string[]>();
+	const [inputValue, setInputValue] = useState('');
+
+	const getLabel = (value: string) =>
+		collection.items.find((item) => item.value === value)?.label ?? value;
+
+	const removeValue = (value: string) => {
+		field.handleChange(field.state.value.filter((v) => v !== value));
+	};
 
 	return (
 		<Field
@@ -40,17 +50,38 @@ export function AutocompleteField({
 				collection={collection}
 				placeholder={placeholder}
 				value={field.state.value}
-				onInputValueChange={(e) => filter(e.inputValue)}
-				onValueChange={(e) => field.handleChange(e.value)}
+				inputValue={inputValue}
+				onInputValueChange={(e) => {
+					setInputValue(e.inputValue);
+					filter(e.inputValue);
+				}}
+				onValueChange={(e) => {
+					field.handleChange(e.value);
+					if (multiple) setInputValue('');
+				}}
 				multiple={multiple}
 				openOnClick
 				positioning={{ flip: false }}
 			>
 				<Combobox.Label>{label}</Combobox.Label>
-				{multiple && (
-					<Wrap gap="2">
-						{field.state.value.map((skill) => (
-							<Badge key={skill}>{skill}</Badge>
+				{multiple && field.state.value.length > 0 && (
+					<Wrap gap={2} mb={2}>
+						{field.state.value.map((value) => (
+							<Tag.Root
+								key={value}
+								size="md"
+								colorPalette="primary"
+								borderRadius="full"
+							>
+								<Tag.Label>{getLabel(value)}</Tag.Label>
+								<Tag.EndElement>
+									<Tag.CloseTrigger
+										cursor="pointer"
+										onClick={() => removeValue(value)}
+										aria-label={`Retirer ${getLabel(value)}`}
+									/>
+								</Tag.EndElement>
+							</Tag.Root>
 						))}
 					</Wrap>
 				)}
@@ -90,6 +121,9 @@ function ComboboxItem(props: { item: { label: string; value: string } }) {
 					{item.label}
 				</Highlight>
 			</Combobox.ItemText>
+			<Combobox.ItemIndicator>
+				<LuCheck />
+			</Combobox.ItemIndicator>
 		</Combobox.Item>
 	);
 }

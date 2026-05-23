@@ -13,12 +13,12 @@ import { Route as ContribuerRouteImport } from './routes/contribuer'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CarteRouteImport } from './routes/carte'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TagsIndexRouteImport } from './routes/tags/index'
 import { Route as ReportsIndexRouteImport } from './routes/reports/index'
 import { Route as InterviewsIndexRouteImport } from './routes/interviews/index'
+import { Route as TagsIdRouteImport } from './routes/tags/$id'
 import { Route as ReportsIdRouteImport } from './routes/reports/$id'
 import { Route as InterviewsIdRouteImport } from './routes/interviews/$id'
-import { Route as ReportsFieldFieldValueRouteImport } from './routes/reports/field/$field/$value'
-import { Route as ReportsEntityKindIdRouteImport } from './routes/reports/entity/$kind/$id'
 
 const ContribuerRoute = ContribuerRouteImport.update({
   id: '/contribuer',
@@ -40,6 +40,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TagsIndexRoute = TagsIndexRouteImport.update({
+  id: '/tags/',
+  path: '/tags/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReportsIndexRoute = ReportsIndexRouteImport.update({
   id: '/reports/',
   path: '/reports/',
@@ -48,6 +53,11 @@ const ReportsIndexRoute = ReportsIndexRouteImport.update({
 const InterviewsIndexRoute = InterviewsIndexRouteImport.update({
   id: '/interviews/',
   path: '/interviews/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TagsIdRoute = TagsIdRouteImport.update({
+  id: '/tags/$id',
+  path: '/tags/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportsIdRoute = ReportsIdRouteImport.update({
@@ -60,16 +70,6 @@ const InterviewsIdRoute = InterviewsIdRouteImport.update({
   path: '/interviews/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReportsFieldFieldValueRoute = ReportsFieldFieldValueRouteImport.update({
-  id: '/reports/field/$field/$value',
-  path: '/reports/field/$field/$value',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReportsEntityKindIdRoute = ReportsEntityKindIdRouteImport.update({
-  id: '/reports/entity/$kind/$id',
-  path: '/reports/entity/$kind/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -78,10 +78,10 @@ export interface FileRoutesByFullPath {
   '/contribuer': typeof ContribuerRoute
   '/interviews/$id': typeof InterviewsIdRoute
   '/reports/$id': typeof ReportsIdRoute
+  '/tags/$id': typeof TagsIdRoute
   '/interviews/': typeof InterviewsIndexRoute
   '/reports/': typeof ReportsIndexRoute
-  '/reports/entity/$kind/$id': typeof ReportsEntityKindIdRoute
-  '/reports/field/$field/$value': typeof ReportsFieldFieldValueRoute
+  '/tags/': typeof TagsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -90,10 +90,10 @@ export interface FileRoutesByTo {
   '/contribuer': typeof ContribuerRoute
   '/interviews/$id': typeof InterviewsIdRoute
   '/reports/$id': typeof ReportsIdRoute
+  '/tags/$id': typeof TagsIdRoute
   '/interviews': typeof InterviewsIndexRoute
   '/reports': typeof ReportsIndexRoute
-  '/reports/entity/$kind/$id': typeof ReportsEntityKindIdRoute
-  '/reports/field/$field/$value': typeof ReportsFieldFieldValueRoute
+  '/tags': typeof TagsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -103,10 +103,10 @@ export interface FileRoutesById {
   '/contribuer': typeof ContribuerRoute
   '/interviews/$id': typeof InterviewsIdRoute
   '/reports/$id': typeof ReportsIdRoute
+  '/tags/$id': typeof TagsIdRoute
   '/interviews/': typeof InterviewsIndexRoute
   '/reports/': typeof ReportsIndexRoute
-  '/reports/entity/$kind/$id': typeof ReportsEntityKindIdRoute
-  '/reports/field/$field/$value': typeof ReportsFieldFieldValueRoute
+  '/tags/': typeof TagsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,10 +117,10 @@ export interface FileRouteTypes {
     | '/contribuer'
     | '/interviews/$id'
     | '/reports/$id'
+    | '/tags/$id'
     | '/interviews/'
     | '/reports/'
-    | '/reports/entity/$kind/$id'
-    | '/reports/field/$field/$value'
+    | '/tags/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -129,10 +129,10 @@ export interface FileRouteTypes {
     | '/contribuer'
     | '/interviews/$id'
     | '/reports/$id'
+    | '/tags/$id'
     | '/interviews'
     | '/reports'
-    | '/reports/entity/$kind/$id'
-    | '/reports/field/$field/$value'
+    | '/tags'
   id:
     | '__root__'
     | '/'
@@ -141,10 +141,10 @@ export interface FileRouteTypes {
     | '/contribuer'
     | '/interviews/$id'
     | '/reports/$id'
+    | '/tags/$id'
     | '/interviews/'
     | '/reports/'
-    | '/reports/entity/$kind/$id'
-    | '/reports/field/$field/$value'
+    | '/tags/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -154,10 +154,10 @@ export interface RootRouteChildren {
   ContribuerRoute: typeof ContribuerRoute
   InterviewsIdRoute: typeof InterviewsIdRoute
   ReportsIdRoute: typeof ReportsIdRoute
+  TagsIdRoute: typeof TagsIdRoute
   InterviewsIndexRoute: typeof InterviewsIndexRoute
   ReportsIndexRoute: typeof ReportsIndexRoute
-  ReportsEntityKindIdRoute: typeof ReportsEntityKindIdRoute
-  ReportsFieldFieldValueRoute: typeof ReportsFieldFieldValueRoute
+  TagsIndexRoute: typeof TagsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -190,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tags/': {
+      id: '/tags/'
+      path: '/tags'
+      fullPath: '/tags/'
+      preLoaderRoute: typeof TagsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reports/': {
       id: '/reports/'
       path: '/reports'
@@ -202,6 +209,13 @@ declare module '@tanstack/react-router' {
       path: '/interviews'
       fullPath: '/interviews/'
       preLoaderRoute: typeof InterviewsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tags/$id': {
+      id: '/tags/$id'
+      path: '/tags/$id'
+      fullPath: '/tags/$id'
+      preLoaderRoute: typeof TagsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reports/$id': {
@@ -218,20 +232,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InterviewsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reports/field/$field/$value': {
-      id: '/reports/field/$field/$value'
-      path: '/reports/field/$field/$value'
-      fullPath: '/reports/field/$field/$value'
-      preLoaderRoute: typeof ReportsFieldFieldValueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reports/entity/$kind/$id': {
-      id: '/reports/entity/$kind/$id'
-      path: '/reports/entity/$kind/$id'
-      fullPath: '/reports/entity/$kind/$id'
-      preLoaderRoute: typeof ReportsEntityKindIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -242,10 +242,10 @@ const rootRouteChildren: RootRouteChildren = {
   ContribuerRoute: ContribuerRoute,
   InterviewsIdRoute: InterviewsIdRoute,
   ReportsIdRoute: ReportsIdRoute,
+  TagsIdRoute: TagsIdRoute,
   InterviewsIndexRoute: InterviewsIndexRoute,
   ReportsIndexRoute: ReportsIndexRoute,
-  ReportsEntityKindIdRoute: ReportsEntityKindIdRoute,
-  ReportsFieldFieldValueRoute: ReportsFieldFieldValueRoute,
+  TagsIndexRoute: TagsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

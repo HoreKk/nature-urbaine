@@ -109,11 +109,7 @@ const LibraryStats = ({ totals, categories }: LibraryStatsProps) => {
 					rowGap={0}
 				>
 					{categories.map((cat, i) => (
-						<Link
-							key={cat.id}
-							to="/reports/entity/$kind/$id"
-							params={{ kind: 'category', id: cat.id.toString() }}
-						>
+						<Link key={cat.id} to="/reports" search={{ category: [cat.id] }}>
 							<Flex
 								align="center"
 								justify="space-between"

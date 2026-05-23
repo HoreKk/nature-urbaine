@@ -30,18 +30,18 @@ function itemToLinkProps(item: SearchItem): LinkProps {
 	switch (item.kind) {
 		case 'category':
 			return {
-				to: '/reports/entity/$kind/$id',
-				params: { kind: 'category', id: item.value },
+				to: '/reports',
+				search: { category: [Number(item.value)] },
 			};
 		case 'tag':
 			return {
-				to: '/reports/entity/$kind/$id',
-				params: { kind: 'tag', id: item.value },
+				to: '/tags/$id',
+				params: { id: item.value },
 			};
 		case 'location':
 			return {
-				to: '/reports/field/$field/$value',
-				params: { field: 'city', value: item.value },
+				to: '/reports',
+				search: { city: item.value },
 			};
 	}
 }

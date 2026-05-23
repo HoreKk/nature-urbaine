@@ -22,9 +22,8 @@ CONTEXT.md §12 had this as an open question: _"Tag autocomplete + recursive des
 
 - New `/tags` route — picker page. Chakra `Combobox` for type-ahead search, Chakra `TreeView` underneath for browsing the taxonomy. URL state via TanStack Router native `validateSearch` carrying `?q=<text>`.
 - New `/tags/$id` route — picture-grid page for a given tag. Replaces `/reports/entity/tag/$id`.
-- `/reports/entity/$kind/$id` is **retired entirely**. The category branch folds into `/reports?category=:id`, the tag branch into `/tags/:id`.
-- `/reports/field/$field/$value` is **retired entirely**. The city branch folds into `/reports?city=:value`.
-- Redirects (301) preserve external links: `tag/:id → /tags/:id`, `category/:id → /reports?category=:id`, `field/city/:value → /reports?city=:value`.
+- `/reports/entity/$kind/$id` is **retired entirely**. The category branch folds into `/reports?category=:id`, the tag branch into `/tags/:id`. No redirect — the old URL 404s.
+- `/reports/field/$field/$value` is **retired entirely**. The city branch folds into `/reports?city=:value`. No redirect — the old URL 404s.
 
 ### Global typeahead, narrowed
 
@@ -61,7 +60,7 @@ When either is hit, migrate to a materialised closure table (option (ii) in _Con
 
 ## Consequences
 
-- The `/reports/entity` and `/reports/field` directories disappear, along with `server/entity-search/`. The `content/entity-search.ts` file shrinks to the tag-specific copy that survived. Callers that linked to these routes (home `LibraryStats`, category cards, etc.) need updating.
+- The `/reports/entity` and `/reports/field` directories disappear, along with `server/entity-search/`. The `content/entity-search.ts` file shrinks to the tag-specific copy that survived. Callers that linked to these routes (home `LibraryStats`, category cards, etc.) need updating. Any external links to the old URLs will 404 — acceptable because the only known callers were inside the app and have been updated; if traffic to the old paths appears in logs later, a redirect can be reintroduced as a localised follow-up without revisiting this ADR.
 - `PictureCard` is now used only on `/tags/$id`. It can be refactored picture-first without worrying about cross-page reuse. Tag chips and the report link live in the lightbox.
 - `getSearchResults` becomes tag-only. Two of its three result kinds disappear, and the leaf-only filter is reversed (non-leaves are returned and clickable).
 - `getPicturesByTagRecursive` does up to 4 round trips at three strata. This is acceptable at MVP scale but is the load-bearing call on the most-visited search surface — instrument it from day one (logged duration + descendant count) so the migration triggers above are observable.

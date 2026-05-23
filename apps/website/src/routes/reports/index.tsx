@@ -13,9 +13,9 @@ import {
 } from '@chakra-ui/react';
 import { useStore } from '@tanstack/react-form';
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
 import z from 'zod';
 import ProjectCard from '@/components/cards/ProjectCard';
@@ -34,26 +34,31 @@ import { getAllCategories } from '@/server/categories';
 import { findReportCatalog } from '@/server/report-catalog';
 import { cardGridColumns } from '@/utils/grid';
 
+const reportsSearchSchema = reportCatalogFilterSchema.extend({
+	page: z.coerce.number<number>().int().min(1).optional(),
+});
+
+type ReportsSearch = z.infer<typeof reportsSearchSchema>;
+
 export const Route = createFileRoute('/reports/')({
-	component: RouteComponent,
-	loader: async () => {
+	validateSearch: reportsSearchSchema,
+	loaderDeps: ({ search }) => search,
+	loader: async ({ deps }) => {
+		const { page = 1, ...filter } = deps;
 		const reports = await findReportCatalog({
-			data: { page: 1, pageSize: REPORT_CATALOG_PAGE_SIZE },
+			data: { page, pageSize: REPORT_CATALOG_PAGE_SIZE, filter },
 		});
 		const categories = await getAllCategories();
 		return { reports, categories };
 	},
+	component: RouteComponent,
 });
-
-const defaultValues: z.input<typeof reportCatalogFilterSchema> = {
-	category: [],
-	search: '',
-};
 
 function RouteComponent() {
 	const { reports: loaderReports, categories } = Route.useLoaderData();
-
-	const [page, setPage] = useState(1);
+	const search = Route.useSearch();
+	const navigate = useNavigate({ from: Route.fullPath });
+	const page = search.page ?? 1;
 
 	const { contains } = useFilter({ sensitivity: 'base' });
 	const { collection, filter } = useListCollection({
@@ -65,34 +70,132 @@ function RouteComponent() {
 	});
 
 	const filterForm = useAppForm({
-		defaultValues,
-		validators: { onChange: reportCatalogFilterSchema },
+		defaultValues: {
+			category: (search.category ?? []).map((id) => id.toString()),
+			search: search.search ?? '',
+		},
+		validators: {
+			onChange: z.object({
+				category: z.array(z.string()),
+				search: z.string(),
+			}),
+		},
 	});
 
-	const { search, ...restFormValues } = useStore(
+	const { search: searchInput, category: categoryInput } = useStore(
 		filterForm.store,
 		(state) => state.values,
 	);
-	const debouncedSearch = useDebounce(search, 400);
-	const formValues = { ...restFormValues, search: debouncedSearch };
+	const debouncedSearch = useDebounce(searchInput, 400);
 
-	const { data, isEnabled, isFetching } = useQuery({
-		...reportCatalogQueryOptions(page, formValues),
-		enabled: page !== 1 || filterForm.state.isDirty,
+	// Push debounced form state to URL (resets page to 1 when filters change).
+	const lastPushedRef = useRef<{
+		search: string;
+		category: string[];
+	} | null>(null);
+	useEffect(() => {
+		const next = { search: debouncedSearch, category: categoryInput };
+		const last = lastPushedRef.current;
+		if (
+			last &&
+			last.search === next.search &&
+			last.category.length === next.category.length &&
+			last.category.every((c, i) => c === next.category[i])
+		) {
+			return;
+		}
+		const currentSearch = search.search ?? '';
+		const currentCategory = (search.category ?? []).map(String);
+		if (
+			next.search === currentSearch &&
+			next.category.length === currentCategory.length &&
+			next.category.every((c, i) => c === currentCategory[i])
+		) {
+			return;
+		}
+		lastPushedRef.current = next;
+		navigate({
+			search: (prev: ReportsSearch) => ({
+				...prev,
+				search: next.search || undefined,
+				category:
+					next.category.length > 0 ? next.category.map(Number) : undefined,
+				page: undefined,
+			}),
+			replace: true,
+		});
+	}, [
+		debouncedSearch,
+		categoryInput,
+		navigate,
+		search.search,
+		search.category,
+	]);
+
+	// Sync external URL changes (back/forward) back into the form.
+	useEffect(() => {
+		const urlSearchValue = search.search ?? '';
+		if (urlSearchValue !== filterForm.state.values.search) {
+			filterForm.setFieldValue('search', urlSearchValue);
+		}
+		const urlCategory = (search.category ?? []).map(String);
+		const formCategory = filterForm.state.values.category;
+		if (
+			urlCategory.length !== formCategory.length ||
+			!urlCategory.every((c, i) => c === formCategory[i])
+		) {
+			filterForm.setFieldValue('category', urlCategory);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [search.search, search.category]);
+
+	const queryFilter = {
+		category: search.category,
+		search: search.search,
+		city: search.city,
+	};
+
+	const { data, isFetching } = useQuery({
+		...reportCatalogQueryOptions(page, queryFilter),
 		initialData: loaderReports,
 	});
 
-	const filters = (
-		Object.keys(formValues) as (keyof typeof formValues)[]
-	).filter(
-		(key) =>
-			formValues[key] &&
-			!(Array.isArray(formValues[key]) && formValues[key].length === 0),
-	);
+	const activeFilters = (
+		Object.keys(queryFilter) as (keyof typeof queryFilter)[]
+	).filter((key) => {
+		const value = queryFilter[key];
+		if (Array.isArray(value)) return value.length > 0;
+		return Boolean(value);
+	});
 
-	const isLoading = isFetching || debouncedSearch !== search;
-	const reports = isEnabled ? data.docs : loaderReports.docs;
-	const totalDocs = isEnabled ? data.totalDocs : loaderReports.totalDocs;
+	const isLoading = isFetching || debouncedSearch !== searchInput;
+	const reports = data.docs;
+	const totalDocs = data.totalDocs;
+
+	const handlePageChange = (nextPage: number) => {
+		navigate({
+			search: (prev: ReportsSearch) => ({
+				...prev,
+				page: nextPage > 1 ? nextPage : undefined,
+			}),
+		});
+	};
+
+	const clearFilter = (key: 'search' | 'category' | 'city') => {
+		if (key === 'search') filterForm.setFieldValue('search', '');
+		if (key === 'category') filterForm.setFieldValue('category', []);
+		if (key === 'city') {
+			navigate({
+				search: (prev: ReportsSearch) => ({ ...prev, city: undefined }),
+				replace: true,
+			});
+		}
+	};
+
+	const clearAll = () => {
+		filterForm.reset();
+		navigate({ search: {}, replace: true });
+	};
 
 	return (
 		<>
@@ -135,6 +238,7 @@ function RouteComponent() {
 								placeholder="Sélectionnez une catégorie"
 								collection={collection}
 								filter={filter}
+								multiple
 							/>
 						)}
 					</filterForm.AppField>
@@ -156,9 +260,9 @@ function RouteComponent() {
 					<Flex gap={2} alignItems="center">
 						<Text>Filtres actifs :</Text>
 						<Wrap gap={2}>
-							{filters.map((key, index) => {
-								const value = formValues[key as keyof typeof formValues];
-								if (key === 'search' && value !== search) return null;
+							{activeFilters.map((key, index) => {
+								const value = queryFilter[key];
+								const label = Array.isArray(value) ? value.join(', ') : value;
 								return (
 									<>
 										<Tag.Root
@@ -167,27 +271,22 @@ function RouteComponent() {
 											colorPalette="primary"
 											borderRadius="full"
 										>
-											<Tag.Label>{value}</Tag.Label>
+											<Tag.Label>{label}</Tag.Label>
 											<Tag.EndElement>
 												<Tag.CloseTrigger
 													cursor="pointer"
-													onClick={() =>
-														filterForm.setFieldValue(
-															key,
-															Array.isArray(value) ? [] : '',
-														)
-													}
+													onClick={() => clearFilter(key)}
 												/>
 											</Tag.EndElement>
 										</Tag.Root>
-										{filters.length - 1 === index && (
+										{activeFilters.length - 1 === index && (
 											<Text
 												key="clear-all"
 												color="fg.muted"
 												fontSize="sm"
 												textDecor="underline"
 												cursor="pointer"
-												onClick={() => filterForm.reset()}
+												onClick={clearAll}
 											>
 												Effacer tous les filtres
 											</Text>
@@ -229,7 +328,7 @@ function RouteComponent() {
 					totalDocs={totalDocs}
 					limit={REPORT_CATALOG_PAGE_SIZE}
 					page={page}
-					onPageChange={setPage}
+					onPageChange={handlePageChange}
 				/>
 			</Box>
 			<ContributeCta />

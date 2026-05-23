@@ -199,9 +199,9 @@ The cahier des charges defines these top-level pages: **Accueil, À la une, Lieu
 
 URL convention: keep the French slug `/contribuer` but the code-side resource lives under `reports` / `interviews` / `tags` (English plurals matching collection slugs). When adding new routes, prefer the collection slug (English) for `/reports`-like resources and the spec slug (French) for spec-only pages (`/lieux`, `/fournisseurs`).
 
-### Retired routes (kept as 301 redirects)
+### Retired routes
 
-ADR-0002 retired two generic routes that tried to do too many jobs. Redirects preserve external links:
+ADR-0002 retired two generic routes that tried to do too many jobs. The directories were deleted outright — old URLs 404. Replacements:
 
 - `/reports/entity/tag/:id` → `/tags/:id`
 - `/reports/entity/category/:id` → `/reports?category=:id`
