@@ -16,7 +16,7 @@ const features: Feature[] = [
 		num: '01',
 		kicker: 'Découvrir',
 		title: 'Reportages photos',
-		desc: 'Plus de 480 reportages classés par catégorie, lieu, saison.',
+		desc: 'Des centaines de reportages photographiques classés par lieux, catégories, maîtrises d’œuvres, maîtrises d’ouvrages, saisons…',
 		to: '/reports',
 		available: true,
 	},
@@ -31,15 +31,15 @@ const features: Feature[] = [
 		num: '03',
 		kicker: 'Lire',
 		title: 'Interviews',
-		desc: "À la rencontre des paysagistes, urbanistes, maîtres d'œuvre.",
+		desc: 'À la rencontre des maîtres d’œuvre et maîtres d’ouvrage qui façonnent la ville, le territoire.',
 		to: '/interviews',
 		available: true,
 	},
 	{
 		num: '04',
 		kicker: 'Filtrer',
-		title: 'Recherche par mot-clé',
-		desc: '« candélabre », « banc bois »… toutes les photos taguées.',
+		title: 'Recherche par mot clé',
+		desc: 'Retrouvez facilement des images de référence grâce à un système de tags associés à chaque image.',
 		to: '/reports',
 		available: true,
 	},
@@ -68,11 +68,10 @@ const Features = () => {
 				<Stack gap={2}>
 					<Text textStyle="kicker">Fonctionnalités</Text>
 					<Heading as="h2" textStyle="heading.lg">
-						Que faire sur{' '}
+						À explorer sur{' '}
 						<Text as="em" textStyle="emphasis">
 							Nature Urbaine
-						</Text>{' '}
-						?
+						</Text>
 					</Heading>
 				</Stack>
 			</Container>
