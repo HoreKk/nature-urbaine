@@ -8,7 +8,9 @@ import {
 	Heading,
 	Portal,
 	Stack,
+	Tag,
 	Text,
+	Wrap,
 } from '@chakra-ui/react';
 import { Link } from '@tanstack/react-router';
 import { Image } from '@unpic/react';
@@ -24,6 +26,7 @@ type PictureLightboxProps = {
 
 const PictureLightbox = ({ picture, onClose }: PictureLightboxProps) => {
 	const open = picture !== null;
+	const relatedTags = picture?.relatedTags ?? [];
 
 	return (
 		<Dialog.Root
@@ -76,6 +79,33 @@ const PictureLightbox = ({ picture, onClose }: PictureLightboxProps) => {
 										<Text textStyle="lead" fontSize="md">
 											{picture.alt}
 										</Text>
+									)}
+									{relatedTags.length > 0 && (
+										<Box>
+											<Text textStyle="kicker" mb={2}>
+												Étiquettes
+											</Text>
+											<Wrap gap={2}>
+												{relatedTags.map((tag) => (
+													<Link
+														key={tag.id}
+														to="/tags/$id"
+														params={{ id: tag.id.toString() }}
+														onClick={onClose}
+													>
+														<Tag.Root
+															size="md"
+															colorPalette="primary"
+															borderRadius="full"
+															cursor="pointer"
+															_hover={{ bg: 'primary.muted' }}
+														>
+															<Tag.Label>{tag.name}</Tag.Label>
+														</Tag.Root>
+													</Link>
+												))}
+											</Wrap>
+										</Box>
 									)}
 									{picture.report && (
 										<Box

@@ -9,7 +9,10 @@ import { createServerFn } from '@tanstack/react-start';
 import z from 'zod';
 import { baseProcedure } from './db';
 
-export type PictureWithReport = Omit<Picture, 'report'> & { report: Report };
+export type PictureWithReport = Omit<Picture, 'report' | 'relatedTags'> & {
+	report: Report;
+	relatedTags: Tag[];
+};
 
 export const getTagById = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
