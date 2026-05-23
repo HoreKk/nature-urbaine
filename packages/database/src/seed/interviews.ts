@@ -65,6 +65,7 @@ export default async function seedInterviews(payload: Payload) {
 				projectManagement: cleanString(interview["Maîtrise d’œuvre"]),
 				summary: cleanString(interview.Résumé),
 				area: cleanString(interview.Superficie),
+				projectCost: cleanString(interview.Coût) || undefined,
 				publishedAt: publishedAt ?? new Date().toISOString(),
 				realisedAt: realisedAt ?? new Date().toISOString(),
 				projectDetails: {

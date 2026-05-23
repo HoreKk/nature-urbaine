@@ -13,6 +13,12 @@ export const Interviews: CollectionConfig = {
 	fields: [
 		seedKeyField,
 		{
+			name: "thumbnail",
+			type: "upload",
+			label: "Vignette",
+			relationTo: "media",
+		},
+		{
 			name: "name",
 			type: "text",
 			label: "Nom",
@@ -36,6 +42,12 @@ export const Interviews: CollectionConfig = {
 			],
 		},
 		{
+			name: "intervieweePicture",
+			type: "upload",
+			label: "Photo de la personne interviewée",
+			relationTo: "media",
+		},
+		{
 			type: "row",
 			fields: [
 				{
@@ -50,12 +62,6 @@ export const Interviews: CollectionConfig = {
 					label: "Département",
 					required: true,
 				},
-				{
-					name: "area",
-					type: "text",
-					label: "Superficie",
-					required: true,
-				},
 			],
 		},
 		{
@@ -64,13 +70,29 @@ export const Interviews: CollectionConfig = {
 				{
 					name: "projectOwner",
 					type: "text",
-					label: "Maitrise d'oeuvre",
+					label: "Maîtrise d'ouvrage",
 					required: true,
 				},
 				{
 					name: "projectManagement",
 					type: "text",
-					label: "Maitrise d'ouvrage",
+					label: "Maîtrise d'œuvre",
+					required: true,
+				},
+			],
+		},
+		{
+			type: "row",
+			fields: [
+				{
+					name: "projectCost",
+					type: "text",
+					label: "Coût",
+				},
+				{
+					name: "area",
+					type: "text",
+					label: "Superficie",
 					required: true,
 				},
 			],
@@ -121,7 +143,7 @@ export const Interviews: CollectionConfig = {
 		{
 			name: "publishedAt",
 			type: "date",
-			label: "Date de publication",
+			label: "Date de l'interview",
 			required: true,
 			admin: {
 				position: "sidebar",

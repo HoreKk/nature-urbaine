@@ -1,6 +1,7 @@
 import {
 	convertLexicalToHTML,
 	type Interview,
+	type Media,
 	type PaginatedDocs,
 } from '@nature-urbaine/database';
 import { notFound } from '@tanstack/react-router';
@@ -9,17 +10,27 @@ import { z } from 'zod';
 import { baseProcedure } from './db';
 
 // List items don't need the richText payload — only the scalar fields.
-export type SafeInterview = Omit<Interview, 'projectDetails'> & {
+export type SafeInterview = Omit<
+	Interview,
+	'projectDetails' | 'thumbnail' | 'intervieweePicture'
+> & {
 	projectDetails?: never;
+	thumbnail?: Media | null;
+	intervieweePicture?: Media | null;
 };
 
 // Detail view: projectDetails fields are pre-converted to HTML strings.
-export type InterviewDetail = Omit<Interview, 'projectDetails'> & {
+export type InterviewDetail = Omit<
+	Interview,
+	'projectDetails' | 'thumbnail' | 'intervieweePicture'
+> & {
 	projectDetails: {
 		objectives: string;
 		impacts: string;
 		challenges: string;
 	};
+	thumbnail?: Media | null;
+	intervieweePicture?: Media | null;
 };
 
 export const interviewFilterSchema = z.object({
@@ -57,7 +68,7 @@ export const getInterviews = createServerFn({ method: 'GET' })
 			collection: 'interviews',
 			limit: pageSize,
 			page,
-			depth: 0,
+			depth: 1,
 			sort: '-publishedAt',
 			where,
 		});
@@ -72,7 +83,7 @@ export const getInterviewById = createServerFn({ method: 'GET' })
 		const interview = await context.db.findByID({
 			collection: 'interviews',
 			id,
-			depth: 0,
+			depth: 1,
 		});
 
 		if (!interview) throw notFound();

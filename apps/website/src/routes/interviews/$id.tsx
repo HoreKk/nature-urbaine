@@ -1,5 +1,7 @@
 import {
+	Avatar,
 	Box,
+	Image as ChakraImage,
 	Container,
 	Flex,
 	Grid,
@@ -10,6 +12,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
+import { Image } from '@unpic/react';
 import {
 	RiBuildingLine,
 	RiCalendarLine,
@@ -20,6 +23,7 @@ import { UIBreadcrumb } from '@/components/standard/Breadcrumb';
 import { Prose } from '@/components/ui/prose';
 import type { InterviewDetail } from '@/server/interviews';
 import { getInterviewById } from '@/server/interviews';
+import { getBackendUrl } from '@/utils/backend-url';
 
 export const Route = createFileRoute('/interviews/$id')({
 	component: RouteComponent,
@@ -76,6 +80,13 @@ function QuestionBlock({ question, html }: QuestionBlockProps) {
 function RouteComponent() {
 	const interview = Route.useLoaderData() as InterviewDetail;
 
+	const thumbnailUrl = interview.thumbnail?.url
+		? getBackendUrl(interview.thumbnail.url)
+		: null;
+	const portraitUrl = interview.intervieweePicture?.url
+		? getBackendUrl(interview.intervieweePicture.url)
+		: null;
+
 	return (
 		<>
 			<UIBreadcrumb
@@ -86,18 +97,54 @@ function RouteComponent() {
 				currentLinkLabel={interview.name}
 			/>
 
-			<Box
-				as="section"
-				py={{ base: 10, md: 14 }}
-				bgColor="bg"
-				borderBottom="1px solid"
-				borderColor="border.muted"
-			>
-				<Container maxW="container.xl">
-					<Text textStyle="kicker" mb={4}>
-						Interview · À la rencontre de
-					</Text>
-					<Heading as="h1" textStyle="heading.xl" mb={4} maxW="container.md">
+			<Box position="relative">
+				{thumbnailUrl ? (
+					<ChakraImage asChild height={{ base: 240, md: 380 }} width="full">
+						<Image
+							src={thumbnailUrl}
+							alt={interview.thumbnail?.alt || interview.name}
+							layout="fullWidth"
+						/>
+					</ChakraImage>
+				) : (
+					<Box
+						height={{ base: 240, md: 380 }}
+						w="full"
+						bgColor="bg.muted"
+						backgroundImage="repeating-linear-gradient(45deg, transparent 0 12px, rgba(0,0,0,0.04) 12px 24px)"
+					/>
+				)}
+				<Container maxW="container.xl" position="relative">
+					<Avatar.Root
+						position="absolute"
+						right={{ base: 4, md: 8 }}
+						bottom={{ base: '-56px', md: '-96px' }}
+						boxSize={{ base: '140px', md: '240px' }}
+						borderWidth="4px"
+						borderColor="bg"
+						shadow="md"
+						zIndex={1}
+					>
+						<Avatar.Fallback name={interview.interviewee} />
+						{portraitUrl ? (
+							<Avatar.Image
+								src={portraitUrl}
+								alt={interview.intervieweePicture?.alt || interview.interviewee}
+							/>
+						) : null}
+					</Avatar.Root>
+				</Container>
+			</Box>
+
+			<Container maxW="container.xl" pt={8} pb={12}>
+				<Flex flexDir="column" gap={4}>
+					<Text textStyle="kicker">Interview · À la rencontre de</Text>
+					<Heading
+						as="h1"
+						textStyle="heading.xl"
+						maxW="container.md"
+						textTransform="uppercase"
+					>
 						{interview.name}
 					</Heading>
 
@@ -105,24 +152,19 @@ function RouteComponent() {
 						gap={{ base: 4, md: 6 }}
 						flexWrap="wrap"
 						alignItems="center"
-						mt={4}
+						mt={2}
 					>
-						<Flex alignItems="center" gap={2}>
-							<Flex
-								w={9}
-								h={9}
-								borderRadius="full"
-								bgColor="primary.muted"
-								alignItems="center"
-								justifyContent="center"
-							>
-								<Icon as={RiUserLine} boxSize={4} color="primary.fg" />
-							</Flex>
+						<Flex alignItems="center" gap={3}>
+							<Avatar.Root size="md" colorPalette="primary">
+								<Avatar.Fallback>
+									<Icon as={RiUserLine} boxSize={5} />
+								</Avatar.Fallback>
+							</Avatar.Root>
 							<Flex flexDir="column">
-								<Text fontWeight="bold" fontSize="sm">
+								<Text fontWeight="bold" fontSize="xl" lineHeight="1.2">
 									{interview.interviewee}
 								</Text>
-								<Text fontSize="xs" color="fg.muted">
+								<Text fontSize="sm" color="fg.muted">
 									{interview.intervieweeRole}
 								</Text>
 							</Flex>
@@ -130,7 +172,7 @@ function RouteComponent() {
 
 						<Separator
 							orientation="vertical"
-							height={8}
+							height={10}
 							display={{ base: 'none', md: 'block' }}
 						/>
 
@@ -144,25 +186,30 @@ function RouteComponent() {
 
 						<Separator
 							orientation="vertical"
-							height={8}
+							height={10}
 							display={{ base: 'none', md: 'block' }}
 						/>
 
-						<Flex alignItems="center" gap={2}>
-							<Icon as={RiCalendarLine} boxSize={4} color="fg.muted" />
-							<Text fontSize="sm" color="fg.muted">
-								{new Date(interview.publishedAt).toLocaleDateString('fr-FR', {
-									day: 'numeric',
-									month: 'long',
-									year: 'numeric',
-								})}
+						<Flex flexDir="column" gap={0.5}>
+							<Text fontSize="xs" color="fg.muted">
+								Date de l'interview
 							</Text>
+							<Flex alignItems="center" gap={2}>
+								<Icon as={RiCalendarLine} boxSize={4} color="fg.muted" />
+								<Text fontSize="sm">
+									{new Date(interview.publishedAt).toLocaleDateString('fr-FR', {
+										day: 'numeric',
+										month: 'long',
+										year: 'numeric',
+									})}
+								</Text>
+							</Flex>
 						</Flex>
 					</Flex>
-				</Container>
-			</Box>
+				</Flex>
 
-			<Container maxW="container.xl" pt={10} pb={16}>
+				<Separator my={8} />
+
 				<Grid templateColumns="repeat(12, 1fr)" gap={8}>
 					<GridItem colSpan={{ base: 12, md: 8 }}>
 						<Box
@@ -215,36 +262,6 @@ function RouteComponent() {
 						<Flex flexDir="column" gap={4}>
 							<Box bgColor="bg.muted" p={6} borderRadius="lg" boxShadow="sm">
 								<Heading size="2xl" mb={4}>
-									Le projet
-								</Heading>
-								<Flex flexDir="column" gap={3}>
-									<Flex flexDir="column" gap={1}>
-										<Text color="fg.muted" fontSize="sm">
-											Superficie
-										</Text>
-										<Text>{interview.area}</Text>
-									</Flex>
-									<Separator />
-									<Flex flexDir="column" gap={1}>
-										<Text color="fg.muted" fontSize="sm">
-											Date de réalisation
-										</Text>
-										<Text>
-											{new Date(interview.realisedAt).toLocaleDateString(
-												'fr-FR',
-												{
-													day: 'numeric',
-													month: 'long',
-													year: 'numeric',
-												},
-											)}
-										</Text>
-									</Flex>
-								</Flex>
-							</Box>
-
-							<Box bgColor="bg.muted" p={6} borderRadius="lg" boxShadow="sm">
-								<Heading size="2xl" mb={4}>
 									Acteurs
 								</Heading>
 								<Flex flexDir="column" gap={3}>
@@ -274,6 +291,47 @@ function RouteComponent() {
 											</Text>
 										</Flex>
 										<Text>{interview.projectManagement}</Text>
+									</Flex>
+								</Flex>
+							</Box>
+
+							<Box bgColor="bg.muted" p={6} borderRadius="lg" boxShadow="sm">
+								<Heading size="2xl" mb={4}>
+									Le projet
+								</Heading>
+								<Flex flexDir="column" gap={3}>
+									<Flex flexDir="column" gap={1}>
+										<Text color="fg.muted" fontSize="sm">
+											Date de réalisation
+										</Text>
+										<Text>
+											{new Date(interview.realisedAt).toLocaleDateString(
+												'fr-FR',
+												{
+													day: 'numeric',
+													month: 'long',
+													year: 'numeric',
+												},
+											)}
+										</Text>
+									</Flex>
+									{interview.projectCost ? (
+										<>
+											<Separator />
+											<Flex flexDir="column" gap={1}>
+												<Text color="fg.muted" fontSize="sm">
+													Coût
+												</Text>
+												<Text>{interview.projectCost}</Text>
+											</Flex>
+										</>
+									) : null}
+									<Separator />
+									<Flex flexDir="column" gap={1}>
+										<Text color="fg.muted" fontSize="sm">
+											Superficie
+										</Text>
+										<Text>{interview.area}</Text>
 									</Flex>
 								</Flex>
 							</Box>

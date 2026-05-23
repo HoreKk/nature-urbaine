@@ -317,14 +317,17 @@ export interface Interview {
    * Identifiant stable utilisé par les scripts de seed pour mettre à jour cet enregistrement. Ne pas modifier.
    */
   seedKey?: string | null;
+  thumbnail?: (number | null) | Media;
   name: string;
   interviewee: string;
   intervieweeRole: string;
+  intervieweePicture?: (number | null) | Media;
   city: string;
   department: string;
-  area: string;
   projectOwner: string;
   projectManagement: string;
+  projectCost?: string | null;
+  area: string;
   summary: string;
   projectDetails: {
     objectives: {
@@ -603,14 +606,17 @@ export interface ReportsSelect<T extends boolean = true> {
  */
 export interface InterviewsSelect<T extends boolean = true> {
   seedKey?: T;
+  thumbnail?: T;
   name?: T;
   interviewee?: T;
   intervieweeRole?: T;
+  intervieweePicture?: T;
   city?: T;
   department?: T;
-  area?: T;
   projectOwner?: T;
   projectManagement?: T;
+  projectCost?: T;
+  area?: T;
   summary?: T;
   projectDetails?:
     | T

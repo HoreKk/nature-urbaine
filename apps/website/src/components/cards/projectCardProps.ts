@@ -31,11 +31,21 @@ export const interviewToProjectCardProps = (interview: SafeInterview) => ({
 	title: interview.name,
 	description: interview.summary,
 	date: interview.publishedAt,
+	imageSrc: interview.thumbnail?.url
+		? getBackendUrl(interview.thumbnail.url)
+		: undefined,
+	imageAlt: interview.thumbnail?.alt || interview.name,
 	location: interview.department
 		? `${interview.city} — ${interview.department}`
 		: interview.city,
 	footerIcon: RiMicLine,
 	footerLabel: 'Interview',
 	readMoreLabel: "Lire l'interview",
-	portrait: { initials: getInitials(interview.interviewee) },
+	portrait: {
+		src: interview.intervieweePicture?.url
+			? getBackendUrl(interview.intervieweePicture.url)
+			: undefined,
+		alt: interview.intervieweePicture?.alt || interview.interviewee,
+		initials: getInitials(interview.interviewee),
+	},
 });
