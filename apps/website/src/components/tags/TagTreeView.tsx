@@ -140,7 +140,14 @@ export function TagTreeView({ categories }: TagTreeViewProps): JSX.Element {
 											}
 										/>
 									)}
-									<TreeView.BranchText>{node.name}</TreeView.BranchText>
+									<TreeView.BranchText>
+										{node.name}
+										{node.childrenCount !== undefined && (
+											<Text as="span" color="fg.muted" ml={1.5}>
+												({node.childrenCount})
+											</Text>
+										)}
+									</TreeView.BranchText>
 								</TreeView.BranchControl>
 							) : (
 								<TreeView.Item cursor="pointer">
