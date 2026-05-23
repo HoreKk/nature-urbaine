@@ -2,6 +2,16 @@ import type { CollectionConfig } from "payload";
 import { getSeasonFromDate } from "../utils/hooks";
 import { seedKeyField } from "../utils/seed-key-field";
 
+export const CITY_STRATUM_OPTIONS = [
+	{ label: "Moins de 500 hab.", value: "moins-de-500" },
+	{ label: "De 500 à 2 000 hab.", value: "500-a-2000" },
+	{ label: "De 2 000 à 3 500 hab.", value: "2000-a-3500" },
+	{ label: "De 3 500 à 10 000 hab.", value: "3500-a-10000" },
+	{ label: "De 10 000 à 30 000 hab.", value: "10000-a-30000" },
+	{ label: "De 30 000 à 100 000 hab.", value: "30000-a-100000" },
+	{ label: "Plus de 100 000 hab.", value: "plus-de-100000" },
+] as const;
+
 export const Reports: CollectionConfig = {
 	slug: "reports",
 	labels: {
@@ -116,8 +126,9 @@ export const Reports: CollectionConfig = {
 					fields: [
 						{
 							name: "cityStratum",
-							type: "text",
+							type: "select",
 							label: "Strate de la ville",
+							options: [...CITY_STRATUM_OPTIONS],
 						},
 						{
 							name: "nbPopulations",

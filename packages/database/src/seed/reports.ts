@@ -1,6 +1,7 @@
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Payload } from "payload";
+import { CITY_STRATUM_OPTIONS } from "../collections/Report";
 import {
 	categorySeedKey,
 	DEFAULT_THUMBNAIL_SEED_KEY,
@@ -36,6 +37,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const DEFAULT_CATEGORY_NAME = "ESPACES-PUBLICS";
+
+function normalizeStratum(value: string): string {
+	return value.toString().trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+const CITY_STRATUM_BY_LABEL = new Map(
+	CITY_STRATUM_OPTIONS.map((opt) => [normalizeStratum(opt.label), opt.value]),
+);
+
+function mapCityStratum(value: string | undefined): string | undefined {
+	if (!value) return undefined;
+	return CITY_STRATUM_BY_LABEL.get(normalizeStratum(value));
+}
 
 export default async function seedReports(payload: Payload) {
 	const data = readExcelSheet(
@@ -133,7 +147,7 @@ export default async function seedReports(payload: Payload) {
 				departmentCode: formatDepartmentCode(report.DPT),
 				department: cleanString(report.DEPARTEMENT),
 				region: cleanString(report.REGION),
-				cityStratum: report["STRATE DE LA VILLE"] || "",
+				cityStratum: mapCityStratum(report["STRATE DE LA VILLE"]),
 				nbPopulations: parseOptionalNumber(report["NB habitant.e.s"]),
 			},
 			category: reportCategory.id,

@@ -190,7 +190,17 @@ export interface Report {
     departmentCode?: string | null;
     department?: string | null;
     region?: string | null;
-    cityStratum?: string | null;
+    cityStratum?:
+      | (
+          | 'moins-de-500'
+          | '500-a-2000'
+          | '2000-a-3500'
+          | '3500-a-10000'
+          | '10000-a-30000'
+          | '30000-a-100000'
+          | 'plus-de-100000'
+        )
+      | null;
     nbPopulations?: number | null;
   };
   relatedPictures?: {
