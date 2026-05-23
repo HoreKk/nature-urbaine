@@ -79,20 +79,20 @@ const Navbar = () => {
 					</AbsoluteCenter>
 
 					<HStack gap={3} display={{ base: 'none', md: 'flex' }}>
-						<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
+						<Button
+							asChild
+							variant="outline"
+							size="sm"
+							px="14px"
+							color="fg.muted"
+						>
 							<Link to="/tags">
-								<Button variant="outline" size="sm" px="14px" color="fg.muted">
-									<LuSearch /> Rechercher
-								</Button>
+								<LuSearch /> Rechercher
 							</Link>
-						</ChakraLink>
-						<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
-							<Link to="/contribuer">
-								<Button size="sm" px="16px">
-									Contribuer
-								</Button>
-							</Link>
-						</ChakraLink>
+						</Button>
+						<Button asChild size="sm" px="16px">
+							<Link to="/contribuer">Contribuer</Link>
+						</Button>
 					</HStack>
 
 					<IconButton
@@ -157,30 +157,16 @@ const Navbar = () => {
 								borderColor="border.muted"
 								gap={3}
 							>
-								<ChakraLink
-									asChild
-									outline="none"
-									_hover={{ textDecor: 'none' }}
-									flex={1}
-								>
+								<Button asChild variant="outline" size="sm" flex={1}>
 									<Link to="/tags" onClick={() => setOpen(false)}>
-										<Button variant="outline" size="sm" w="full">
-											<LuSearch /> Rechercher
-										</Button>
+										<LuSearch /> Rechercher
 									</Link>
-								</ChakraLink>
-								<ChakraLink
-									asChild
-									outline="none"
-									_hover={{ textDecor: 'none' }}
-									flex={1}
-								>
+								</Button>
+								<Button asChild size="sm" flex={1}>
 									<Link to="/contribuer" onClick={() => setOpen(false)}>
-										<Button size="sm" w="full">
-											Contribuer
-										</Button>
+										Contribuer
 									</Link>
-								</ChakraLink>
+								</Button>
 							</Drawer.Footer>
 						</Drawer.Content>
 					</Drawer.Positioner>

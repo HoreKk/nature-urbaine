@@ -15,7 +15,7 @@ import { useStore } from '@tanstack/react-form';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
-import { useEffect, useRef } from 'react';
+import { Fragment, useEffect, useMemo, useRef } from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
 import z from 'zod';
 import ProjectCard from '@/components/cards/ProjectCard';
@@ -77,10 +77,15 @@ function RouteComponent() {
 		validators: {
 			onChange: z.object({
 				category: z.array(z.string()),
-				search: z.string(),
+				search: z.string().max(200),
 			}),
 		},
 	});
+
+	const categoryNameById = useMemo(
+		() => new Map(categories.map((c) => [c.id, c.name])),
+		[categories],
+	);
 
 	const { search: searchInput, category: categoryInput } = useStore(
 		filterForm.store,
@@ -181,20 +186,26 @@ function RouteComponent() {
 		});
 	};
 
+	// All filter mutations go through the URL — form state mirrors via the
+	// URL→form effect above, so this stays the single source of truth.
 	const clearFilter = (key: 'search' | 'category' | 'city') => {
-		if (key === 'search') filterForm.setFieldValue('search', '');
-		if (key === 'category') filterForm.setFieldValue('category', []);
-		if (key === 'city') {
-			navigate({
-				search: (prev: ReportsSearch) => ({ ...prev, city: undefined }),
-				replace: true,
-			});
-		}
+		navigate({
+			search: (prev: ReportsSearch) => ({ ...prev, [key]: undefined }),
+			replace: true,
+		});
 	};
 
 	const clearAll = () => {
-		filterForm.reset();
 		navigate({ search: {}, replace: true });
+	};
+
+	const renderFilterLabel = (key: 'search' | 'category' | 'city'): string => {
+		if (key === 'category') {
+			return (queryFilter.category ?? [])
+				.map((id) => categoryNameById.get(id) ?? id.toString())
+				.join(', ');
+		}
+		return queryFilter[key] ?? '';
 	};
 
 	return (
@@ -260,40 +271,34 @@ function RouteComponent() {
 					<Flex gap={2} alignItems="center">
 						<Text>Filtres actifs :</Text>
 						<Wrap gap={2}>
-							{activeFilters.map((key, index) => {
-								const value = queryFilter[key];
-								const label = Array.isArray(value) ? value.join(', ') : value;
-								return (
-									<>
-										<Tag.Root
-											key={key}
-											size="sm"
-											colorPalette="primary"
-											borderRadius="full"
-										>
-											<Tag.Label>{label}</Tag.Label>
-											<Tag.EndElement>
-												<Tag.CloseTrigger
-													cursor="pointer"
-													onClick={() => clearFilter(key)}
-												/>
-											</Tag.EndElement>
-										</Tag.Root>
-										{activeFilters.length - 1 === index && (
-											<Text
-												key="clear-all"
-												color="fg.muted"
-												fontSize="sm"
-												textDecor="underline"
+							{activeFilters.map((key, index) => (
+								<Fragment key={key}>
+									<Tag.Root
+										size="sm"
+										colorPalette="primary"
+										borderRadius="full"
+									>
+										<Tag.Label>{renderFilterLabel(key)}</Tag.Label>
+										<Tag.EndElement>
+											<Tag.CloseTrigger
 												cursor="pointer"
-												onClick={clearAll}
-											>
-												Effacer tous les filtres
-											</Text>
-										)}
-									</>
-								);
-							})}
+												onClick={() => clearFilter(key)}
+											/>
+										</Tag.EndElement>
+									</Tag.Root>
+									{activeFilters.length - 1 === index && (
+										<Text
+											color="fg.muted"
+											fontSize="sm"
+											textDecor="underline"
+											cursor="pointer"
+											onClick={clearAll}
+										>
+											Effacer tous les filtres
+										</Text>
+									)}
+								</Fragment>
+							))}
 						</Wrap>
 					</Flex>
 					<Text>

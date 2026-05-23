@@ -29,6 +29,10 @@ export const getSearchResults = createServerFn({ method: 'GET' })
 			depth: 1,
 		});
 
+		// `depth: 1` above already hydrates `tagCategory` and `parentId` as
+		// objects, so `fetchOrReturnRealValue` short-circuits without firing
+		// additional findByID calls. We keep the helper as a safety net in case a
+		// future depth change reverts to numeric refs.
 		const results: SearchResult[] = await Promise.all(
 			tags.docs.map(async (tag) => {
 				const [tagCategory, parentTag] = await Promise.all([

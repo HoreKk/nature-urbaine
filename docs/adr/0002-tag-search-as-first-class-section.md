@@ -31,9 +31,10 @@ The shared `SearchCombobox` lives in two places — the home hero (inline, `size
 
 ### Picker page (`/tags`)
 
-- Empty state: `TreeView` shows TagCategories collapsed at the root. Children load lazily via a new `getChildTags(parentId)` server fn — one Payload `find` per expansion, depth 0.
+- Empty state: `TreeView` shows TagCategories collapsed at the root. The loader pre-fetches a single `getTagCategoriesWithRootCount` query — one `find` for categories + one `find` for root-level tags (`parentId: { exists: false }`), counts grouped by `tagCategory` in memory — so each root node carries a known `childrenCount`. Chakra's TreeView treats `childrenCount > 0` as "branch with N children pending load", which is the trigger for click-to-expand to fire at all (a node with no `children` and no `childrenCount` is rendered as a leaf, so the click does nothing).
+- Children load lazily on expand via `getChildTags({ parentId, tagCategoryId })` — one Payload `find` per expansion, depth 0, with a `relatedChildTags` count join so non-leaf descendants inherit the same `childrenCount` pattern. React Query caches each subtree.
 - Search-active state (`?q=` non-empty): the tree collapses and a flat result list takes its place, with parent-chain hints (`VOIRIE › BORDURE › BORDURE-A1`).
-- Non-leaf tags are clickable. Clicking any tag (leaf or non-leaf) routes to `/tags/:id`.
+- **Only leaf tags navigate.** Clicking a non-leaf tag or a TagCategory only expands; navigation to `/tags/:id` is gated on `childrenCount === 0`. This avoids landing on a "result grid" where the user expected to drill into the taxonomy.
 
 ### Grid page (`/tags/$id`) — recursive descendant matching
 

@@ -2,7 +2,6 @@ import { queryOptions } from '@tanstack/react-query';
 import {
 	getChildTags,
 	getPicturesByTagRecursive,
-	getRootTagCategories,
 	getTagById,
 } from '@/server/tags';
 
@@ -12,12 +11,6 @@ export const tagByIdQueryOptions = (id: number) =>
 	queryOptions({
 		queryKey: ['tags', id],
 		queryFn: () => getTagById({ data: id }),
-	});
-
-export const rootTagCategoriesQueryOptions = () =>
-	queryOptions({
-		queryKey: ['tag-categories', 'roots'],
-		queryFn: () => getRootTagCategories(),
 	});
 
 export const childTagsQueryOptions = ({

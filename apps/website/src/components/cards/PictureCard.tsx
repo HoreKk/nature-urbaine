@@ -32,6 +32,8 @@ const PictureCard = ({ picture, onSelect }: PictureCardProps) => {
 			borderWidth="1px"
 			borderColor="border.muted"
 			bg="bg"
+			textAlign="left"
+			cursor="pointer"
 			transition="transform 0.2s ease, box-shadow 0.2s ease"
 			_hover={{
 				transform: 'translateY(-2px)',
@@ -44,11 +46,7 @@ const PictureCard = ({ picture, onSelect }: PictureCardProps) => {
 				outlineOffset: '2px',
 			}}
 		>
-			<button
-				type="button"
-				onClick={() => onSelect(picture)}
-				style={{ textAlign: 'left', cursor: 'pointer' }}
-			>
+			<button type="button" onClick={() => onSelect(picture)}>
 				<Box bgColor="bg.muted" aspectRatio="4 / 3" w="full">
 					<ChakraImage asChild w="full" h="full">
 						<Image

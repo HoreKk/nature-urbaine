@@ -30,18 +30,6 @@ export const getTagById = createServerFn({ method: 'GET' })
 		return tag as Tag;
 	});
 
-export const getRootTagCategories = createServerFn({ method: 'GET' })
-	.middleware([baseProcedure])
-	.handler(async ({ context }) => {
-		const result = await context.db.find({
-			collection: 'tag-categories',
-			limit: 100,
-			depth: 0,
-			sort: 'name',
-		});
-		return result.docs as TagCategory[];
-	});
-
 export type TagCategoryWithCount = TagCategory & { rootTagCount: number };
 
 /**
@@ -147,10 +135,13 @@ export const getPicturesByTagRecursive = createServerFn({ method: 'GET' })
 		const descendants = new Set<number>([data.tagId]);
 		let frontier: number[] = [data.tagId];
 		let depth = 0;
+		// Hard depth cap protects against cycles in `parentId` chains. The 10000
+		// limit per level is generous: the cahier targets ~2000 tags total across
+		// 3 strata, so any single level realistically holds dozens-to-hundreds.
 		while (frontier.length > 0 && depth < 10) {
 			const children = await context.db.find({
 				collection: 'tags',
-				limit: 1000,
+				limit: 10000,
 				depth: 0,
 				pagination: false,
 				where: { parentId: { in: frontier } },
@@ -167,6 +158,10 @@ export const getPicturesByTagRecursive = createServerFn({ method: 'GET' })
 		}
 
 		const ids = [...descendants];
+		// `depth: 1` hydrates `report` and `relatedTags` as objects (Payload's
+		// behaviour). The `as PictureWithReport[]` cast trusts that — if Payload
+		// ever stops doing this on depth:1, the lightbox will break visibly (city,
+		// date, tag chips). Worth a runtime guard if we ever see flakiness here.
 		const result = await context.db.find({
 			collection: 'pictures',
 			limit: data.pageSize,
@@ -176,10 +171,12 @@ export const getPicturesByTagRecursive = createServerFn({ method: 'GET' })
 			where: { relatedTags: { in: ids } },
 		});
 
-		const elapsed = Date.now() - start;
-		console.log(
-			`[getPicturesByTagRecursive] tagId=${data.tagId} descendants=${ids.length} elapsed=${elapsed}ms`,
-		);
+		if (process.env.NODE_ENV !== 'production') {
+			const elapsed = Date.now() - start;
+			console.log(
+				`[getPicturesByTagRecursive] tagId=${data.tagId} descendants=${ids.length} elapsed=${elapsed}ms`,
+			);
+		}
 
 		return {
 			...result,
