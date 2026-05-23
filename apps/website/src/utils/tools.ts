@@ -25,7 +25,9 @@ export function formatDepartmentLabel(
 	departmentCode: string | null | undefined,
 	department: string | null | undefined,
 ) {
-	return [departmentCode, department].filter(Boolean).join(' - ');
+	if (!department) return departmentCode ?? '';
+	if (!departmentCode) return department;
+	return `${department} (${departmentCode.slice(0, 2)})`;
 }
 
 export function stripExtension(filename: string) {

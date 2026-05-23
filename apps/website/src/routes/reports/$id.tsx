@@ -19,7 +19,6 @@ import {
 	formatDepartmentLabel,
 	formatOptionalDate,
 	formatOptionalInteger,
-	formatOptionalNumber,
 	joinNonEmpty,
 } from '@/utils/tools';
 
@@ -57,7 +56,6 @@ function RouteComponent() {
 	const locationItems = [
 		{ label: 'Catégorie', value: report.category.name },
 		{ label: 'Ville', value: report.locationDetails?.city },
-		{ label: 'Code postal', value: report.locationDetails?.postalCode },
 		{
 			label: 'Département',
 			value: formatDepartmentLabel(
@@ -67,10 +65,6 @@ function RouteComponent() {
 		},
 		{ label: 'Région', value: report.locationDetails?.region },
 		{ label: 'Strate urbaine', value: report.locationDetails?.cityStratum },
-		{
-			label: "Nombre d'habitants",
-			value: formatOptionalNumber(report.locationDetails?.nbPopulations),
-		},
 		{ label: 'Adresse', value: report.locationDetails?.address },
 	].filter((item) => item.value);
 
