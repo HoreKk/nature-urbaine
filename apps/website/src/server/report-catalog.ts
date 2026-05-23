@@ -10,7 +10,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { baseProcedure } from './db';
 
-export const REPORT_CATALOG_PAGE_SIZE = 15;
+export const REPORT_CATALOG_PAGE_SIZE = 50;
 
 export const reportCatalogFilterSchema = z.object({
 	category: z.array(z.coerce.number<number>()).optional(),

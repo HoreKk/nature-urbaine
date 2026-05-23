@@ -9,7 +9,7 @@ import {
 export { interviewFilterSchema };
 export type InterviewFilters = z.infer<typeof interviewFilterSchema>;
 
-export const INTERVIEWS_PAGE_SIZE = 12;
+export const INTERVIEWS_PAGE_SIZE = 50;
 
 export const interviewsQueryOptions = (
 	page: number,
