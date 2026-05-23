@@ -15,6 +15,7 @@
 		"generate:importmap": "cd apps/cms-payload && pnpm generate:importmap",
 		"seed:dev": "pnpm --filter @nature-urbaine/database seed:dev",
 		"seed:prod": "pnpm --filter @nature-urbaine/database seed:prod",
+		"seed:update": "pnpm --filter @nature-urbaine/database seed:update",
 		"dev:cms-payload": "cd apps/cms-payload && pnpm dev -p 3001",
 		"dev:website": "cd apps/website && pnpm dev",
 		"dev:emails": "pnpm --filter @nature-urbaine/emails email:dev",
