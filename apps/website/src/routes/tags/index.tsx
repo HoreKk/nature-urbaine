@@ -1,9 +1,12 @@
-import { Box, Container, Text } from '@chakra-ui/react';
+import { Box, Container, Heading, Text } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
 import type { JSX } from 'react';
 import z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
 import SearchCombobox from '@/components/standard/SearchCombobox';
+import { TagSearchResults } from '@/components/tags/TagSearchResults';
+import { TagTreeView } from '@/components/tags/TagTreeView';
+import { getTagCategoriesWithRootCount } from '@/server/tags';
 
 const tagsSearchSchema = z.object({
 	q: z.string().optional(),
@@ -11,11 +14,17 @@ const tagsSearchSchema = z.object({
 
 export const Route = createFileRoute('/tags/')({
 	validateSearch: tagsSearchSchema,
+	loader: async () => {
+		const categories = await getTagCategoriesWithRootCount();
+		return { categories };
+	},
 	component: RouteComponent,
 });
 
 function RouteComponent(): JSX.Element {
+	const { categories } = Route.useLoaderData();
 	const { q } = Route.useSearch();
+	const trimmed = q?.trim() ?? '';
 
 	return (
 		<>
@@ -33,15 +42,22 @@ function RouteComponent(): JSX.Element {
 				description="Parcourez la taxonomie d'étiquettes ou recherchez un mot-clef pour explorer la bibliothèque par image."
 			/>
 			<Container maxW="container.xl" mt={8}>
-				<SearchCombobox size="lg" />
-				<Box mt={10} color="fg.muted">
-					{q ? (
-						<Text>Résultats pour « {q} » — à venir.</Text>
+				<SearchCombobox size="lg" focusOnMount />
+				<Box mt={10}>
+					{trimmed ? (
+						<>
+							<Heading textStyle="heading.sm" mb={4}>
+								Résultats pour « {trimmed} »
+							</Heading>
+							<TagSearchResults query={trimmed} />
+						</>
 					) : (
-						<Text>
-							La taxonomie d'étiquettes s'affichera ici (à venir dans la
-							prochaine itération).
-						</Text>
+						<>
+							<Heading textStyle="heading.sm" mb={4}>
+								Parcourir la taxonomie
+							</Heading>
+							<TagTreeView categories={categories} />
+						</>
 					)}
 				</Box>
 			</Container>

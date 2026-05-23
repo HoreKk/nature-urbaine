@@ -12,59 +12,48 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, type LinkProps } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
-import { useState, type JSX } from 'react';
+import {
+	useEffect,
+	useRef,
+	useState,
+	type JSX,
+	type KeyboardEvent,
+} from 'react';
 import { LuSearch } from 'react-icons/lu';
 import { getSearchResults, type SearchResult } from '@/server/search';
-
-type SearchItem = SearchResult & { groupLabel: string };
-
-const GROUP_LABELS: Record<SearchResult['kind'], string> = {
-	category: 'Catégories',
-	tag: 'Étiquettes',
-	location: 'Lieux',
-};
-
-function itemToLinkProps(item: SearchItem): LinkProps {
-	switch (item.kind) {
-		case 'category':
-			return {
-				to: '/reports',
-				search: { category: [Number(item.value)] },
-			};
-		case 'tag':
-			return {
-				to: '/tags/$id',
-				params: { id: item.value },
-			};
-		case 'location':
-			return {
-				to: '/reports',
-				search: { city: item.value },
-			};
-	}
-}
 
 type SearchComboboxProps = {
 	placeholder?: string;
 	maxW?: string | number;
 	size?: 'sm' | 'md' | 'lg';
+	onSelect?: () => void;
+	focusOnMount?: boolean;
 };
 
 function SearchCombobox({
-	placeholder = 'Rechercher un lieu, une catégorie, une étiquette...',
+	placeholder = 'Rechercher une étiquette...',
 	maxW = '640px',
 	size = 'md',
+	onSelect,
+	focusOnMount = false,
 }: SearchComboboxProps): JSX.Element {
+	const navigate = useNavigate();
 	const [search, setSearch] = useState('');
 	const debouncedSearch = useDebounce(search, 400);
+	const inputRef = useRef<HTMLInputElement>(null);
 
-	const { collection, set } = useListCollection<SearchItem>({
+	useEffect(() => {
+		if (focusOnMount) {
+			inputRef.current?.focus();
+		}
+	}, [focusOnMount]);
+
+	const { collection, set } = useListCollection<SearchResult>({
 		initialItems: [],
-		groupBy: ({ groupLabel }) => groupLabel,
 		itemToString: ({ label }) => label,
-		itemToValue: ({ kind, value }) => `${kind}-${value}`,
+		itemToValue: ({ value }) => value,
 	});
 
 	const { isLoading } = useQuery({
@@ -73,13 +62,26 @@ function SearchCombobox({
 			const results = await getSearchResults({
 				data: { searchTerm: debouncedSearch },
 			});
-			set(results.map((r) => ({ ...r, groupLabel: GROUP_LABELS[r.kind] })));
+			set(results);
 			return results;
 		},
 		enabled: debouncedSearch !== '',
 	});
 
 	const py = size === 'lg' ? 4 : size === 'sm' ? 2 : 3;
+
+	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+		if (event.key !== 'Enter') return;
+		// Let Chakra's Combobox handle Enter when a highlighted item exists; the
+		// combobox stops propagation in that case. If Enter reaches us, no item
+		// was active — navigate to the picker with the current query.
+		event.preventDefault();
+		const trimmed = search.trim();
+		navigate(
+			trimmed ? { to: '/tags', search: { q: trimmed } } : { to: '/tags' },
+		);
+		onSelect?.();
+	};
 
 	return (
 		<Combobox.Root
@@ -91,12 +93,14 @@ function SearchCombobox({
 		>
 			<Combobox.Control>
 				<Combobox.Input
+					ref={inputRef}
 					placeholder={placeholder}
 					borderRadius="full"
 					borderColor="primary.solid"
 					bgColor="bg"
 					px={5}
 					py={py}
+					onKeyDown={handleKeyDown}
 					_hover={{ borderColor: 'primary.emphasized' }}
 					_focus={{
 						borderColor: 'primary.solid',
@@ -121,54 +125,57 @@ function SearchCombobox({
 								<Spinner />
 							</Center>
 						) : collection.items.length === 0 ? (
-							<Combobox.Empty>
-								Aucun résultat trouvé pour "{debouncedSearch}"
-							</Combobox.Empty>
+							debouncedSearch ? (
+								<Combobox.Empty>
+									Aucune étiquette pour "{debouncedSearch}" — appuyez sur Entrée
+									pour rechercher.
+								</Combobox.Empty>
+							) : (
+								<Combobox.Empty>
+									Tapez un mot-clef pour rechercher une étiquette.
+								</Combobox.Empty>
+							)
 						) : (
-							collection.group().map(([group, items]) => (
-								<Combobox.ItemGroup key={group}>
-									<Combobox.ItemGroupLabel>{group}</Combobox.ItemGroupLabel>
-									<VStack align="stretch" gap={0}>
-										{items.map((item) => (
-											<ChakraLink
-												key={`${item.kind}-${item.value}`}
-												asChild
-												px={2}
-												py={2}
-												_hover={{
-													textDecor: 'none',
-													bgColor: 'bg.muted',
-												}}
+							<VStack align="stretch" gap={0}>
+								{collection.items.map((item) => (
+									<ChakraLink
+										key={item.value}
+										asChild
+										px={2}
+										py={2}
+										_hover={{ textDecor: 'none', bgColor: 'bg.muted' }}
+									>
+										<Link
+											to="/tags/$id"
+											params={{ id: item.value }}
+											onClick={() => onSelect?.()}
+										>
+											<Flex
+												align="center"
+												justify="space-between"
+												gap={3}
+												w="full"
 											>
-												<Link {...itemToLinkProps(item)}>
-													<Flex
-														align="center"
-														justify="space-between"
-														gap={3}
-														w="full"
+												<Box>
+													<Highlight
+														ignoreCase
+														query={debouncedSearch}
+														styles={{ fontWeight: 'bold' }}
 													>
-														<Box>
-															<Highlight
-																ignoreCase
-																query={debouncedSearch}
-																styles={{ fontWeight: 'bold' }}
-															>
-																{item.label}
-															</Highlight>
-														</Box>
-														{item.kind === 'tag' && item.hint && (
-															<Text textStyle="mono.s" color="fg.muted">
-																{item.hint}
-																{item.parentName && ` > ${item.parentName}`}
-															</Text>
-														)}
-													</Flex>
-												</Link>
-											</ChakraLink>
-										))}
-									</VStack>
-								</Combobox.ItemGroup>
-							))
+														{item.label}
+													</Highlight>
+												</Box>
+												{(item.hint || item.parentName) && (
+													<Text textStyle="mono.s" color="fg.muted">
+														{item.hint}
+														{item.parentName && ` › ${item.parentName}`}
+													</Text>
+												)}
+											</Flex>
+										</Link>
+									</ChakraLink>
+								))}
+							</VStack>
 						)}
 					</Combobox.Content>
 				</Combobox.Positioner>

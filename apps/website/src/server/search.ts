@@ -3,16 +3,13 @@ import z from 'zod';
 import { baseProcedure } from './db';
 import { fetchOrReturnRealValue } from './tools';
 
-export type SearchResult =
-	| { kind: 'category'; label: string; value: string }
-	| {
-			kind: 'tag';
-			label: string;
-			value: string;
-			hint?: string;
-			parentName?: string;
-	  }
-	| { kind: 'location'; label: string; value: string };
+export type SearchResult = {
+	kind: 'tag';
+	label: string;
+	value: string;
+	hint?: string;
+	parentName?: string;
+};
 
 export const getSearchResults = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
@@ -25,39 +22,15 @@ export const getSearchResults = createServerFn({ method: 'GET' })
 		const { searchTerm } = data;
 		if (!searchTerm) return [];
 
-		const [categories, tags, reportsForCity] = await Promise.all([
-			context.db.find({
-				collection: 'categories',
-				where: { name: { contains: searchTerm } },
-				limit: 5,
-			}),
-			context.db.find({
-				collection: 'tags',
-				where: { name: { contains: searchTerm } },
-				limit: 20,
-				depth: 1,
-				joins: { relatedChildTags: { count: true } },
-			}),
-			context.db.find({
-				collection: 'reports',
-				where: { 'locationDetails.city': { contains: searchTerm } },
-				limit: 30,
-				depth: 0,
-			}),
-		]);
+		const tags = await context.db.find({
+			collection: 'tags',
+			where: { name: { contains: searchTerm } },
+			limit: 10,
+			depth: 1,
+		});
 
-		const categoryResults: SearchResult[] = categories.docs.map((category) => ({
-			kind: 'category',
-			label: category.name,
-			value: category.id.toString(),
-		}));
-
-		const leafTags = tags.docs
-			.filter((tag) => (tag.relatedChildTags?.totalDocs ?? 0) === 0)
-			.slice(0, 5);
-
-		const tagResults: SearchResult[] = await Promise.all(
-			leafTags.map(async (tag) => {
+		const results: SearchResult[] = await Promise.all(
+			tags.docs.map(async (tag) => {
 				const [tagCategory, parentTag] = await Promise.all([
 					fetchOrReturnRealValue(tag.tagCategory, 'tag-categories'),
 					tag.parentId
@@ -74,19 +47,5 @@ export const getSearchResults = createServerFn({ method: 'GET' })
 			}),
 		);
 
-		const seenCities = new Set<string>();
-		const locationResults: SearchResult[] = [];
-		for (const report of reportsForCity.docs) {
-			const city = report.locationDetails?.city?.trim();
-			if (!city || seenCities.has(city)) continue;
-			seenCities.add(city);
-			locationResults.push({
-				kind: 'location',
-				label: city,
-				value: city,
-			});
-			if (locationResults.length >= 5) break;
-		}
-
-		return [...categoryResults, ...tagResults, ...locationResults];
+		return results;
 	});

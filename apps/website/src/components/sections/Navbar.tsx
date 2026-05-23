@@ -3,14 +3,14 @@ import {
 	Box,
 	Button,
 	CloseButton,
+	Container,
 	Drawer,
 	Flex,
 	HStack,
 	IconButton,
 	Link as ChakraLink,
-	Container,
-	Stack,
 	Portal,
+	Stack,
 } from '@chakra-ui/react';
 import { Link, type LinkProps } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -20,6 +20,7 @@ import Wordmark from '@/components/standard/Wordmark';
 const navbarLinks: { label: string; to: LinkProps['to'] }[] = [
 	{ label: 'Accueil', to: '/' },
 	{ label: 'Reportages', to: '/reports' },
+	{ label: 'Étiquettes', to: '/tags' },
 	{ label: 'Interviews', to: '/interviews' },
 	{ label: 'Carte', to: '/carte' },
 	{ label: 'Contribuer', to: '/contribuer' },
@@ -78,9 +79,13 @@ const Navbar = () => {
 					</AbsoluteCenter>
 
 					<HStack gap={3} display={{ base: 'none', md: 'flex' }}>
-						<Button variant="outline" size="sm" px="14px" color="fg.muted">
-							<LuSearch /> Rechercher
-						</Button>
+						<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
+							<Link to="/tags">
+								<Button variant="outline" size="sm" px="14px" color="fg.muted">
+									<LuSearch /> Rechercher
+								</Button>
+							</Link>
+						</ChakraLink>
 						<ChakraLink asChild outline="none" _hover={{ textDecor: 'none' }}>
 							<Link to="/contribuer">
 								<Button size="sm" px="16px">
@@ -152,9 +157,18 @@ const Navbar = () => {
 								borderColor="border.muted"
 								gap={3}
 							>
-								<Button variant="outline" size="sm" flex={1} color="fg.muted">
-									<LuSearch /> Rechercher
-								</Button>
+								<ChakraLink
+									asChild
+									outline="none"
+									_hover={{ textDecor: 'none' }}
+									flex={1}
+								>
+									<Link to="/tags" onClick={() => setOpen(false)}>
+										<Button variant="outline" size="sm" w="full">
+											<LuSearch /> Rechercher
+										</Button>
+									</Link>
+								</ChakraLink>
 								<ChakraLink
 									asChild
 									outline="none"

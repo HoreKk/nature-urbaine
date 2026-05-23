@@ -8,7 +8,7 @@ type Feature = {
 	title: string;
 	desc: string;
 	to: LinkProps['to'];
-	available?: boolean;
+	disabled?: boolean;
 };
 
 const features: Feature[] = [
@@ -18,7 +18,6 @@ const features: Feature[] = [
 		title: 'Reportages photos',
 		desc: 'Des centaines de reportages photographiques classés par lieux, catégories, maîtrises d’œuvres, maîtrises d’ouvrages, saisons…',
 		to: '/reports',
-		available: true,
 	},
 	{
 		num: '02',
@@ -26,6 +25,7 @@ const features: Feature[] = [
 		title: 'La carte interactive',
 		desc: 'Localisez tous les projets sur une carte satellite, par catégorie.',
 		to: '/carte',
+		disabled: true,
 	},
 	{
 		num: '03',
@@ -33,15 +33,13 @@ const features: Feature[] = [
 		title: 'Interviews',
 		desc: 'À la rencontre des maîtres d’œuvre et maîtres d’ouvrage qui façonnent la ville, le territoire.',
 		to: '/interviews',
-		available: true,
 	},
 	{
 		num: '04',
 		kicker: 'Filtrer',
 		title: 'Recherche par mot clé',
 		desc: 'Retrouvez facilement des images de référence grâce à un système de tags associés à chaque image.',
-		to: '/reports',
-		available: true,
+		to: '/tags',
 	},
 	{
 		num: '05',
@@ -56,6 +54,7 @@ const features: Feature[] = [
 		title: 'Fournisseurs partenaires',
 		desc: 'Mobilier, éclairage, végétaux — fiches détaillées.',
 		to: '/',
+		disabled: true,
 	},
 ];
 
@@ -88,7 +87,7 @@ const Features = () => {
 						const card = (
 							<Box
 								as="article"
-								bgColor={f.available ? 'bg' : 'bg.muted'}
+								bgColor={f.disabled ? 'bg.muted' : 'bg'}
 								border="1px solid"
 								borderColor="border.muted"
 								borderRadius="sm"
@@ -96,13 +95,13 @@ const Features = () => {
 								aspectRatio="1 / 1"
 								display="flex"
 								flexDir="column"
-								opacity={f.available ? 1 : 0.7}
-								cursor={f.available ? 'pointer' : 'not-allowed'}
+								opacity={f.disabled ? 0.7 : 1}
+								cursor={f.disabled ? 'not-allowed' : 'pointer'}
 								transition="all 0.2s ease"
 								_hover={
-									f.available
-										? { borderColor: 'fg', transform: 'translateY(-2px)' }
-										: undefined
+									f.disabled
+										? undefined
+										: { borderColor: 'fg', transform: 'translateY(-2px)' }
 								}
 							>
 								<Flex justify="space-between" align="baseline">
@@ -117,13 +116,13 @@ const Features = () => {
 										w="10px"
 										h="10px"
 										borderRadius="full"
-										bgColor={f.available ? 'primary.solid' : 'border'}
+										bgColor={f.disabled ? 'border' : 'primary.solid'}
 									/>
 								</Flex>
 
 								<Text
 									textStyle="kicker"
-									color={f.available ? 'primary.fg' : 'fg.subtle'}
+									color={f.disabled ? 'fg.subtle' : 'primary.fg'}
 									mt={8}
 								>
 									{f.kicker}
@@ -131,7 +130,7 @@ const Features = () => {
 								<Heading
 									as="h3"
 									textStyle="heading.md"
-									color={f.available ? 'fg' : 'fg.muted'}
+									color={f.disabled ? 'fg.muted' : 'fg'}
 									mt={1}
 								>
 									{f.title}
@@ -139,7 +138,7 @@ const Features = () => {
 								<Text
 									fontSize="13px"
 									lineHeight={1.45}
-									color={f.available ? 'fg.muted' : 'fg.subtle'}
+									color={f.disabled ? 'fg.muted' : 'fg.subtle'}
 									mt={3}
 									flex={1}
 								>
@@ -151,14 +150,14 @@ const Features = () => {
 									mt={4}
 									fontSize="12px"
 									fontWeight={500}
-									color={f.available ? 'fg' : 'fg.subtle'}
+									color={f.disabled ? 'fg.subtle' : 'fg'}
 								>
-									{f.available ? (
+									{f.disabled ? (
+										'Bientôt disponible'
+									) : (
 										<>
 											Y aller <LuArrowRight size={12} />
 										</>
-									) : (
-										'Bientôt disponible'
 									)}
 								</Flex>
 							</Box>
@@ -171,7 +170,7 @@ const Features = () => {
 								w={{ base: '260px', md: '280px' }}
 								scrollSnapAlign="start"
 							>
-								{f.available ? <Link to={f.to}>{card}</Link> : card}
+								{f.disabled ? card : <Link to={f.to}>{card}</Link>}
 							</Box>
 						);
 					})}
