@@ -130,7 +130,7 @@ function RouteComponent() {
 						mt={4}
 					>
 						<Flex flexDir="column" gap={2}>
-							<Text color="fg.muted">Date de publication</Text>
+							<Text color="fg.muted">Date du reportage</Text>
 							<Text>{publicationDate}</Text>
 						</Flex>
 						<Separator
