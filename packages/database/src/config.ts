@@ -3,7 +3,6 @@ import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { nodemailerAdapter } from "@payloadcms/email-nodemailer";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
-import { s3Storage } from "@payloadcms/storage-s3";
 import { fr } from "@payloadcms/translations/languages/fr";
 import { buildConfig, type Plugin } from "payload";
 import sharp from "sharp";
@@ -56,37 +55,6 @@ export interface BuildPayloadConfigOptions {
 	plugins?: Plugin[];
 }
 
-const s3Enabled = Boolean(
-	process.env.S3_BUCKET &&
-	process.env.S3_ENDPOINT &&
-	process.env.S3_ACCESS_KEY &&
-	process.env.S3_SECRET_KEY,
-);
-
-const s3Plugin = s3Storage({
-	enabled: s3Enabled,
-	alwaysInsertFields: true,
-	collections: {
-		media: {
-			signedDownloads: true,
-		},
-		pictures: {
-			prefix: "pictures",
-			signedDownloads: true,
-		},
-	},
-	bucket: process.env.S3_BUCKET || "",
-	config: {
-		endpoint: process.env.S3_ENDPOINT,
-		region: process.env.S3_REGION || "auto",
-		credentials: {
-			accessKeyId: process.env.S3_ACCESS_KEY || "",
-			secretAccessKey: process.env.S3_SECRET_KEY || "",
-		},
-		forcePathStyle: true,
-	},
-});
-
 export const buildPayloadConfig = ({
 	importMapBaseDir,
 	plugins = [],
@@ -126,6 +94,7 @@ export const buildPayloadConfig = ({
 			pool: {
 				connectionString: process.env.DATABASE_URL || "",
 			},
+			migrationDir: path.resolve(packageDir, "./migrations"),
 		}),
 		sharp,
 		cors: [
@@ -148,5 +117,5 @@ export const buildPayloadConfig = ({
 				? [`https://${process.env.WEBSITE_DOMAIN}`]
 				: []),
 		],
-		plugins: [s3Plugin, ...plugins],
+		plugins,
 	});
