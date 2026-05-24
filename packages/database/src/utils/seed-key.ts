@@ -51,5 +51,3 @@ export function tagSeedKey(name: string, parentName?: string): string {
 		? `tag-${slugify(parentName)}-${slugify(name)}`
 		: `tag-${slugify(name)}`;
 }
-
-export const DEFAULT_THUMBNAIL_SEED_KEY = "default-thumbnail";

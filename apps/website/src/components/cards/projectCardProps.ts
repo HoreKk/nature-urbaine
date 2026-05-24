@@ -9,8 +9,10 @@ export const reportToProjectCardProps = (report: AugmentedReport) => ({
 	title: report.name,
 	description: report.description,
 	date: report.date,
-	imageSrc: getBackendUrl(report.thumbnail.url),
-	imageAlt: report.thumbnail.alt || report.name,
+	imageSrc: report.frontPicture?.url
+		? getBackendUrl(report.frontPicture.url)
+		: undefined,
+	imageAlt: report.frontPicture?.alt || report.name,
 	badge: report.category.name,
 	footerIcon: RiCameraLensLine,
 	footerLabel: 'Reportage',

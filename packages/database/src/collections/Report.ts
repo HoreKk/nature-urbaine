@@ -29,13 +29,6 @@ export const Reports: CollectionConfig = {
 	fields: [
 		seedKeyField,
 		{
-			name: "thumbnail",
-			type: "upload",
-			label: "Vignette",
-			relationTo: "media",
-			required: true,
-		},
-		{
 			name: "name",
 			type: "text",
 			label: "Nom",
@@ -145,6 +138,8 @@ export const Reports: CollectionConfig = {
 			label: "Photos associées",
 			collection: "pictures",
 			on: "report",
+			orderable: true,
+			defaultLimit: 0,
 			admin: {
 				defaultColumns: ["filename"],
 			},

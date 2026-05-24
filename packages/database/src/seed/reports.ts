@@ -1,12 +1,6 @@
-import path, { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Payload } from "payload";
 import { CITY_STRATUM_OPTIONS } from "../collections/Report";
-import {
-	categorySeedKey,
-	DEFAULT_THUMBNAIL_SEED_KEY,
-	reportSeedKey,
-} from "../utils/seed-key";
+import { categorySeedKey, reportSeedKey } from "../utils/seed-key";
 import { upsertBySeedKey } from "../utils/seed-upsert";
 import { cleanString, readExcelSheet } from "../utils/tools";
 
@@ -33,9 +27,6 @@ type ExcelReport = {
 	SUPERFICIE: string;
 };
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 const DEFAULT_CATEGORY_NAME = "ESPACES-PUBLICS";
 
 function normalizeStratum(value: string): string {
@@ -61,29 +52,6 @@ export default async function seedReports(payload: Payload) {
 		collection: "categories",
 		limit: 0,
 	});
-
-	const localFilePath = path.resolve(
-		__dirname,
-		"../../../../apps/cms-payload/public/hero-section.jpg",
-	);
-
-	const existingDefaultMedia = await payload.find({
-		collection: "media",
-		limit: 1,
-		pagination: false,
-		where: { seedKey: { equals: DEFAULT_THUMBNAIL_SEED_KEY } },
-	});
-
-	const defaultMedia =
-		existingDefaultMedia.docs[0] ??
-		(await payload.create({
-			collection: "media",
-			data: {
-				alt: "Default Thumbnail",
-				seedKey: DEFAULT_THUMBNAIL_SEED_KEY,
-			},
-			filePath: localFilePath,
-		}));
 
 	const sortedData = [...data].toSorted((a, b) => {
 		const aFrench = isFrench(a.PAYS) ? 0 : 1;
@@ -152,7 +120,6 @@ export default async function seedReports(payload: Payload) {
 			},
 			category: reportCategory.id,
 			date: formattedDate,
-			thumbnail: defaultMedia.id,
 			projectDetails: {
 				photoAuthor: cleanString(report["AUTEUR.E"]),
 				wordpressPostId: parseOptionalNumber(report["code WORD PRESS"]),

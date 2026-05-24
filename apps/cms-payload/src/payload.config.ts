@@ -22,6 +22,10 @@ export default buildPayloadConfig({
 				media: {
 					signedDownloads: true,
 				},
+				pictures: {
+					prefix: "pictures",
+					signedDownloads: true,
+				},
 			},
 			bucket: process.env.S3_BUCKET || "",
 			config: {

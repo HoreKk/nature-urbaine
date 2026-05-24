@@ -177,7 +177,6 @@ export interface Report {
    * Identifiant stable utilisé par les scripts de seed pour mettre à jour cet enregistrement. Ne pas modifier.
    */
   seedKey?: string | null;
-  thumbnail: number | Media;
   name: string;
   slug?: string | null;
   description: string;
@@ -230,6 +229,7 @@ export interface Report {
  */
 export interface Picture {
   id: number;
+  _pictures_relatedPictures_order?: string | null;
   alt: string;
   report: number | Report;
   relatedTags?: (number | Tag)[] | null;
@@ -573,7 +573,6 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface ReportsSelect<T extends boolean = true> {
   seedKey?: T;
-  thumbnail?: T;
   name?: T;
   slug?: T;
   description?: T;
@@ -645,6 +644,7 @@ export interface InterviewsSelect<T extends boolean = true> {
  * via the `definition` "pictures_select".
  */
 export interface PicturesSelect<T extends boolean = true> {
+  _pictures_relatedPictures_order?: T;
   alt?: T;
   report?: T;
   relatedTags?: T;

@@ -30,14 +30,16 @@ export const Route = createFileRoute('/reports/$id')({
 		const description = report.description
 			? report.description.slice(0, 160)
 			: `Reportage Nature Urbaine — ${report.category.name}`;
-		const imageUrl = getBackendUrl(report.thumbnail.url);
+		const imageUrl = report.frontPicture?.url
+			? getBackendUrl(report.frontPicture.url)
+			: undefined;
 		return {
 			meta: [
 				{ title: `${report.name} — Nature Urbaine` },
 				{ name: 'description', content: description },
 				{ property: 'og:title', content: report.name },
 				{ property: 'og:description', content: description },
-				{ property: 'og:image', content: imageUrl },
+				...(imageUrl ? [{ property: 'og:image', content: imageUrl }] : []),
 				{ property: 'og:type', content: 'article' },
 			],
 		};
@@ -92,13 +94,22 @@ function RouteComponent() {
 				]}
 				currentLinkLabel={report.name}
 			/>
-			<ChakraImage asChild height={{ base: 240, md: 380 }} width="full">
-				<Image
-					src={getBackendUrl(report.thumbnail.url)}
-					alt={report.thumbnail.alt || report.name}
-					layout="fullWidth"
+			{report.frontPicture?.url ? (
+				<ChakraImage asChild height={{ base: 240, md: 380 }} width="full">
+					<Image
+						src={getBackendUrl(report.frontPicture.url)}
+						alt={report.frontPicture.alt || report.name}
+						layout="fullWidth"
+					/>
+				</ChakraImage>
+			) : (
+				<Box
+					height={{ base: 240, md: 380 }}
+					width="full"
+					bgColor="bg.muted"
+					backgroundImage="repeating-linear-gradient(45deg, transparent 0 12px, rgba(0,0,0,0.025) 12px 24px)"
 				/>
-			</ChakraImage>
+			)}
 			<Container maxW="container.xl" pt={8} pb={12}>
 				<Flex flexDir="column" gap={4}>
 					<Text textStyle="kicker">Reportage · {report.category.name}</Text>

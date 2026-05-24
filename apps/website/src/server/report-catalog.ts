@@ -1,6 +1,5 @@
 import type {
 	Category,
-	Media,
 	PaginatedDocs,
 	Picture,
 	Report,
@@ -22,15 +21,24 @@ export type ReportCatalogFilter = z.infer<typeof reportCatalogFilterSchema>;
 
 export interface AugmentedReport extends Omit<
 	Report,
-	'thumbnail' | 'category' | 'relatedPictures'
+	'category' | 'relatedPictures'
 > {
-	thumbnail: Media;
 	category: Category;
 	relatedPictures: {
 		docs?: Picture[];
 		hasNextPage?: boolean;
 		totalDocs?: number;
 	};
+	frontPicture: Picture | null;
+}
+
+function withFrontPicture<
+	T extends { relatedPictures?: { docs?: Picture[] | (number | Picture)[] } },
+>(report: T): T & { frontPicture: Picture | null } {
+	const first = report.relatedPictures?.docs?.[0];
+	const frontPicture =
+		first && typeof first === 'object' ? (first as Picture) : null;
+	return { ...report, frontPicture };
 }
 
 function buildWhere(filter: ReportCatalogFilter) {
@@ -76,9 +84,13 @@ export const findReportCatalog = createServerFn({ method: 'GET' })
 			depth: 2,
 			sort: '-date',
 			where: filter ? buildWhere(filter) : {},
+			joins: { relatedPictures: { limit: 1 } },
 		});
 
-		return reports as PaginatedDocs<AugmentedReport>;
+		return {
+			...reports,
+			docs: reports.docs.map((r) => withFrontPicture(r as AugmentedReport)),
+		} as PaginatedDocs<AugmentedReport>;
 	});
 
 export const findReportById = createServerFn({ method: 'GET' })
@@ -93,5 +105,5 @@ export const findReportById = createServerFn({ method: 'GET' })
 
 		if (!report) throw notFound();
 
-		return report as AugmentedReport;
+		return withFrontPicture(report as AugmentedReport);
 	});
