@@ -155,6 +155,7 @@ export interface Media {
    */
   seedKey?: string | null;
   alt: string;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -233,6 +234,7 @@ export interface Picture {
   alt: string;
   report: number | Report;
   relatedTags?: (number | Tag)[] | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -555,6 +557,7 @@ export interface PayloadMigration {
 export interface MediaSelect<T extends boolean = true> {
   seedKey?: T;
   alt?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -648,6 +651,7 @@ export interface PicturesSelect<T extends boolean = true> {
   alt?: T;
   report?: T;
   relatedTags?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
