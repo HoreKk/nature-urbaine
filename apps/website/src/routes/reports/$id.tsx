@@ -12,7 +12,7 @@ import {
 import { createFileRoute } from '@tanstack/react-router';
 import { Image } from '@unpic/react';
 import { UIBreadcrumb } from '@/components/standard/Breadcrumb';
-import UICarousel from '@/components/standard/Carousel';
+import MediaGallery from '@/components/standard/gallery/MediaGallery';
 import { findReportById } from '@/server/report-catalog';
 import { getBackendUrl } from '@/utils/backend-url';
 import {
@@ -151,19 +151,17 @@ function RouteComponent() {
 				<Separator my={8} />
 				<Grid templateColumns="repeat(12, 1fr)">
 					<GridItem colSpan={{ base: 12, md: 8 }} mr={{ base: 0, md: 8 }}>
-						<Box bgColor="bg.muted" p={8} borderRadius="lg" boxShadow="sm">
-							{report.relatedPictures.docs &&
-							report.relatedPictures.docs.length > 0 ? (
-								<UICarousel
-									images={report.relatedPictures.docs.map((picture) => ({
-										label: picture.filename || picture.alt || 'Photo associée',
-										url: getBackendUrl(picture.url),
-									}))}
-								/>
-							) : (
-								<Text>Aucune photo disponbile</Text>
-							)}
-						</Box>
+						<MediaGallery
+							images={(report.relatedPictures.docs ?? [])
+								.filter((picture) => picture.url)
+								.map((picture) => ({
+									id: picture.id,
+									url: getBackendUrl(picture.url),
+									alt: picture.alt,
+									caption: picture.alt,
+								}))}
+							emptyLabel="Aucune photo disponible pour ce reportage"
+						/>
 					</GridItem>
 					<GridItem
 						colSpan={{ base: 12, md: 4 }}
