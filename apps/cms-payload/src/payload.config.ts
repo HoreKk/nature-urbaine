@@ -21,6 +21,7 @@ export default buildPayloadConfig({
 			alwaysInsertFields: true,
 			collections: {
 				media: {
+					prefix: "media",
 					signedDownloads: true,
 				},
 				pictures: {

@@ -53,11 +53,20 @@ function buildEmailAdapter() {
 export interface BuildPayloadConfigOptions {
 	importMapBaseDir?: string;
 	plugins?: Plugin[];
+	/**
+	 * Controls Drizzle dev schema push. Leave undefined to keep Payload's
+	 * default (push in development). Consumers that only read the DB — e.g. the
+	 * website — should pass `false` so they never attempt to sync the schema
+	 * (which would otherwise propose dropping columns their config doesn't
+	 * declare, such as the S3 `prefix` fields, and hang on the data-loss prompt).
+	 */
+	push?: boolean;
 }
 
 export const buildPayloadConfig = ({
 	importMapBaseDir,
 	plugins = [],
+	push,
 }: BuildPayloadConfigOptions = {}) =>
 	buildConfig({
 		admin: {
@@ -91,6 +100,7 @@ export const buildPayloadConfig = ({
 			outputFile: path.resolve(packageDir, "./payload-types.ts"),
 		},
 		db: postgresAdapter({
+			...(push === undefined ? {} : { push }),
 			pool: {
 				connectionString: process.env.DATABASE_URL || "",
 			},
