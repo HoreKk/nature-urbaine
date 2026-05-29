@@ -1,17 +1,15 @@
 import {
 	AspectRatio,
 	Carousel,
-	chakra,
 	Image as ChakraImage,
 	CloseButton,
 	Dialog,
 	Flex,
-	HStack,
 	IconButton,
 	Portal,
 	Text,
 } from '@chakra-ui/react';
-import { Image } from '@unpic/react';
+import { useEffect, useRef } from 'react';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
 
 export type GalleryImage = {
@@ -37,22 +35,34 @@ const GalleryLightbox = ({
 	const open = index !== null;
 	const activeIndex = index ?? 0;
 	const current = open ? images[activeIndex] : null;
+	const thumbStripRef = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		thumbStripRef.current?.querySelector('[data-current]')?.scrollIntoView({
+			behavior: 'smooth',
+			inline: 'center',
+			block: 'nearest',
+		});
+	}, [activeIndex]);
 
 	return (
 		<Dialog.Root
 			open={open}
 			onOpenChange={(d) => !d.open && onClose()}
-			size="cover"
 			placement="center"
 		>
 			<Portal>
 				<Dialog.Backdrop bgColor="blackAlpha.800" />
-				<Dialog.Positioner>
+				<Dialog.Positioner padding={{ base: 4, md: 6 }}>
 					<Dialog.Content
 						bgColor="bg"
-						maxW="container.xl"
+						w="full"
+						maxW={{ base: 'full', md: 'container.xl' }}
+						maxH={{ base: '92dvh', md: '95vh' }}
 						borderRadius="sm"
 						overflow="hidden"
+						display="flex"
+						flexDirection="column"
 					>
 						{current && (
 							<Carousel.Root
@@ -62,6 +72,9 @@ const GalleryLightbox = ({
 								loop
 								allowMouseDrag
 								gap={0}
+								display="flex"
+								flexDirection="column"
+								width="full"
 							>
 								<Carousel.Control
 									position="relative"
@@ -87,14 +100,16 @@ const GalleryLightbox = ({
 									<Carousel.ItemGroup width="full">
 										{images.map((image, itemIndex) => (
 											<Carousel.Item key={image.id} index={itemIndex}>
-												<AspectRatio ratio={16 / 9} maxH="74vh" w="full">
-													<ChakraImage asChild objectFit="contain">
-														<Image
-															src={image.url}
-															alt={image.alt}
-															layout="fullWidth"
-														/>
-													</ChakraImage>
+												<AspectRatio
+													ratio={16 / 9}
+													w="full"
+													maxH={{ base: '70dvh', md: '78vh' }}
+												>
+													<ChakraImage
+														src={image.url}
+														alt={image.alt}
+														objectFit="contain"
+													/>
 												</AspectRatio>
 											</Carousel.Item>
 										))}
@@ -122,6 +137,7 @@ const GalleryLightbox = ({
 									gap={4}
 									px={{ base: 4, md: 6 }}
 									py={3}
+									flexShrink={0}
 								>
 									<Text textStyle="mono.s" color="fg.muted" whiteSpace="nowrap">
 										{activeIndex + 1} / {images.length}
@@ -132,10 +148,13 @@ const GalleryLightbox = ({
 										</Text>
 									) : null}
 								</Flex>
-								<HStack
+								<Carousel.IndicatorGroup
+									ref={thumbStripRef}
 									gap={2}
 									px={{ base: 4, md: 6 }}
-									pb={5}
+									pt={{ base: 2, md: 0 }}
+									pb={{ base: 4, md: 5 }}
+									flexShrink={0}
 									overflowX="auto"
 									css={{
 										'&::-webkit-scrollbar': { height: '6px' },
@@ -146,26 +165,23 @@ const GalleryLightbox = ({
 									}}
 								>
 									{images.map((image, thumbIndex) => (
-										<chakra.button
+										<Carousel.Indicator
 											key={image.id}
-											type="button"
+											index={thumbIndex}
+											unstyled
 											aria-label={`Voir l'image ${thumbIndex + 1}`}
-											aria-current={thumbIndex === activeIndex}
-											onClick={() => onIndexChange(thumbIndex)}
 											flexShrink={0}
 											w="64px"
 											aspectRatio="1"
 											borderRadius="sm"
 											overflow="hidden"
 											borderWidth="2px"
-											borderColor={
-												thumbIndex === activeIndex
-													? 'primary.solid'
-													: 'transparent'
-											}
-											opacity={thumbIndex === activeIndex ? 1 : 0.6}
+											borderColor="transparent"
+											opacity={0.6}
+											cursor="button"
 											transition="opacity 0.15s ease, border-color 0.15s ease"
 											_hover={{ opacity: 1 }}
+											_current={{ borderColor: 'primary.solid', opacity: 1 }}
 										>
 											<ChakraImage
 												src={image.url}
@@ -174,9 +190,9 @@ const GalleryLightbox = ({
 												h="full"
 												objectFit="cover"
 											/>
-										</chakra.button>
+										</Carousel.Indicator>
 									))}
-								</HStack>
+								</Carousel.IndicatorGroup>
 							</Carousel.Root>
 						)}
 						<Dialog.CloseTrigger asChild position="absolute" top={3} right={3}>
