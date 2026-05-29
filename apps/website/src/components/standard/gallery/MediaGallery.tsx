@@ -25,11 +25,8 @@ type MediaGalleryProps = {
 	images: GalleryImage[];
 	initialGridCount?: number;
 	emptyLabel?: string;
-	/**
-	 * The first image is the entity's hero (banner + thumbnail) shown above the
-	 * gallery, so by default it is moved to the end to avoid repeating it as the
-	 * carousel's opening slide. Set to `false` when no hero precedes the gallery.
-	 */
+	/** When the first image is the entity's hero, move it to the end so it
+	 * does not open the carousel twice. Set `false` when no hero precedes it. */
 	firstImageIsHero?: boolean;
 };
 
@@ -42,12 +39,13 @@ type FeaturedIndicatorsProps = {
 	onJump: (index: number) => void;
 };
 
-/**
- * Story-style progress strip: one segment per image, seen segments filled,
- * the active one terracotta. Click-to-jump on `sm`+ where segments are wide
- * enough to hit; on smaller screens the strip is a pure progress indicator
- * and navigation falls back to swipe + the carousel arrows.
- */
+function segmentColor(active: boolean, seen: boolean): string {
+	if (active) return 'primary.solid';
+	if (seen) return 'fg.muted';
+	return 'border';
+}
+
+/** Story-style progress strip; segments are click-to-jump on `sm`+, indicator-only below. */
 const FeaturedIndicators = ({
 	count,
 	current,
@@ -70,7 +68,7 @@ const FeaturedIndicators = ({
 						minW="3px"
 						h="3px"
 						borderRadius="full"
-						bgColor={active ? 'primary.solid' : seen ? 'fg.muted' : 'border'}
+						bgColor={segmentColor(active, seen)}
 						pointerEvents={{ base: 'none', sm: 'auto' }}
 						cursor={{ base: 'default', sm: 'pointer' }}
 						transition={`background-color 0.2s ${FEATURED_EASE}, height 0.15s ${FEATURED_EASE}`}
@@ -248,7 +246,8 @@ const MediaGallery = ({
 								Voir plus de photos ({hiddenCount})
 							</Button>
 						</Flex>
-					) : showAll && images.length > initialGridCount ? (
+					) : null}
+					{hiddenCount === 0 && images.length > initialGridCount ? (
 						<Flex justify="center">
 							<Button variant="ghost" onClick={() => setShowAll(false)}>
 								Réduire
