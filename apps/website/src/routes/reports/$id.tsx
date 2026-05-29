@@ -149,7 +149,7 @@ function RouteComponent() {
 					</Flex>
 				</Flex>
 				<Separator my={8} />
-				<Grid templateColumns="repeat(12, 1fr)">
+				<Grid templateColumns="repeat(12, 1fr)" rowGap={{ base: 10, md: 0 }}>
 					<GridItem colSpan={{ base: 12, md: 8 }} mr={{ base: 0, md: 8 }}>
 						<MediaGallery
 							images={(report.relatedPictures.docs ?? [])

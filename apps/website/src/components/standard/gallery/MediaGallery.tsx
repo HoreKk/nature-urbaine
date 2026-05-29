@@ -1,11 +1,11 @@
 import {
-	Box,
 	Button,
 	Carousel,
 	chakra,
 	Image as ChakraImage,
 	Flex,
 	Grid,
+	HStack,
 	Icon,
 	IconButton,
 	Stack,
@@ -33,7 +33,63 @@ type MediaGalleryProps = {
 	firstImageIsHero?: boolean;
 };
 
-const DEFAULT_GRID_COUNT = 6;
+const DEFAULT_GRID_COUNT = 8;
+const FEATURED_EASE = 'cubic-bezier(0.25, 1, 0.5, 1)';
+
+type FeaturedIndicatorsProps = {
+	count: number;
+	current: number;
+	onJump: (index: number) => void;
+};
+
+/**
+ * Story-style progress strip: one segment per image, seen segments filled,
+ * the active one terracotta. Click-to-jump on `sm`+ where segments are wide
+ * enough to hit; on smaller screens the strip is a pure progress indicator
+ * and navigation falls back to swipe + the carousel arrows.
+ */
+const FeaturedIndicators = ({
+	count,
+	current,
+	onJump,
+}: FeaturedIndicatorsProps) => (
+	<Flex align="center" gap={3}>
+		<HStack gap={1} flex={1} minW={0}>
+			{Array.from({ length: count }, (_, index) => {
+				const seen = index < current;
+				const active = index === current;
+				return (
+					<chakra.button
+						key={index}
+						type="button"
+						aria-label={`Image ${index + 1}`}
+						aria-current={active}
+						onClick={() => onJump(index)}
+						position="relative"
+						flex={1}
+						minW="3px"
+						h="3px"
+						borderRadius="full"
+						bgColor={active ? 'primary.solid' : seen ? 'fg.muted' : 'border'}
+						pointerEvents={{ base: 'none', sm: 'auto' }}
+						cursor={{ base: 'default', sm: 'pointer' }}
+						transition={`background-color 0.2s ${FEATURED_EASE}, height 0.15s ${FEATURED_EASE}`}
+						_after={{
+							content: '""',
+							position: 'absolute',
+							insetInline: 0,
+							insetBlock: '-7px',
+						}}
+						_hover={{ h: '6px' }}
+					/>
+				);
+			})}
+		</HStack>
+		<Text textStyle="mono.s" color="fg.muted" whiteSpace="nowrap">
+			{current + 1} / {count}
+		</Text>
+	</Flex>
+);
 
 const MediaGallery = ({
 	images: rawImages,
@@ -136,19 +192,11 @@ const MediaGallery = ({
 						</IconButton>
 					</Carousel.NextTrigger>
 				</Carousel.Control>
-				<Flex align="center" justify="space-between" gap={4}>
-					<Text textStyle="mono.s" color="fg.muted">
-						{featuredPage + 1} / {images.length}
-					</Text>
-					<Carousel.Indicators
-						transition="width 0.2s ease-in-out"
-						transformOrigin="center"
-						opacity="0.4"
-						bgColor="fg"
-						_current={{ width: '10', bg: 'primary.solid', opacity: 1 }}
-					/>
-					<Box w="48px" />
-				</Flex>
+				<FeaturedIndicators
+					count={images.length}
+					current={featuredPage}
+					onJump={setFeaturedPage}
+				/>
 			</Carousel.Root>
 			{hasGrid ? (
 				<Stack gap={4}>
