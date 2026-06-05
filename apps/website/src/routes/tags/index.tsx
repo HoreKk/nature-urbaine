@@ -6,7 +6,10 @@ import PageHeader from '@/components/sections/PageHeader';
 import SearchCombobox from '@/components/standard/SearchCombobox';
 import { TagSearchResults } from '@/components/tags/TagSearchResults';
 import { TagTreeView } from '@/components/tags/TagTreeView';
-import { getTagCategoriesWithRootCount } from '@/server/tags';
+import {
+	getTagCategoriesWithRootCount,
+	getTagTaxonomyStats,
+} from '@/server/tags';
 
 const tagsSearchSchema = z.object({
 	q: z.string().optional(),
@@ -15,14 +18,17 @@ const tagsSearchSchema = z.object({
 export const Route = createFileRoute('/tags/')({
 	validateSearch: tagsSearchSchema,
 	loader: async () => {
-		const categories = await getTagCategoriesWithRootCount();
-		return { categories };
+		const [categories, stats] = await Promise.all([
+			getTagCategoriesWithRootCount(),
+			getTagTaxonomyStats(),
+		]);
+		return { categories, stats };
 	},
 	component: RouteComponent,
 });
 
 function RouteComponent(): JSX.Element {
-	const { categories } = Route.useLoaderData();
+	const { categories, stats } = Route.useLoaderData();
 	const { q } = Route.useSearch();
 	const trimmed = q?.trim() ?? '';
 
@@ -32,7 +38,7 @@ function RouteComponent(): JSX.Element {
 				eyebrow="Recherche par étiquette"
 				title={
 					<>
-						Trouvez une{' '}
+						Trouver une{' '}
 						<Text as="em" textStyle="emphasis" fontWeight={400}>
 							photo
 						</Text>
@@ -56,7 +62,7 @@ function RouteComponent(): JSX.Element {
 							<Heading textStyle="heading.sm" mb={4}>
 								Parcourir la taxonomie
 							</Heading>
-							<TagTreeView categories={categories} />
+							<TagTreeView categories={categories} stats={stats} />
 						</>
 					)}
 				</Box>
