@@ -9,6 +9,13 @@ export const Pictures: CollectionConfig = {
 	access: {
 		read: () => true,
 	},
+	admin: {
+		components: {
+			edit: {
+				beforeDocumentControls: ["/components/PictureNav#PictureNav"],
+			},
+		},
+	},
 	upload: {
 		mimeTypes: ["image/*"],
 		adminThumbnail: "thumbnail",
