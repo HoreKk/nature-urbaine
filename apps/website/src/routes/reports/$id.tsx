@@ -70,8 +70,9 @@ function RouteComponent() {
 		{ label: 'Adresse', value: report.locationDetails?.address },
 	].filter((item) => item.value);
 
+	const photoAuthor = report.projectDetails?.photoAuthor;
+
 	const projectItems = [
-		{ label: 'Auteur', value: report.projectDetails?.photoAuthor },
 		{ label: 'Maître d’ouvrage', value: report.projectDetails?.projectOwner },
 		{
 			label: 'Maître d’œuvre',
@@ -134,6 +135,18 @@ function RouteComponent() {
 							<Text color="fg.muted">Date du reportage</Text>
 							<Text>{publicationDate}</Text>
 						</Flex>
+						{photoAuthor ? (
+							<>
+								<Separator
+									orientation={{ base: 'horizontal', md: 'vertical' }}
+									height={{ base: 'auto', md: 'full' }}
+								/>
+								<Flex flexDir="column" gap={2}>
+									<Text color="fg.muted">Auteur des photographies</Text>
+									<Text>{photoAuthor}</Text>
+								</Flex>
+							</>
+						) : null}
 						<Separator
 							orientation={{ base: 'horizontal', md: 'vertical' }}
 							height={{ base: 'auto', md: 'full' }}
