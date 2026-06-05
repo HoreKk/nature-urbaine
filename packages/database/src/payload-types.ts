@@ -201,7 +201,6 @@ export interface Report {
           | 'plus-de-100000'
         )
       | null;
-    nbPopulations?: number | null;
   };
   relatedPictures?: {
     docs?: (number | Picture)[];
@@ -591,7 +590,6 @@ export interface ReportsSelect<T extends boolean = true> {
         department?: T;
         region?: T;
         cityStratum?: T;
-        nbPopulations?: T;
       };
   relatedPictures?: T;
   category?: T;

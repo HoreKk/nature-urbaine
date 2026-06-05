@@ -115,20 +115,10 @@ export const Reports: CollectionConfig = {
 					],
 				},
 				{
-					type: "row",
-					fields: [
-						{
-							name: "cityStratum",
-							type: "select",
-							label: "Strate de la ville",
-							options: [...CITY_STRATUM_OPTIONS],
-						},
-						{
-							name: "nbPopulations",
-							type: "number",
-							label: "Nombre d'habitants",
-						},
-					],
+					name: "cityStratum",
+					type: "select",
+					label: "Strate de la ville",
+					options: [...CITY_STRATUM_OPTIONS],
 				},
 			],
 		},
