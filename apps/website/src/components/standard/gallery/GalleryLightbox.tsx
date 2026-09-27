@@ -1,7 +1,6 @@
 import {
 	AspectRatio,
 	Carousel,
-	Image as ChakraImage,
 	CloseButton,
 	Dialog,
 	Flex,
@@ -11,10 +10,15 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
+import PictureImg from '@/components/standard/PictureImg';
+import type { ImageSource } from '@/utils/picture-src';
 
 export type GalleryImage = {
 	id: string | number;
-	url: string;
+	/** The original, shown with `object-fit: contain` in the lightbox. */
+	source: ImageSource;
+	/** Small candidate for grids and indicator strips. */
+	thumbnail: ImageSource;
 	alt: string;
 	caption?: string;
 };
@@ -105,8 +109,8 @@ const GalleryLightbox = ({
 													w="full"
 													maxH={{ base: '70dvh', md: '78vh' }}
 												>
-													<ChakraImage
-														src={image.url}
+													<PictureImg
+														source={image.source}
 														alt={image.alt}
 														objectFit="contain"
 													/>
@@ -183,13 +187,7 @@ const GalleryLightbox = ({
 											_hover={{ opacity: 1 }}
 											_current={{ borderColor: 'primary.solid', opacity: 1 }}
 										>
-											<ChakraImage
-												src={image.url}
-												alt={image.alt}
-												w="full"
-												h="full"
-												objectFit="cover"
-											/>
+											<PictureImg source={image.thumbnail} alt={image.alt} />
 										</Carousel.Indicator>
 									))}
 								</Carousel.IndicatorGroup>

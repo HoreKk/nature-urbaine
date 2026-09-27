@@ -1,16 +1,9 @@
-import {
-	Box,
-	Card,
-	Image as ChakraImage,
-	Flex,
-	Heading,
-	Icon,
-	Text,
-} from '@chakra-ui/react';
+import { Box, Card, Flex, Heading, Icon, Text } from '@chakra-ui/react';
 import { Link } from '@tanstack/react-router';
-import { Image } from '@unpic/react';
 import type { IconType } from 'react-icons';
 import { RiArrowRightLine, RiMapPinLine } from 'react-icons/ri';
+import PictureImg from '@/components/standard/PictureImg';
+import type { ImageSource } from '@/utils/picture-src';
 
 type ProjectCardProps = {
 	to: string;
@@ -18,7 +11,7 @@ type ProjectCardProps = {
 	title: string;
 	description: string;
 	date: string | Date;
-	imageSrc?: string;
+	image?: ImageSource;
 	imageAlt?: string;
 	badge?: string;
 	location?: string;
@@ -38,7 +31,7 @@ const ProjectCard = ({
 	title,
 	description,
 	date,
-	imageSrc,
+	image,
 	imageAlt,
 	badge,
 	location,
@@ -59,10 +52,13 @@ const ProjectCard = ({
 			}}
 		>
 			<Box position="relative">
-				{imageSrc ? (
-					<ChakraImage asChild height="220px" w="full">
-						<Image src={imageSrc} alt={imageAlt || title} layout="fullWidth" />
-					</ChakraImage>
+				{image ? (
+					<PictureImg
+						source={image}
+						alt={imageAlt || title}
+						height="220px"
+						w="full"
+					/>
 				) : (
 					<Box
 						height="220px"
@@ -116,15 +112,11 @@ const ProjectCard = ({
 						zIndex={1}
 					>
 						{portrait.src ? (
-							<ChakraImage asChild boxSize="full">
-								<Image
-									src={portrait.src}
-									alt={portrait.alt || ''}
-									layout="constrained"
-									width={72}
-									height={72}
-								/>
-							</ChakraImage>
+							<PictureImg
+								source={{ src: portrait.src }}
+								alt={portrait.alt || ''}
+								boxSize="full"
+							/>
 						) : (
 							<Text
 								fontSize="lg"

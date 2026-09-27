@@ -1,7 +1,6 @@
 import {
 	Box,
 	Button,
-	Image as ChakraImage,
 	CloseButton,
 	Dialog,
 	Flex,
@@ -13,10 +12,10 @@ import {
 	Wrap,
 } from '@chakra-ui/react';
 import { Link } from '@tanstack/react-router';
-import { Image } from '@unpic/react';
 import { RiArrowRightLine } from 'react-icons/ri';
+import PictureImg from '@/components/standard/PictureImg';
 import type { PictureWithReport } from '@/server/tags';
-import { getBackendUrl } from '@/utils/backend-url';
+import { fullSource } from '@/utils/picture-src';
 import { stripExtension } from '@/utils/tools';
 
 type PictureLightboxProps = {
@@ -54,13 +53,12 @@ const PictureLightbox = ({ picture, onClose }: PictureLightboxProps) => {
 									alignItems="center"
 									justifyContent="center"
 								>
-									<ChakraImage asChild w="full" h="full" objectFit="contain">
-										<Image
-											src={getBackendUrl(picture.url)}
-											alt={picture.alt}
-											layout="fullWidth"
-										/>
-									</ChakraImage>
+									<PictureImg
+										source={fullSource(picture)}
+										alt={picture.alt}
+										objectFit="contain"
+										priority
+									/>
 								</Box>
 								<Stack
 									flex={1}

@@ -1,6 +1,5 @@
 import {
 	Box,
-	Image as ChakraImage,
 	Container,
 	Flex,
 	Grid,
@@ -10,11 +9,11 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
-import { Image } from '@unpic/react';
 import { UIBreadcrumb } from '@/components/standard/Breadcrumb';
 import MediaGallery from '@/components/standard/gallery/MediaGallery';
+import PictureImg from '@/components/standard/PictureImg';
 import { findReportById } from '@/server/report-catalog';
-import { getBackendUrl } from '@/utils/backend-url';
+import { fullSource, heroSource, thumbnailSource } from '@/utils/picture-src';
 import {
 	formatDepartmentLabel,
 	formatOptionalDate,
@@ -30,9 +29,7 @@ export const Route = createFileRoute('/reports/$id')({
 		const description = report.description
 			? report.description.slice(0, 160)
 			: `Reportage Nature Urbaine — ${report.category.name}`;
-		const imageUrl = report.frontPicture?.url
-			? getBackendUrl(report.frontPicture.url)
-			: undefined;
+		const imageUrl = report.frontPicture?.url ?? undefined;
 		return {
 			meta: [
 				{ title: `${report.name} — Nature Urbaine` },
@@ -96,13 +93,13 @@ function RouteComponent() {
 				currentLinkLabel={report.name}
 			/>
 			{report.frontPicture?.url ? (
-				<ChakraImage asChild height={{ base: 240, md: 380 }} width="full">
-					<Image
-						src={getBackendUrl(report.frontPicture.url)}
-						alt={report.frontPicture.alt || report.name}
-						layout="fullWidth"
-					/>
-				</ChakraImage>
+				<PictureImg
+					source={heroSource(report.frontPicture)}
+					alt={report.frontPicture.alt || report.name}
+					height={{ base: 240, md: 380 }}
+					width="full"
+					priority
+				/>
 			) : (
 				<Box
 					height={{ base: 240, md: 380 }}
@@ -169,7 +166,8 @@ function RouteComponent() {
 								.filter((picture) => picture.url)
 								.map((picture) => ({
 									id: picture.id,
-									url: getBackendUrl(picture.url),
+									source: fullSource(picture),
+									thumbnail: thumbnailSource(picture),
 									alt: picture.alt,
 									caption: picture.alt,
 								}))}

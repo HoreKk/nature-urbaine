@@ -2,7 +2,6 @@ import {
 	Button,
 	Carousel,
 	chakra,
-	Image as ChakraImage,
 	Flex,
 	Grid,
 	HStack,
@@ -11,7 +10,6 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { Image } from '@unpic/react';
 import { type JSX, useState } from 'react';
 import {
 	RiAddLine,
@@ -19,6 +17,7 @@ import {
 	RiArrowRightSLine,
 	RiImage2Line,
 } from 'react-icons/ri';
+import PictureImg from '@/components/standard/PictureImg';
 import GalleryLightbox, { type GalleryImage } from './GalleryLightbox';
 
 type MediaGalleryProps = {
@@ -166,9 +165,11 @@ const MediaGallery = ({
 									cursor="zoom-in"
 									onClick={() => setLightboxIndex(index)}
 								>
-									<ChakraImage asChild w="full" h="full" objectFit="cover">
-										<Image src={image.url} alt={image.alt} layout="fullWidth" />
-									</ChakraImage>
+									<PictureImg
+										source={image.source}
+										alt={image.alt}
+										priority={index === 0}
+									/>
 								</chakra.button>
 							</Carousel.Item>
 						))}
@@ -233,9 +234,7 @@ const MediaGallery = ({
 									outlineOffset: '2px',
 								}}
 							>
-								<ChakraImage asChild w="full" h="full" objectFit="cover">
-									<Image src={image.url} alt={image.alt} layout="fullWidth" />
-								</ChakraImage>
+								<PictureImg source={image.thumbnail} alt={image.alt} />
 							</chakra.button>
 						))}
 					</Grid>

@@ -51,7 +51,7 @@ nature-urbaine/
 
 ### Stack
 
-- **Public website (`apps/website`)** — React 19, **TanStack Start** (SSR + server functions), **TanStack Router** (file-based routes under `src/routes/`), **TanStack Query** for data fetching, **Chakra UI 3** for primitives, **TanStack Form** + Zod for forms, `@unpic/react` for images. Built via Vite.
+- **Public website (`apps/website`)** — React 19, **TanStack Start** (SSR + server functions), **TanStack Router** (file-based routes under `src/routes/`), **TanStack Query** for data fetching, **Chakra UI 3** for primitives, **TanStack Form** + Zod for forms, a small `PictureImg` component (`components/standard/PictureImg.tsx`) over Chakra `Image` for pictures, fed by `utils/picture-src.ts`; upload URLs are made browser-fetchable server-side by `server/media-urls.ts` (see §7 and ADR-0003). Built via Vite.
 - **CMS (`apps/cms-payload`)** — Next.js 16 hosting **Payload CMS 3.84** at `/admin`, with `@payloadcms/db-postgres`, `@payloadcms/richtext-lexical`, and `@payloadcms/storage-s3` for media. Default dev port: `3001`.
 - **Shared (`packages/database`)** — exports the Payload `config`, generated TypeScript types (`Report`, `Interview`, etc.), Lexical helpers, migrations / seed scripts, and the SMTP email adapter configuration used by `payload.sendEmail`. Both apps import from `@nature-urbaine/database`.
 - **Shared (`packages/emails`)** — exports React Email templates and typed render helpers (`renderContactEmail`) used by website server functions. Local preview runs via `pnpm --filter @nature-urbaine/emails email:dev` on port `4000`.
@@ -226,6 +226,7 @@ Lives in `apps/website/src/server/`. All built with `createServerFn` from `@tans
 | `submission-contract.ts` | `clientSubmissionSchema`, `wireSubmissionSchema`, `SUBMISSION_*` constants                                        | Single source of truth for Submission field rules. `clientSubmissionSchema` validates the form (File-based pictures, `category` as string from the SelectField); `wireSubmissionSchema` validates the server fn input (base64 pictures, `category` as number).                                                                                                                                                        |
 | `search.ts`              | `getSearchResults`                                                                                                | Global tag-only typeahead used by the home hero and the navbar popover. Returns `Tag` suggestions (leaves **and** non-leaves) with their parent-chain hints. Category and location result kinds were dropped — those are filters on `/reports`. See ADR-0002.                                                                                                                                                         |
 | `tools.ts`               | `fetchOrReturnRealValue`                                                                                          | Helper that resolves either an id or an embedded doc via the Payload local API. Pattern used everywhere relations are augmented.                                                                                                                                                                                                                                                                                      |
+| `media-urls.ts`          | `withMediaUrls`, `signUploadUrl`                                                                                  | Helper (not a server fn). Deep-walks a server-fn result and rewrites every upload doc's `url` / `thumbnailURL` / `sizes.*.url`. With `S3_*` env set it presigns the Railway bucket object directly, signature pinned to the UTC day so URLs are browser-cacheable and the CMS is out of the image path; otherwise it falls back to `BACKEND_URL`. See ADR-0003.                                                       |
 
 When adding a new server function:
 
@@ -233,6 +234,7 @@ When adding a new server function:
 2. Validate input with Zod via `inputValidator`.
 3. Use `baseProcedure` for DB access.
 4. Augment outputs with `fetchOrReturnRealValue` rather than depending on `depth` from Payload.
+5. If the result carries upload docs (`Picture`, `Media`), return it through `withMediaUrls` so the client never sees a raw `/api/<collection>/file/…` path.
 
 ## 7b. Query layer (`src/queries/`)
 

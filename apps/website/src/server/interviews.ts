@@ -8,6 +8,7 @@ import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { baseProcedure } from './db';
+import { withMediaUrls } from './media-urls';
 
 // List items don't need the richText payload — only the scalar fields.
 export type SafeInterview = Omit<
@@ -73,7 +74,7 @@ export const getInterviews = createServerFn({ method: 'GET' })
 			where,
 		});
 
-		return interviews as unknown as PaginatedDocs<SafeInterview>;
+		return withMediaUrls(interviews as unknown as PaginatedDocs<SafeInterview>);
 	});
 
 export const getInterviewById = createServerFn({ method: 'GET' })
@@ -98,8 +99,8 @@ export const getInterviewById = createServerFn({ method: 'GET' })
 			data: interview.projectDetails.challenges,
 		});
 
-		return {
+		return withMediaUrls({
 			...interview,
 			projectDetails: { objectives, impacts, challenges },
-		} as unknown as InterviewDetail;
+		} as unknown as InterviewDetail);
 	});

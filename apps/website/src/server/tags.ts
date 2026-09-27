@@ -9,6 +9,7 @@ import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import z from 'zod';
 import { baseProcedure } from './db';
+import { withMediaUrls } from './media-urls';
 
 export type PictureWithReport = Omit<Picture, 'report' | 'relatedTags'> & {
 	report: Report;
@@ -327,8 +328,8 @@ export const getPicturesByTagRecursive = createServerFn({ method: 'GET' })
 			);
 		}
 
-		return {
+		return withMediaUrls({
 			...result,
 			docs: result.docs as PictureWithReport[],
-		} satisfies PaginatedDocs<PictureWithReport>;
+		} satisfies PaginatedDocs<PictureWithReport>);
 	});

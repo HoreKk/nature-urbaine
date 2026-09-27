@@ -8,6 +8,7 @@ import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { baseProcedure } from './db';
+import { withMediaUrls } from './media-urls';
 
 export const REPORT_CATALOG_PAGE_SIZE = 50;
 
@@ -87,10 +88,10 @@ export const findReportCatalog = createServerFn({ method: 'GET' })
 			joins: { relatedPictures: { limit: 1 } },
 		});
 
-		return {
+		return withMediaUrls({
 			...reports,
 			docs: reports.docs.map((r) => withFrontPicture(r as AugmentedReport)),
-		} as PaginatedDocs<AugmentedReport>;
+		} as PaginatedDocs<AugmentedReport>);
 	});
 
 export const findReportById = createServerFn({ method: 'GET' })
@@ -105,5 +106,5 @@ export const findReportById = createServerFn({ method: 'GET' })
 
 		if (!report) throw notFound();
 
-		return withFrontPicture(report as AugmentedReport);
+		return withMediaUrls(withFrontPicture(report as AugmentedReport));
 	});

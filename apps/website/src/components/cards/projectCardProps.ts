@@ -1,7 +1,7 @@
 import { RiCameraLensLine, RiMicLine } from 'react-icons/ri';
 import type { SafeInterview } from '@/server/interviews';
 import type { AugmentedReport } from '@/server/report-catalog';
-import { getBackendUrl } from '@/utils/backend-url';
+import { thumbnailSource } from '@/utils/picture-src';
 
 export const reportToProjectCardProps = (report: AugmentedReport) => ({
 	to: '/reports/$id',
@@ -9,8 +9,8 @@ export const reportToProjectCardProps = (report: AugmentedReport) => ({
 	title: report.name,
 	description: report.description,
 	date: report.date,
-	imageSrc: report.frontPicture?.url
-		? getBackendUrl(report.frontPicture.url)
+	image: report.frontPicture?.url
+		? thumbnailSource(report.frontPicture)
 		: undefined,
 	imageAlt: report.frontPicture?.alt || report.name,
 	badge: report.category.name,
@@ -33,8 +33,8 @@ export const interviewToProjectCardProps = (interview: SafeInterview) => ({
 	title: interview.name,
 	description: interview.summary,
 	date: interview.publishedAt,
-	imageSrc: interview.thumbnail?.url
-		? getBackendUrl(interview.thumbnail.url)
+	image: interview.thumbnail?.url
+		? thumbnailSource(interview.thumbnail)
 		: undefined,
 	imageAlt: interview.thumbnail?.alt || interview.name,
 	location: interview.department
@@ -45,7 +45,7 @@ export const interviewToProjectCardProps = (interview: SafeInterview) => ({
 	readMoreLabel: "Lire l'interview",
 	portrait: {
 		src: interview.intervieweePicture?.url
-			? getBackendUrl(interview.intervieweePicture.url)
+			? thumbnailSource(interview.intervieweePicture).src
 			: undefined,
 		alt: interview.intervieweePicture?.alt || interview.interviewee,
 		initials: getInitials(interview.interviewee),

@@ -1,15 +1,8 @@
-import {
-	Box,
-	Card,
-	Image as ChakraImage,
-	Flex,
-	Icon,
-	Text,
-} from '@chakra-ui/react';
-import { Image } from '@unpic/react';
+import { Box, Card, Flex, Icon, Text } from '@chakra-ui/react';
 import { RiMapPinLine } from 'react-icons/ri';
+import PictureImg from '@/components/standard/PictureImg';
 import type { PictureWithReport } from '@/server/tags';
-import { getBackendUrl } from '@/utils/backend-url';
+import { thumbnailSource } from '@/utils/picture-src';
 import { stripExtension } from '@/utils/tools';
 
 type PictureCardProps = {
@@ -48,13 +41,7 @@ const PictureCard = ({ picture, onSelect }: PictureCardProps) => {
 		>
 			<button type="button" onClick={() => onSelect(picture)}>
 				<Box bgColor="bg.muted" aspectRatio="4 / 3" w="full">
-					<ChakraImage asChild w="full" h="full">
-						<Image
-							src={getBackendUrl(picture.url)}
-							alt={picture.alt}
-							layout="fullWidth"
-						/>
-					</ChakraImage>
+					<PictureImg source={thumbnailSource(picture)} alt={picture.alt} />
 				</Box>
 				<Box p={3}>
 					<Text textStyle="title.s" lineClamp={2}>

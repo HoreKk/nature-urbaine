@@ -1,7 +1,6 @@
 import {
 	Avatar,
 	Box,
-	Image as ChakraImage,
 	Container,
 	Flex,
 	Grid,
@@ -12,7 +11,6 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
-import { Image } from '@unpic/react';
 import {
 	RiBuildingLine,
 	RiCalendarLine,
@@ -20,10 +18,11 @@ import {
 	RiUserLine,
 } from 'react-icons/ri';
 import { UIBreadcrumb } from '@/components/standard/Breadcrumb';
+import PictureImg from '@/components/standard/PictureImg';
 import { Prose } from '@/components/ui/prose';
 import type { InterviewDetail } from '@/server/interviews';
 import { getInterviewById } from '@/server/interviews';
-import { getBackendUrl } from '@/utils/backend-url';
+import { heroSource, thumbnailSource } from '@/utils/picture-src';
 
 export const Route = createFileRoute('/interviews/$id')({
 	component: RouteComponent,
@@ -80,11 +79,9 @@ function QuestionBlock({ question, html }: QuestionBlockProps) {
 function RouteComponent() {
 	const interview = Route.useLoaderData() as InterviewDetail;
 
-	const thumbnailUrl = interview.thumbnail?.url
-		? getBackendUrl(interview.thumbnail.url)
-		: null;
+	const thumbnail = interview.thumbnail?.url ? interview.thumbnail : null;
 	const portraitUrl = interview.intervieweePicture?.url
-		? getBackendUrl(interview.intervieweePicture.url)
+		? thumbnailSource(interview.intervieweePicture).src
 		: null;
 
 	return (
@@ -98,14 +95,14 @@ function RouteComponent() {
 			/>
 
 			<Box position="relative">
-				{thumbnailUrl ? (
-					<ChakraImage asChild height={{ base: 240, md: 380 }} width="full">
-						<Image
-							src={thumbnailUrl}
-							alt={interview.thumbnail?.alt || interview.name}
-							layout="fullWidth"
-						/>
-					</ChakraImage>
+				{thumbnail ? (
+					<PictureImg
+						source={heroSource(thumbnail)}
+						alt={thumbnail.alt || interview.name}
+						height={{ base: 240, md: 380 }}
+						width="full"
+						priority
+					/>
 				) : (
 					<Box
 						height={{ base: 240, md: 380 }}
