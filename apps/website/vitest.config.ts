@@ -1,5 +1,4 @@
 import { fileURLToPath, URL } from 'node:url';
-import viteReact from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
 // Kept apart from vite.config.ts: the TanStack Start and Nitro plugins load a
@@ -10,5 +9,4 @@ export default defineConfig({
 			'@': fileURLToPath(new URL('./src', import.meta.url)),
 		},
 	},
-	plugins: [viteReact()],
 });
