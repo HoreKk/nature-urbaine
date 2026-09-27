@@ -110,6 +110,8 @@ Use [`components/sections/PageHeader.tsx`](apps/website/src/components/sections/
 
 Match [`components/cards/ProjectCard.tsx`](apps/website/src/components/cards/ProjectCard.tsx) for reportage / interview thumbnails. Image aspect `4/3` (default), `5/4` (featured), `4/5` (hero portrait). Hover: shadow lift + subtle `translateY(-1.5px)`, 250ms `cubic-bezier(0.25, 1, 0.5, 1)`. Eyebrow uses `kicker`, title uses `heading.md` or `title.s`, caption uses `mono.s`.
 
+The whole card is one link: wrap it in `LinkBox` (via `Card.Root asChild`) and put `LinkOverlay asChild` around the router `Link` on the title. Don't nest other links inside. Focus ring goes on the card with `_focusWithin` (2px `primary.solid` outline, 2px offset). A footer « Lire plus → » is a decorative, `aria-hidden` cue: it turns `primary.solid` on card hover (`_groupHover`), and the arrow stays still.
+
 ### Chip / Tag
 
 Pill (`borderRadius="full"`), `bg="bg.subtle"`, `border="1px solid"`, `borderColor="border"`, `px={2.5}`, `py={1}`, `fontFamily="mono"`, `fontSize="12px"`, `color="fg.muted"`. Active state: `bg="secondary.solid"`, `color="secondary.contrast"`. Category chips precede the label with an 8×8 colored dot.
@@ -130,14 +132,13 @@ No real photo? Use a striped diagonal pattern via `backgroundImage="repeating-li
 
 Only these are allowed:
 
-| Element                  | Effect                                  | Duration |
-| ------------------------ | --------------------------------------- | -------: |
-| Button hover             | `translateY(-1px)`                      |    150ms |
-| Card hover               | shadow `sm → lg`, `translateY(-1.5px)`  |    250ms |
-| List arrow on card hover | `translateX(3–4px)` of the chevron icon |    150ms |
-| Chip toggle press        | scale `1 → 0.97 → 1`                    |    120ms |
-| Map pin selected         | radius/opacity pulse, infinite          |   2400ms |
-| Search dropdown open     | 100ms fade + 4px translateY             |    100ms |
+| Element              | Effect                                 | Duration |
+| -------------------- | -------------------------------------- | -------: |
+| Button hover         | `translateY(-1px)`                     |    150ms |
+| Card hover           | shadow `sm → lg`, `translateY(-1.5px)` |    250ms |
+| Chip toggle press    | scale `1 → 0.97 → 1`                   |    120ms |
+| Map pin selected     | radius/opacity pulse, infinite         |   2400ms |
+| Search dropdown open | 100ms fade + 4px translateY            |    100ms |
 
 Easing: `cubic-bezier(0.25, 1, 0.5, 1)` for hover lifts, plain `ease` elsewhere.
 
