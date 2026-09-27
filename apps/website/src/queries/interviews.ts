@@ -19,6 +19,7 @@ export const interviewsQueryOptions = (
 	queryOptions({
 		queryKey: ['interviews', page, filters],
 		queryFn: () => getInterviews({ data: { page, pageSize, filters } }),
+		staleTime: 60_000,
 	});
 
 export const interviewByIdQueryOptions = (id: number) =>

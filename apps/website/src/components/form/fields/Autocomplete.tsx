@@ -64,8 +64,15 @@ export function AutocompleteField({
 				positioning={{ flip: false }}
 			>
 				<Combobox.Label>{label}</Combobox.Label>
+				<Combobox.Control>
+					<Combobox.Input bg="bg" placeholder={placeholder} />
+					<Combobox.IndicatorGroup>
+						<Combobox.ClearTrigger />
+						<Combobox.Trigger />
+					</Combobox.IndicatorGroup>
+				</Combobox.Control>
 				{multiple && field.state.value.length > 0 && (
-					<Wrap gap={2} mb={2}>
+					<Wrap gap={2} mt={2}>
 						{field.state.value.map((value) => (
 							<Tag.Root
 								key={value}
@@ -85,13 +92,6 @@ export function AutocompleteField({
 						))}
 					</Wrap>
 				)}
-				<Combobox.Control>
-					<Combobox.Input bg="bg" placeholder={placeholder} />
-					<Combobox.IndicatorGroup>
-						<Combobox.ClearTrigger />
-						<Combobox.Trigger />
-					</Combobox.IndicatorGroup>
-				</Combobox.Control>
 				<Portal>
 					<Combobox.Positioner>
 						<Combobox.Content maxH="350px">

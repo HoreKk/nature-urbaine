@@ -13,14 +13,18 @@ export {
 	type ReportCatalogFilter,
 };
 
+// The route loader fills the cache before render; without a staleTime the
+// component would refetch the entry it was just handed.
 export const reportCatalogQueryOptions = (
 	page: number,
 	filter?: ReportCatalogFilter,
 	pageSize: number = REPORT_CATALOG_PAGE_SIZE,
-) => ({
-	queryKey: ['report-catalog', page, pageSize, filter] as const,
-	queryFn: () => findReportCatalog({ data: { page, pageSize, filter } }),
-});
+) =>
+	queryOptions({
+		queryKey: ['report-catalog', page, pageSize, filter] as const,
+		queryFn: () => findReportCatalog({ data: { page, pageSize, filter } }),
+		staleTime: 60_000,
+	});
 
 export const reportByIdQueryOptions = (id: number) =>
 	queryOptions({

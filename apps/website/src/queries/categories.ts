@@ -9,6 +9,7 @@ export const categoriesQueryOptions = () =>
 	queryOptions({
 		queryKey: ['categories'],
 		queryFn: () => getAllCategories(),
+		staleTime: 5 * 60_000,
 	});
 
 export const libraryStatsQueryOptions = () =>

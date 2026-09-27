@@ -1,186 +1,147 @@
-import {
-	Box,
-	Container,
-	Grid,
-	Icon,
-	Skeleton,
-	Tag,
-	Text,
-	Wrap,
-} from '@chakra-ui/react';
-import type { PaginatedDocs } from '@nature-urbaine/database';
+import { Skeleton, Text } from '@chakra-ui/react';
 import { useStore } from '@tanstack/react-form';
-import { useQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
-import { useDebounce } from '@uidotdev/usehooks';
-import { useState } from 'react';
-import { RiErrorWarningFill } from 'react-icons/ri';
-import type z from 'zod';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import {
+	createFileRoute,
+	redirect,
+	useNavigate,
+	useRouterState,
+} from '@tanstack/react-router';
+import z from 'zod';
 import ProjectCard from '@/components/cards/ProjectCard';
 import { interviewToProjectCardProps } from '@/components/cards/projectCardProps';
-import ContributeCta from '@/components/sections/ContributeCta';
-import PageHeader from '@/components/sections/PageHeader';
-import UIPagination from '@/components/standard/Pagination';
-import { EmptyState } from '@/components/ui/empty-state';
+import CatalogLayout from '@/components/standard/CatalogLayout';
 import { useAppForm } from '@/hooks/form-context';
+import { useUrlSyncedFilters } from '@/hooks/use-url-synced-filters';
 import {
 	INTERVIEWS_PAGE_SIZE,
 	interviewFilterSchema,
 	interviewsQueryOptions,
 } from '@/queries/interviews';
-import type { SafeInterview } from '@/server/interviews';
-import { getInterviews } from '@/server/interviews';
-import { cardGridColumns } from '@/utils/grid';
 
-export const Route = createFileRoute('/interviews/')({
-	component: RouteComponent,
-	loader: async () => {
-		const interviews = await getInterviews({
-			data: { page: 1, pageSize: INTERVIEWS_PAGE_SIZE },
-		});
-		return { interviews };
-	},
+const interviewsSearchSchema = interviewFilterSchema.extend({
+	page: z.coerce.number<number>().int().min(1).optional(),
 });
 
-const defaultValues: z.input<typeof interviewFilterSchema> = {
-	search: '',
-};
+type InterviewsSearch = z.infer<typeof interviewsSearchSchema>;
+
+export const Route = createFileRoute('/interviews/')({
+	validateSearch: interviewsSearchSchema,
+	loaderDeps: ({ search }) => search,
+	loader: async ({ context, deps }) => {
+		const { page = 1, ...filters } = deps;
+		const interviews = await context.queryClient.ensureQueryData(
+			interviewsQueryOptions(page, filters),
+		);
+		if (page > 1 && page > interviews.totalPages) {
+			throw redirect({
+				to: '/interviews',
+				search: {
+					...deps,
+					page: interviews.totalPages > 1 ? interviews.totalPages : undefined,
+				},
+				replace: true,
+			});
+		}
+	},
+	component: RouteComponent,
+});
+
+const filterFormSchema = z.object({
+	search: z.string().max(200),
+});
+
+type FilterFormValues = z.infer<typeof filterFormSchema>;
+
+const toFormValues = (search: InterviewsSearch): FilterFormValues => ({
+	search: search.search ?? '',
+});
 
 function RouteComponent() {
-	const { interviews: loaderInterviews } = Route.useLoaderData() as {
-		interviews: PaginatedDocs<SafeInterview>;
-	};
+	const search = Route.useSearch();
+	const navigate = useNavigate({ from: Route.fullPath });
+	const page = search.page ?? 1;
 
-	const [page, setPage] = useState(1);
-
+	const urlValues = toFormValues(search);
 	const filterForm = useAppForm({
-		defaultValues,
-		validators: { onChange: interviewFilterSchema },
+		defaultValues: urlValues,
+		validators: { onChange: filterFormSchema },
+	});
+	const formValues = useStore(filterForm.store, (state) => state.values);
+
+	const { isPending } = useUrlSyncedFilters({
+		formValues,
+		urlValues,
+		setFormValues: (values) =>
+			filterForm.setFieldValue('search', values.search),
+		onCommit: (values) =>
+			navigate({
+				search: (prev: InterviewsSearch) => ({
+					...prev,
+					search: values.search || undefined,
+					page: undefined,
+				}),
+				replace: true,
+				resetScroll: false,
+			}),
 	});
 
-	const { search } = useStore(filterForm.store, (state) => state.values);
-	const debouncedSearch = useDebounce(search, 400);
-	const formValues = { search: debouncedSearch };
-
-	const { data, isEnabled, isFetching } = useQuery({
-		...interviewsQueryOptions(page, formValues, INTERVIEWS_PAGE_SIZE),
-		enabled: page !== 1 || filterForm.state.isDirty,
-		initialData: loaderInterviews,
-	});
-
-	const hasActiveSearch = debouncedSearch && debouncedSearch.length > 0;
-
-	const isLoading = isFetching || debouncedSearch !== search;
-	const interviews = isEnabled ? data.docs : loaderInterviews.docs;
-	const totalDocs = isEnabled ? data.totalDocs : loaderInterviews.totalDocs;
+	const { data } = useSuspenseQuery(
+		interviewsQueryOptions(page, { search: search.search }),
+	);
+	const isNavigating = useRouterState({ select: (state) => state.isLoading });
 
 	return (
-		<>
-			<PageHeader
-				eyebrow="À la une"
-				title={
-					<>
-						À la rencontre des{' '}
-						<Text as="em" textStyle="emphasis" fontWeight={400}>
-							faiseurs
-						</Text>
-						.
-					</>
-				}
-				description="Des rencontres avec les paysagistes, urbanistes et maîtres d'œuvre qui dessinent le paysage urbain."
-			/>
-
-			<Container
-				as="form"
-				maxW="container.xl"
-				mt={8}
-				display="flex"
-				flexDirection="column"
-				gap={4}
-			>
-				<Box w="35%">
-					<filterForm.AppField name="search">
-						{(field) => (
-							<field.TextField
-								label="Recherche"
-								placeholder="Rechercher par titre, ville ou interviewé"
-							/>
-						)}
-					</filterForm.AppField>
-				</Box>
-			</Container>
-
-			<Box
-				borderY="solid 1px"
-				borderColor="border.emphasized"
-				bgColor="bg.muted"
-				mt={8}
-			>
-				<Container
-					maxW="container.xl"
-					display="flex"
-					justifyContent="space-between"
-					alignItems="center"
-					py={4}
-				>
-					<Wrap gap={2} alignItems="center">
-						<Text>Filtres actifs :</Text>
-						{hasActiveSearch ? (
-							<Tag.Root size="sm" colorPalette="primary" borderRadius="full">
-								<Tag.Label>{debouncedSearch}</Tag.Label>
-								<Tag.EndElement>
-									<Tag.CloseTrigger
-										cursor="pointer"
-										onClick={() => filterForm.setFieldValue('search', '')}
-									/>
-								</Tag.EndElement>
-							</Tag.Root>
-						) : (
-							<Text color="fg.muted" fontSize="sm">
-								Aucun
-							</Text>
-						)}
-					</Wrap>
-					<Text>
-						<Text as="span" color="primary.fg" fontWeight="bold">
-							{totalDocs}
-						</Text>{' '}
-						interview{totalDocs !== 1 ? 's' : ''} trouvée
-						{totalDocs !== 1 ? 's' : ''}
+		<CatalogLayout
+			eyebrow="À la une"
+			title={
+				<>
+					À la rencontre des{' '}
+					<Text as="em" textStyle="emphasis" fontWeight={400}>
+						faiseurs
 					</Text>
-				</Container>
-			</Box>
-
-			<Container maxW="container.xl" mt={10}>
-				<Grid templateColumns={cardGridColumns} gap={8}>
-					{interviews.length === 0 ? (
-						<EmptyState
-							gridColumn={{ base: 'span 1', md: 'span 2', lg: 'span 3' }}
-							size="lg"
-							icon={<Icon as={RiErrorWarningFill} />}
-							title="Aucune interview trouvée"
-							description="Essayez d'ajuster votre recherche pour trouver ce que vous cherchez."
+					.
+				</>
+			}
+			description="Des rencontres avec les paysagistes, urbanistes et maîtres d'œuvre qui dessinent le paysage urbain."
+			filters={
+				<filterForm.AppField name="search">
+					{(field) => (
+						<field.TextField
+							label="Recherche"
+							placeholder="Rechercher par titre, ville ou interviewé"
 						/>
-					) : (
-						interviews.map((interview) => (
-							<Skeleton key={interview.id} loading={isLoading}>
-								<ProjectCard {...interviewToProjectCardProps(interview)} />
-							</Skeleton>
-						))
 					)}
-				</Grid>
-			</Container>
-
-			<Box mt={16}>
-				<UIPagination
-					totalDocs={totalDocs}
-					limit={INTERVIEWS_PAGE_SIZE}
-					page={page}
-					onPageChange={setPage}
-				/>
-			</Box>
-
-			<ContributeCta />
-		</>
+				</filterForm.AppField>
+			}
+			totalDocs={data.totalDocs}
+			isEmpty={data.docs.length === 0}
+			limit={INTERVIEWS_PAGE_SIZE}
+			page={page}
+			onPageChange={(nextPage) =>
+				navigate({
+					search: (prev: InterviewsSearch) => ({
+						...prev,
+						page: nextPage > 1 ? nextPage : undefined,
+					}),
+					resetScroll: false,
+				})
+			}
+			resultLabel={(count) =>
+				count > 1 ? 'interviews trouvées' : 'interview trouvée'
+			}
+			hasActiveFilters={Boolean(search.search)}
+			onResetFilters={() =>
+				navigate({ search: {}, replace: true, resetScroll: false })
+			}
+			emptyTitle="Aucune interview trouvée"
+			emptyDescription="Essayez d'ajuster votre recherche pour trouver ce que vous cherchez."
+		>
+			{data.docs.map((interview) => (
+				<Skeleton key={interview.id} loading={isNavigating || isPending}>
+					<ProjectCard {...interviewToProjectCardProps(interview)} />
+				</Skeleton>
+			))}
+		</CatalogLayout>
 	);
 }
