@@ -1,6 +1,15 @@
-import { Box, Container, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import {
+	Box,
+	Container,
+	Flex,
+	Grid,
+	Heading,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
 import { Link, type LinkProps } from '@tanstack/react-router';
 import { LuArrowRight } from 'react-icons/lu';
+import { cardGridColumns } from '@/utils/grid';
 
 type Feature = {
 	num: string;
@@ -50,8 +59,8 @@ const features: Feature[] = [
 	},
 	{
 		num: '06',
-		kicker: 'Trouver',
-		title: 'Fournisseurs partenaires',
+		kicker: 'Rencontrer',
+		title: 'Partenaires',
 		desc: 'Mobilier, éclairage, végétaux — fiches détaillées.',
 		to: '/',
 		disabled: true,
@@ -75,14 +84,7 @@ const Features = () => {
 				</Stack>
 			</Container>
 			<Container maxW="container.xl">
-				<Flex
-					gap={5}
-					overflowX="auto"
-					pt={2}
-					pb={4}
-					scrollbarWidth="none"
-					css={{ '&::-webkit-scrollbar': { display: 'none' } }}
-				>
+				<Grid templateColumns={cardGridColumns} gap={5}>
 					{features.map((f) => {
 						const card = (
 							<Box
@@ -92,7 +94,7 @@ const Features = () => {
 								borderColor="border.muted"
 								borderRadius="sm"
 								p={6}
-								aspectRatio="1 / 1"
+								h="full"
 								display="flex"
 								flexDir="column"
 								opacity={f.disabled ? 0.7 : 1}
@@ -163,18 +165,15 @@ const Features = () => {
 							</Box>
 						);
 
-						return (
-							<Box
-								key={f.num}
-								flex="0 0 auto"
-								w={{ base: '260px', md: '280px' }}
-								scrollSnapAlign="start"
-							>
-								{f.disabled ? card : <Link to={f.to}>{card}</Link>}
-							</Box>
+						return f.disabled ? (
+							<Box key={f.num}>{card}</Box>
+						) : (
+							<Link key={f.num} to={f.to}>
+								{card}
+							</Link>
 						);
 					})}
-				</Flex>
+				</Grid>
 			</Container>
 		</Box>
 	);
