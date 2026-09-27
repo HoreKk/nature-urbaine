@@ -10,7 +10,13 @@ const config = defineConfig({
 			'@': fileURLToPath(new URL('./src', import.meta.url)),
 		},
 	},
-	plugins: [nitro(), tanstackStart(), viteReact()],
+	plugins: [
+		// Pre-compress JS/CSS/fonts at build time; Railway's proxy does not
+		// compress for us and service egress is billed.
+		nitro({ compressPublicAssets: { gzip: true, brotli: true } }),
+		tanstackStart(),
+		viteReact(),
+	],
 	optimizeDeps: {
 		exclude: ['payload'],
 	},
