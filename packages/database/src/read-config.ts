@@ -1,8 +1,9 @@
 import { buildPayloadConfig } from "./config";
 
-// Config for read-only consumers (the website, relation-resolving helpers).
-// These only read from the database, so dev schema push is disabled: they must
-// never attempt to sync the schema — doing so proposes dropping columns their
-// config doesn't declare (e.g. the S3 `prefix` fields owned by the CMS config)
-// and hangs on the interactive data-loss prompt under `vite dev`.
+// Config for consumers that never own the schema (the website,
+// relation-resolving helpers). Dev schema push is disabled: they must never
+// attempt to sync the schema, which would hang on Drizzle's interactive
+// data-loss prompt under `vite dev` whenever the local DB drifts. Storage is
+// shared with the CMS through `buildPayloadConfig`, so the website's
+// submission uploads land in the bucket too.
 export default buildPayloadConfig({ push: false });
