@@ -13,6 +13,7 @@ export async function fetchOrReturnRealValue<
 		return (await payload.findByID({
 			collection,
 			id: item,
+			overrideAccess: true,
 		})) as Config["collections"][T];
 	} else {
 		return item as Config["collections"][T];

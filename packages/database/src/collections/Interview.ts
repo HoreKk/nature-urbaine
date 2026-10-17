@@ -150,4 +150,6 @@ export const Interviews: CollectionConfig = {
 			},
 		},
 	],
+	versions: false,
+	authorship: false,
 };

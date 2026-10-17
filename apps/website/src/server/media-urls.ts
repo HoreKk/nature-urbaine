@@ -1,6 +1,5 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { getBackendUrl } from '@/utils/backend-url';
 
 /**
  * Rewrites Payload upload URLs (`/api/<collection>/file/<name>`) into URLs the
@@ -137,8 +136,9 @@ function objectKeyFromPath(path: string): string | null {
 async function resolveUploadPath(path: string): Promise<string> {
 	const objectKey = objectKeyFromPath(path);
 	const signed = objectKey ? signUploadUrl(objectKey) : null;
-	if (signed) return signed;
-	return path.startsWith('/') ? getBackendUrl(path) : path;
+	// Without bucket credentials (local dev) Payload serves the file itself,
+	// on this same origin.
+	return signed ?? path;
 }
 
 /** Plain JSON objects only: a `Date`, `Buffer` or class instance is returned as is. */
@@ -164,16 +164,19 @@ async function rewriteUploadDoc(
 			next[field] = await resolveUploadPath(value);
 		}
 	}
-	if (isRecord(doc.sizes)) {
-		const sizes: Record<string, unknown> = {};
-		for (const [name, size] of Object.entries(doc.sizes)) {
-			if (isRecord(size) && typeof size.url === 'string') {
-				sizes[name] = { ...size, url: await resolveUploadPath(size.url) };
+	if (isRecord(doc.variants)) {
+		const variants: Record<string, unknown> = {};
+		for (const [name, variant] of Object.entries(doc.variants)) {
+			if (isRecord(variant) && typeof variant.url === 'string') {
+				variants[name] = {
+					...variant,
+					url: await resolveUploadPath(variant.url),
+				};
 			} else {
-				sizes[name] = size;
+				variants[name] = variant;
 			}
 		}
-		next.sizes = sizes;
+		next.variants = variants;
 	}
 	return next;
 }
@@ -195,7 +198,7 @@ async function walk(value: unknown, depth: number): Promise<unknown> {
 
 /**
  * Deep-copies a server-function result, replacing every upload doc's `url`,
- * `thumbnailURL` and `sizes.*.url` with browser-fetchable URLs. Call it on the
+ * `thumbnailURL` and `variants.*.url` with browser-fetchable URLs. Call it on the
  * value a server function returns so the client never sees a CMS path.
  */
 export async function withMediaUrls<T>(value: T): Promise<T> {

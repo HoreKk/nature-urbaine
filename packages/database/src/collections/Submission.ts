@@ -145,4 +145,6 @@ export const Submissions: CollectionConfig = {
 			},
 		},
 	],
+	versions: false,
+	authorship: false,
 };

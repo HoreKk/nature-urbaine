@@ -12,3 +12,7 @@ count.txt
 .vinxi
 todos.json
 .vscode
+
+# Local upload dirs when S3 is off (Payload serves them from /api/<collection>/file)
+/media
+/pictures

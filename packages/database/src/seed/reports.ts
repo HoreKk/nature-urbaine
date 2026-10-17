@@ -51,6 +51,7 @@ export default async function seedReports(payload: Payload) {
 	const categories = await payload.find({
 		collection: "categories",
 		limit: 0,
+		overrideAccess: true,
 	});
 
 	const sortedData = [...data].toSorted((a, b) => {

@@ -1,5 +1,5 @@
 import { s3Storage } from "@payloadcms/storage-s3";
-import type { Plugin } from "payload";
+import type { Plugin, StorageAdapter } from "payload";
 
 // Upload collections stored in the bucket, each under a prefix equal to its
 // slug. The website's `media-urls.ts` and `scripts/check-storage.ts` rely on
@@ -62,17 +62,16 @@ function assertUploadsCovered(slugs: string[]) {
  * The one storage config shared by every Payload instance (CMS, website,
  * seed scripts), so an upload lands in the bucket whichever app handles it.
  *
- * `alwaysInsertFields` keeps the `prefix`/`_objectKey` columns in the schema
- * even when S3 is disabled locally, so generated migrations do not depend on
+ * When disabled (no S3 env locally) Payload v4 still inserts the
+ * `prefix`/`_objectKey` columns, so generated migrations do not depend on
  * whether the S3 env vars happen to be set.
  */
-export function storagePlugin(): Plugin {
+export function storageAdapter(): StorageAdapter {
 	const env = readS3Env();
 	assertStorageConfigured(env !== null);
 
 	return s3Storage({
 		enabled: env !== null,
-		alwaysInsertFields: true,
 		collections: Object.fromEntries(
 			storageCollections.map((slug) => [
 				slug,

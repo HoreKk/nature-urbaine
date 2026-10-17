@@ -1,3 +1,7 @@
+import {
+	payloadParseSearch,
+	payloadStringifySearch,
+} from '@payloadcms/tanstack-start/shared';
 import { createRouter } from '@tanstack/react-router';
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query';
 import RouterDefaultError from '@/components/standard/RouterDefaultError';
@@ -19,6 +23,10 @@ export const getRouter = () => {
 			...rqContext,
 		},
 		scrollRestoration: true,
+		// Payload's admin needs qs-style search params (nested `where` filters).
+		// Router-global: our own `validateSearch` schemas must coerce from strings.
+		parseSearch: payloadParseSearch,
+		stringifySearch: payloadStringifySearch,
 		defaultPreload: 'intent',
 		defaultViewTransition: true,
 	});

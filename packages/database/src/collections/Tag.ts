@@ -49,4 +49,6 @@ export const Tags: CollectionConfig = {
 			},
 		},
 	],
+	versions: false,
+	authorship: false,
 };

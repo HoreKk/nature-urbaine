@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react';
+import { withPayloadRoot } from '@payloadcms/tanstack-start/client';
 import type { QueryClient } from '@tanstack/react-query';
 import {
 	createRootRouteWithContext,
@@ -45,7 +46,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			},
 		],
 	}),
-	shellComponent: RootDocument,
+	// `/admin/*` renders Payload's own shell; everything else gets the site's.
+	shellComponent: withPayloadRoot(RootDocument),
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {

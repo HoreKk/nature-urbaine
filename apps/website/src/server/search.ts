@@ -13,7 +13,7 @@ export type SearchResult = {
 
 export const getSearchResults = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
-	.inputValidator(
+	.validator(
 		z.object({
 			searchTerm: z.string(),
 		}),
@@ -23,6 +23,7 @@ export const getSearchResults = createServerFn({ method: 'GET' })
 		if (!searchTerm) return [];
 
 		const tags = await context.db.find({
+			overrideAccess: true,
 			collection: 'tags',
 			where: { name: { contains: searchTerm } },
 			limit: 10,

@@ -67,7 +67,7 @@ function buildWhere(filter: ReportCatalogFilter) {
 }
 
 export const findReportCatalog = createServerFn({ method: 'GET' })
-	.inputValidator(
+	.validator(
 		z.object({
 			page: z.number().min(1),
 			pageSize: z.number().min(1).max(100),
@@ -79,6 +79,7 @@ export const findReportCatalog = createServerFn({ method: 'GET' })
 		const { page, pageSize, filter } = data;
 
 		const reports = await context.db.find({
+			overrideAccess: true,
 			collection: 'reports',
 			limit: pageSize,
 			page,
@@ -95,10 +96,11 @@ export const findReportCatalog = createServerFn({ method: 'GET' })
 	});
 
 export const findReportById = createServerFn({ method: 'GET' })
-	.inputValidator(z.number().min(1))
+	.validator(z.number().min(1))
 	.middleware([baseProcedure])
 	.handler(async ({ data: id, context }) => {
 		const report = await context.db.findByID({
+			overrideAccess: true,
 			collection: 'reports',
 			id,
 			depth: 2,

@@ -11,7 +11,7 @@ const picture = {
 	thumbnailURL: '/api/pictures/file/parc%20a-400x300.png',
 	width: 4000,
 	height: 3000,
-	sizes: {
+	variants: {
 		thumbnail: {
 			url: '/api/pictures/file/parc%20a-400x300.png',
 			width: 400,
@@ -33,7 +33,7 @@ describe('withMediaUrls', () => {
 		delete process.env.S3_BUCKET;
 		const result = await withMediaUrls({ docs: [picture] });
 		expect(result.docs[0].url).toMatch(/\/api\/pictures\/file\/parc%20a\.png$/);
-		expect(result.docs[0].sizes.thumbnail.url).toMatch(/-400x300\.png$/);
+		expect(result.docs[0].variants.thumbnail.url).toMatch(/-400x300\.png$/);
 	});
 
 	describe('with a bucket', () => {
@@ -44,7 +44,7 @@ describe('withMediaUrls', () => {
 			process.env.S3_SECRET_KEY = 'secret';
 		});
 
-		it('signs every upload URL, including nested sizes and relations', async () => {
+		it('signs every upload URL, including nested variants and relations', async () => {
 			const report = {
 				id: 9,
 				name: 'R',
@@ -59,7 +59,7 @@ describe('withMediaUrls', () => {
 			expect(front.url).toContain('X-Amz-Signature=');
 			expect(front.url).toContain('X-Amz-Expires=604800');
 			expect(front.url).toContain('response-cache-control=');
-			expect(front.sizes.thumbnail.url).toMatch(
+			expect(front.variants.thumbnail.url).toMatch(
 				/\/pictures\/parc%20a-400x300\.png\?/,
 			);
 			expect(front.thumbnailURL).toMatch(/-400x300\.png\?/);

@@ -18,6 +18,7 @@ export async function upsertBySeedKey<TSlug extends CollectionSlug>(
 		limit: 1,
 		pagination: false,
 		where: { seedKey: { equals: seedKey } },
+		overrideAccess: true,
 	});
 
 	if (existing.docs[0]) {
@@ -26,6 +27,7 @@ export async function upsertBySeedKey<TSlug extends CollectionSlug>(
 			id: existing.docs[0].id,
 			draft,
 			data: { ...data, seedKey },
+			overrideAccess: true,
 		});
 	}
 

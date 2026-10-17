@@ -4,7 +4,7 @@ import { sendSubmissionEmail } from './emails/submission';
 import { wireSubmissionSchema } from './submission-contract';
 
 export const createSubmission = createServerFn({ method: 'POST' })
-	.inputValidator(wireSubmissionSchema)
+	.validator(wireSubmissionSchema)
 	.middleware([baseProcedure])
 	.handler(async ({ data, context }) => {
 		const { db } = context;
@@ -18,6 +18,7 @@ export const createSubmission = createServerFn({ method: 'POST' })
 				const buffer = Buffer.from(picture.base64, 'base64');
 
 				const { id } = await db.create({
+					overrideAccess: true,
 					collection: 'media',
 					data: { alt: `${data.name} - image ${index + 1}` },
 					file: {
@@ -35,6 +36,7 @@ export const createSubmission = createServerFn({ method: 'POST' })
 		try {
 			const [{ id: submissionId }, categoryDoc] = await Promise.all([
 				db.create({
+					overrideAccess: true,
 					collection: 'submissions',
 					data: {
 						...data,
@@ -43,7 +45,11 @@ export const createSubmission = createServerFn({ method: 'POST' })
 						status: 'pending',
 					},
 				}),
-				db.findByID({ collection: 'categories', id: data.category }),
+				db.findByID({
+					overrideAccess: true,
+					collection: 'categories',
+					id: data.category,
+				}),
 			]);
 
 			const categoryLabel =
@@ -67,7 +73,11 @@ export const createSubmission = createServerFn({ method: 'POST' })
 		} catch (error) {
 			await Promise.all(
 				uploadedPictures.map((pictureId) =>
-					db.delete({ collection: 'media', id: pictureId }),
+					db.delete({
+						overrideAccess: true,
+						collection: 'media',
+						id: pictureId,
+					}),
 				),
 			);
 

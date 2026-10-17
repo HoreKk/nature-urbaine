@@ -18,9 +18,10 @@ export type PictureWithReport = Omit<Picture, 'report' | 'relatedTags'> & {
 
 export const getTagById = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
-	.inputValidator(z.number())
+	.validator(z.number())
 	.handler(async ({ data: id, context }) => {
 		const tag = await context.db.findByID({
+			overrideAccess: true,
 			collection: 'tags',
 			id,
 			depth: 1,
@@ -44,12 +45,14 @@ export const getTagCategoriesWithRootCount = createServerFn({ method: 'GET' })
 	.handler(async ({ context }) => {
 		const [categoriesResult, rootTagsResult] = await Promise.all([
 			context.db.find({
+				overrideAccess: true,
 				collection: 'tag-categories',
 				limit: 200,
 				depth: 0,
 				sort: 'name',
 			}),
 			context.db.find({
+				overrideAccess: true,
 				collection: 'tags',
 				limit: 5000,
 				depth: 0,
@@ -108,6 +111,7 @@ export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 	.handler(async ({ context }): Promise<TagTaxonomyStats> => {
 		const [tagsResult, picturesResult] = await Promise.all([
 			context.db.find({
+				overrideAccess: true,
 				collection: 'tags',
 				limit: 10000,
 				depth: 0,
@@ -115,6 +119,7 @@ export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 				select: { parentId: true, tagCategory: true },
 			}),
 			context.db.find({
+				overrideAccess: true,
 				collection: 'pictures',
 				limit: 100000,
 				depth: 0,
@@ -227,7 +232,7 @@ export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 
 export const getChildTags = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
-	.inputValidator(
+	.validator(
 		z.object({
 			parentId: z.number().nullable(),
 			tagCategoryId: z.number().nullable(),
@@ -247,6 +252,7 @@ export const getChildTags = createServerFn({ method: 'GET' })
 		}
 
 		const result = await context.db.find({
+			overrideAccess: true,
 			collection: 'tags',
 			limit: 200,
 			depth: 0,
@@ -272,7 +278,7 @@ export const getChildTags = createServerFn({ method: 'GET' })
  */
 export const getPicturesByTagRecursive = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
-	.inputValidator(
+	.validator(
 		z.object({
 			tagId: z.number(),
 			page: z.number().min(1),
@@ -290,6 +296,7 @@ export const getPicturesByTagRecursive = createServerFn({ method: 'GET' })
 		// 3 strata, so any single level realistically holds dozens-to-hundreds.
 		while (frontier.length > 0 && depth < 10) {
 			const children = await context.db.find({
+				overrideAccess: true,
 				collection: 'tags',
 				limit: 10000,
 				depth: 0,
@@ -313,6 +320,7 @@ export const getPicturesByTagRecursive = createServerFn({ method: 'GET' })
 		// ever stops doing this on depth:1, the lightbox will break visibly (city,
 		// date, tag chips). Worth a runtime guard if we ever see flakiness here.
 		const result = await context.db.find({
+			overrideAccess: true,
 			collection: 'pictures',
 			limit: data.pageSize,
 			page: data.page,

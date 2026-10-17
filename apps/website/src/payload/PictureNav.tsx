@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
 import {
 	Button,
 	ChevronIcon,
 	useConfig,
 	useDocumentInfo,
-} from "@payloadcms/ui";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+	useRouter,
+} from '@payloadcms/ui';
+import { useEffect, useState } from 'react';
 
 type DocId = number | string;
 
 const toId = (value: unknown): DocId | null => {
 	if (value == null) return null;
-	if (typeof value === "object") {
+	if (typeof value === 'object') {
 		const id = (value as { id?: DocId }).id;
 		return id ?? null;
 	}
@@ -27,12 +27,12 @@ const toId = (value: unknown): DocId | null => {
  */
 export const PictureNav = () => {
 	const router = useRouter();
-	const { id, savedDocumentData } = useDocumentInfo();
+	const { id, data } = useDocumentInfo();
 	const { config } = useConfig();
-	const apiRoute = config.routes.api || "/api";
-	const adminRoute = config.routes.admin || "/";
+	const apiRoute = config.routes.api || '/api';
+	const adminRoute = config.routes.admin || '/';
 
-	const reportRef = savedDocumentData?.report;
+	const reportRef = data?.report;
 
 	const [prev, setPrev] = useState<DocId | null>(null);
 	const [next, setNext] = useState<DocId | null>(null);
@@ -51,7 +51,7 @@ export const PictureNav = () => {
 			let reportId = toId(reportRef);
 			if (reportId == null) {
 				const res = await fetch(`${apiRoute}/pictures/${id}?depth=0`, {
-					credentials: "include",
+					credentials: 'include',
 				});
 				reportId = toId((await res.json())?.report);
 			}
@@ -60,7 +60,7 @@ export const PictureNav = () => {
 			// Pull the report's photos in their ordered sequence (the join order).
 			const res = await fetch(
 				`${apiRoute}/reports/${reportId}?depth=0&joins[relatedPictures][limit]=1000`,
-				{ credentials: "include" },
+				{ credentials: 'include' },
 			);
 			const report = await res.json();
 			const docs: unknown[] = report?.relatedPictures?.docs ?? [];
@@ -75,7 +75,7 @@ export const PictureNav = () => {
 		};
 
 		load().catch((err) => {
-			console.error("PictureNav: failed to load sibling photos", err);
+			console.error('PictureNav: failed to load sibling photos', err);
 		});
 		return () => {
 			cancelled = true;
@@ -84,7 +84,7 @@ export const PictureNav = () => {
 
 	if (!id) return null;
 
-	const base = adminRoute === "/" ? "" : adminRoute;
+	const base = adminRoute === '/' ? '' : adminRoute;
 	const goTo = (pictureId: DocId | null) => {
 		if (pictureId == null) return;
 		router.push(`${base}/collections/pictures/${pictureId}`);
@@ -93,14 +93,14 @@ export const PictureNav = () => {
 	return (
 		<div
 			style={{
-				display: "flex",
-				gap: "var(--base)",
-				marginRight: "var(--base)",
+				display: 'flex',
+				gap: 'var(--base)',
+				marginRight: 'var(--base)',
 			}}
 		>
 			<Button
 				buttonStyle="secondary"
-				size="small"
+				size="medium"
 				el="button"
 				disabled={prev == null}
 				onClick={() => goTo(prev)}
@@ -111,7 +111,7 @@ export const PictureNav = () => {
 			</Button>
 			<Button
 				buttonStyle="secondary"
-				size="small"
+				size="medium"
 				el="button"
 				disabled={next == null}
 				onClick={() => goTo(next)}

@@ -19,6 +19,7 @@ const seed = async () => {
 				equals: adminEmail,
 			},
 		},
+		overrideAccess: true,
 	});
 
 	if (existingAdmin.docs[0]) {
@@ -29,6 +30,7 @@ const seed = async () => {
 				email: adminEmail,
 				password: adminPassword,
 			},
+			overrideAccess: true,
 		});
 	} else {
 		await payload.create({
@@ -37,6 +39,7 @@ const seed = async () => {
 				email: adminEmail,
 				password: adminPassword,
 			},
+			overrideAccess: true,
 		});
 	}
 

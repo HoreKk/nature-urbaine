@@ -231,4 +231,5 @@ export const Reports: CollectionConfig = {
 			],
 		},
 	],
+	authorship: false,
 };

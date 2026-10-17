@@ -5,7 +5,7 @@ const picture = {
 	url: 'https://bucket.test/pictures/parc.png?sig=1',
 	width: 4000,
 	height: 3000,
-	sizes: {
+	variants: {
 		thumbnail: {
 			url: 'https://bucket.test/pictures/parc-400x300.png?sig=2',
 			width: 400,
@@ -17,14 +17,14 @@ const picture = {
 describe('thumbnailSource', () => {
 	it('prefers the generated thumbnail and never lists the original', () => {
 		const source = thumbnailSource(picture);
-		expect(source.src).toBe(picture.sizes.thumbnail.url);
+		expect(source.src).toBe(picture.variants.thumbnail.url);
 		expect(source.width).toBe(400);
 		expect(source.height).toBe(300);
 		expect(source.srcSet).toBeUndefined();
 	});
 
 	it('falls back to the original when no thumbnail exists', () => {
-		const source = thumbnailSource({ ...picture, sizes: undefined });
+		const source = thumbnailSource({ ...picture, variants: undefined });
 		expect(source.src).toBe(picture.url);
 		expect(source.width).toBe(4000);
 	});
@@ -44,7 +44,7 @@ describe('heroSource', () => {
 		const source = heroSource(picture, '(min-width: 62em) 66vw, 100vw');
 		expect(source.src).toBe(picture.url);
 		expect(source.srcSet).toBe(
-			`${picture.sizes.thumbnail.url} 400w, ${picture.url} 4000w`,
+			`${picture.variants.thumbnail.url} 400w, ${picture.url} 4000w`,
 		);
 		expect(source.sizes).toBe('(min-width: 62em) 66vw, 100vw');
 	});

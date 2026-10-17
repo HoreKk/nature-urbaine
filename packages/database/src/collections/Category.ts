@@ -31,4 +31,6 @@ export const Categories: CollectionConfig = {
 			label: "Rapports associés",
 		},
 	],
+	versions: false,
+	authorship: false,
 };

@@ -8,7 +8,7 @@ export type PictureLike = {
 	url?: string | null;
 	width?: number | null;
 	height?: number | null;
-	sizes?: {
+	variants?: {
 		thumbnail?: {
 			url?: string | null;
 			width?: number | null;
@@ -35,7 +35,7 @@ const dimension = (value: number | null | undefined): number | undefined =>
  * pull a multi-megabyte file for a 300px card.
  */
 export function thumbnailSource(picture: PictureLike): ImageSource {
-	const thumbnail = picture.sizes?.thumbnail;
+	const thumbnail = picture.variants?.thumbnail;
 	if (thumbnail?.url) {
 		return {
 			src: thumbnail.url,
@@ -71,7 +71,7 @@ export function fullSource(picture: PictureLike): ImageSource {
  */
 export function heroSource(picture: PictureLike, sizes = '100vw'): ImageSource {
 	const original = fullSource(picture);
-	const thumbnail = picture.sizes?.thumbnail;
+	const thumbnail = picture.variants?.thumbnail;
 	const thumbnailWidth = dimension(thumbnail?.width);
 	if (
 		thumbnail?.url &&

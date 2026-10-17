@@ -32,4 +32,6 @@ export const TagCategories: CollectionConfig = {
 			defaultLimit: 0,
 		},
 	],
+	versions: false,
+	authorship: false,
 };

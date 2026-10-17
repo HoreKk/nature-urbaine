@@ -3,9 +3,9 @@ import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { nodemailerAdapter } from "@payloadcms/email-nodemailer";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { sharpTransformer } from "@payloadcms/transformer-sharp";
 import { fr } from "@payloadcms/translations/languages/fr";
 import { buildConfig, type Plugin } from "payload";
-import sharp from "sharp";
 
 import { Categories } from "./collections/Category";
 import { Interviews } from "./collections/Interview";
@@ -16,7 +16,7 @@ import { Submissions } from "./collections/Submission";
 import { Tags } from "./collections/Tag";
 import { TagCategories } from "./collections/TagCategory";
 import { Users } from "./collections/Users";
-import { storageCoverageGuard, storagePlugin } from "./storage";
+import { storageAdapter, storageCoverageGuard } from "./storage";
 
 const filename = fileURLToPath(import.meta.url);
 const packageDir = path.dirname(filename);
@@ -80,9 +80,12 @@ export const buildPayloadConfig = ({
 			fallbackLanguage: "fr",
 			supportedLanguages: { fr },
 		},
+		// TanStack Start mode serves the admin at the fixed `/admin` route.
 		routes: {
-			admin: "/",
+			admin: "/admin",
 		},
+		// v4 lowered the default from 2 to 1; the website's queries rely on 2.
+		defaultDepth: 2,
 		collections: [
 			Media,
 			Reports,
@@ -107,7 +110,28 @@ export const buildPayloadConfig = ({
 			},
 			migrationDir: path.resolve(packageDir, "./migrations"),
 		}),
-		sharp,
+		upload: {
+			transformers: [
+				sharpTransformer({
+					collections: {
+						media: { crop: true, focalPoint: true },
+						pictures: {
+							crop: true,
+							focalPoint: true,
+							variants: [
+								{
+									name: "thumbnail",
+									width: 400,
+									height: 300,
+									position: "centre",
+								},
+							],
+						},
+					},
+				}),
+			],
+		},
+		storage: [storageAdapter()],
 		cors: [
 			"http://localhost:3000",
 			"http://localhost:3001",
@@ -128,5 +152,5 @@ export const buildPayloadConfig = ({
 				? [`https://${process.env.WEBSITE_DOMAIN}`]
 				: []),
 		],
-		plugins: [storagePlugin(), ...plugins, storageCoverageGuard],
+		plugins: [...plugins, storageCoverageGuard],
 	});

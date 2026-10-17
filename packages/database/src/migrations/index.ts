@@ -4,6 +4,8 @@ import * as migration_20260523_140032 from './20260523_140032';
 import * as migration_20260524_102559_remove_report_thumbnail_add_pictures_order from './20260524_102559_remove_report_thumbnail_add_pictures_order';
 import * as migration_20260524_112015_add_pictures_s3_prefix from './20260524_112015_add_pictures_s3_prefix';
 import * as migration_20260927_181732_payload_3_90_2 from './20260927_181732_payload_3_90_2';
+import * as migration_20261017_225324_sizes_to_variants from './20261017_225324_sizes_to_variants';
+import * as migration_20261017_225329_payload_4_beta from './20261017_225329_payload_4_beta';
 
 export const migrations = [
   {
@@ -34,6 +36,16 @@ export const migrations = [
   {
     up: migration_20260927_181732_payload_3_90_2.up,
     down: migration_20260927_181732_payload_3_90_2.down,
-    name: '20260927_181732_payload_3_90_2'
+    name: '20260927_181732_payload_3_90_2',
+  },
+  {
+    up: migration_20261017_225324_sizes_to_variants.up,
+    down: migration_20261017_225324_sizes_to_variants.down,
+    name: '20261017_225324_sizes_to_variants',
+  },
+  {
+    up: migration_20261017_225329_payload_4_beta.up,
+    down: migration_20261017_225329_payload_4_beta.down,
+    name: '20261017_225329_payload_4_beta'
   },
 ];

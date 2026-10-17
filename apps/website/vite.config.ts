@@ -1,25 +1,33 @@
+import path from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
+import { withPayload } from '@payloadcms/tanstack-start';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
-import { nitro } from 'nitro/vite';
+import rsc from '@vitejs/plugin-rsc';
 import { defineConfig } from 'vite';
 
-const config = defineConfig({
-	resolve: {
-		alias: {
-			'@': fileURLToPath(new URL('./src', import.meta.url)),
-		},
-	},
-	plugins: [
-		// Pre-compress JS/CSS/fonts at build time; Railway's proxy does not
-		// compress for us and service egress is billed.
-		nitro({ compressPublicAssets: { gzip: true, brotli: true } }),
-		tanstackStart(),
-		viteReact(),
-	],
-	optimizeDeps: {
-		exclude: ['payload'],
-	},
-});
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default config;
+export default defineConfig(
+	withPayload(
+		({ pluginOptions }) => ({
+			resolve: {
+				alias: {
+					'@': fileURLToPath(new URL('./src', import.meta.url)),
+				},
+			},
+			plugins: [
+				rsc(pluginOptions.rsc),
+				tanstackStart(pluginOptions.tanstackStart),
+				viteReact(pluginOptions.react),
+			],
+		}),
+		{
+			payloadConfigPath: path.resolve(dirname, 'src', 'payload.config.ts'),
+			// `file-type` lazy-imports its parsers at request time; through Vite's
+			// module runner that breaks once the runner is recycled (dep
+			// re-optimisation), and Payload's file route then 500s.
+			devServerExternalPackages: ['file-type'],
+		},
+	),
+);
