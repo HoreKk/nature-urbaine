@@ -16,6 +16,7 @@ import { Submissions } from "./collections/Submission";
 import { Tags } from "./collections/Tag";
 import { TagCategories } from "./collections/TagCategory";
 import { Users } from "./collections/Users";
+import { storageCoverageGuard, storagePlugin } from "./storage";
 
 const filename = fileURLToPath(import.meta.url);
 const packageDir = path.dirname(filename);
@@ -127,5 +128,5 @@ export const buildPayloadConfig = ({
 				? [`https://${process.env.WEBSITE_DOMAIN}`]
 				: []),
 		],
-		plugins,
+		plugins: [storagePlugin(), ...plugins, storageCoverageGuard],
 	});

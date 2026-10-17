@@ -18,22 +18,27 @@
 		"typecheck": "tsc --noEmit",
 		"seed:dev": "NODE_ENV=development PAYLOAD_DROP_DATABASE=true payload run ./src/seed/index.ts",
 		"seed:prod": "NODE_ENV=production payload run ./src/seed/index.ts",
-		"seed:update": "PAYLOAD_CONFIG_PATH=./src/default-config.ts payload run ./src/seed/update.ts"
+		"seed:update": "PAYLOAD_CONFIG_PATH=./src/default-config.ts payload run ./src/seed/update.ts",
+		"storage:check": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/check-storage.ts"
 	},
 	"dependencies": {
-		"@payloadcms/db-postgres": "3.84.1",
-		"@payloadcms/email-nodemailer": "3.84.1",
-		"@payloadcms/richtext-lexical": "3.84.1",
-		"@payloadcms/translations": "3.84.1",
+		"@aws-sdk/client-s3": "^3.1037.0",
+		"@payloadcms/db-postgres": "3.91.0",
+		"@payloadcms/email-nodemailer": "3.91.0",
+		"@payloadcms/richtext-lexical": "3.91.0",
+		"@payloadcms/storage-s3": "3.91.0",
+		"@payloadcms/translations": "3.91.0",
 		"@types/jsdom": "^28.0.0",
 		"graphql": "^16.12.0",
 		"jsdom": "^27.4.0",
-		"payload": "3.84.1",
+		"payload": "3.91.0",
+		"pg": "^8.20.0",
 		"sharp": "^0.34.5",
 		"xlsx": "^0.18.5"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.10",
+		"@types/pg": "^8.20.0",
 		"@types/react": "^19.0.0",
 		"typescript": "^5.8.2"
 	}
