@@ -1,5 +1,5 @@
 import { Button, Center, Icon, Stack } from '@chakra-ui/react';
-import { Link } from '@tanstack/react-router';
+import { ErrorComponent, Link, useRouterState } from '@tanstack/react-router';
 import { LuCircleAlert } from 'react-icons/lu';
 import { EmptyState } from '@/components/ui/empty-state';
 
@@ -9,6 +9,14 @@ interface RouterDefaultErrorProps {
 }
 
 export default function RouterDefaultError(props: RouterDefaultErrorProps) {
+	// `/admin` renders Payload's shell (`withPayloadRoot`), outside the site's
+	// ChakraProvider: the Chakra page would crash and hide the real error.
+	const inPayload = useRouterState({
+		select: (state) =>
+			state.matches.some((match) => match.routeId.startsWith('/_payload')),
+	});
+	if (inPayload) return <ErrorComponent error={props.error} />;
+
 	const errorMessage =
 		props.error instanceof Error
 			? props.error.message

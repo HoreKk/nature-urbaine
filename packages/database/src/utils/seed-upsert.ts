@@ -36,5 +36,6 @@ export async function upsertBySeedKey<TSlug extends CollectionSlug>(
 		draft,
 		data: { ...data, seedKey },
 		...(filePath ? { filePath } : {}),
+		overrideAccess: true,
 	});
 }
