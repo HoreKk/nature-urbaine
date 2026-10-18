@@ -18,9 +18,17 @@ The production catalog is large, so regenerating image sizes, changing formats, 
 
 - **Signing moves to the website.** The website already holds each upload doc (filename, collection) from the Payload local API, so it can build the object key `<collection>/<filename>` and sign it with the same `S3_*` credentials the CMS uses. No DB lookup, no 302, no CMS request per image.
 - **Deterministic per UTC day.** `getSignedUrl` is called with `signingDate` set to UTC midnight and `expiresIn` of 7 days (the SigV4 maximum). The URL is stable for the whole day across instances, so browser caches hit. A `response-cache-control: public, max-age=86400` is baked into the signature so the bucket tells browsers to keep the file.
-- **Fallback.** Without `S3_*` variables (local dev) URLs go through `BACKEND_URL` exactly as before.
+- **Fallback.** Without `S3_*` variables (local dev) URLs stay Payload's same-origin `/api/<collection>/file/*` paths.
 - **Sizes.** `utils/picture-src.ts` picks `sizes.thumbnail` for cards and grids (never the original), the original alone for carousels and lightboxes (`object-fit: contain`, where the centre-cropped thumbnail is not a valid `srcset` candidate), and original + thumbnail `srcset` only for full-bleed `object-fit: cover` heroes. Docs uploaded before the thumbnail size existed fall back to the original.
 - **Rendering.** One `PictureImg` component emits `loading="lazy"`, `decoding="async"`, intrinsic dimensions and `srcset`. `@unpic/react` is removed.
+
+## Update 2026-10-18: Payload 4, one app
+
+Admin, API and site now run in one TanStack Start process; this decision still holds, because the bucket is still private. Two Payload 4 changes touch it:
+
+- Upload URLs carry `?prefix=<prefix>`, and new files are stored under `<prefix>/<_objectKey>/<file>`. `media-urls.ts` builds the key with plugin-cloud-storage's read rule (`[prefix, _objectKey].join('/') || <collection>`, per doc and per variant), the same rule `storage:check` uses. Rows from before the upgrade have no `_objectKey` and keep `<collection>/<file>`.
+- `sizes` became `variants` (`variants.thumbnail`); `picture-src.ts` and `withMediaUrls` read `variants`.
+- Only one service holds the `S3_*` variables now.
 
 ## Considered alternatives
 

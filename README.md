@@ -8,16 +8,16 @@ A public French-language platform for urban-landscape professionals (paysagistes
 
 ## Architecture
 
-A `pnpm` + Turbo monorepo with two apps sharing one database package. PostgreSQL is the single backing store.
+One TanStack Start app serves the public site, the Payload admin (`/admin`) and Payload's REST API (`/api`), built with Vite and served by Nitro. It lives in a `pnpm` workspace next to the shared database and email packages. PostgreSQL is the single backing store; uploads go to the Railway bucket.
 
 ```
 nature-urbaine/
 ├── apps/
-│   ├── website/          ← Public site (Vite + TanStack Start, port 3000)
-│   └── cms-payload/      ← Payload CMS admin (Next.js 16, port 3001)
+│   └── website/          ← Site + Payload admin + API (TanStack Start, port 3000)
 ├── packages/
-│   └── database/         ← @nature-urbaine/database — Payload config,
-│                            collections, types, migrations, seeds
+│   ├── database/         ← @nature-urbaine/database — Payload config,
+│   │                        collections, types, migrations, seeds
+│   └── emails/           ← @nature-urbaine/emails — react-email templates
 ├── docs/
 │   ├── adr/              ← Architecture Decision Records
 │   └── agents/           ← Agent usage guidelines
@@ -35,32 +35,33 @@ nature-urbaine/
                     ┌────────────────▼────────────────┐
                     │   @nature-urbaine/database       │
                     │   (Payload config + collections) │
-                    └───────┬─────────────────┬───────┘
-                            │                 │
-          ┌─────────────────▼───┐   ┌─────────▼────────────────┐
-          │  apps/cms-payload   │   │      apps/website         │
-          │  Payload admin UI   │   │  TanStack Start (SSR)     │
-          │  Next.js :3001      │   │  server functions → local │
-          └─────────────────────┘   │  Payload API  :3000       │
-                                    └───────────────────────────┘
+                    └────────────────┬────────────────┘
+                                     │
+                    ┌────────────────▼────────────────┐
+                    │  apps/website  :3000             │
+                    │  /          site (SSR)           │
+                    │  /admin     Payload admin (RSC)  │
+                    │  /api       Payload REST         │
+                    └─────────────────────────────────┘
 ```
 
-The website uses **TanStack Start server functions** (`apps/website/src/server/*.ts`) that call Payload's local API directly — there is no HTTP round-trip between the website and the CMS.
+The website uses **TanStack Start server functions** (`apps/website/src/server/*.ts`) that call Payload's local API directly, in the same process as the admin. Every local API call passes `overrideAccess: true` (Payload 4 defaults it to `false`).
 
 ---
 
 ## Stack
 
-| Layer                | Technology                                                                                        |
-| -------------------- | ------------------------------------------------------------------------------------------------- |
-| Public website       | React 19, TanStack Start (SSR), TanStack Router (file-based), TanStack Query, TanStack Form + Zod |
-| UI                   | Chakra UI 3, `@unpic/react` for images                                                            |
-| Fonts                | Newsreader (headlines), Instrument Sans (body), JetBrains Mono (slugs/dates)                      |
-| CMS                  | Payload CMS 3.84, Next.js 16, `@payloadcms/db-postgres`, `@payloadcms/storage-s3`                 |
-| Database             | PostgreSQL 16                                                                                     |
-| Shared package       | `@nature-urbaine/database` — collections, migrations, seeds, generated types                      |
-| Monorepo             | pnpm 10 + Turbo                                                                                   |
-| Linting / Formatting | oxlint, oxfmt, lefthook (pre-commit)                                                              |
+| Layer                | Technology                                                                                          |
+| -------------------- | --------------------------------------------------------------------------------------------------- |
+| Public website       | React 19, TanStack Start (SSR), TanStack Router (file-based), TanStack Query, TanStack Form + Zod   |
+| UI                   | Chakra UI 3, `@unpic/react` for images                                                              |
+| Fonts                | Newsreader (headlines), Instrument Sans (body), JetBrains Mono (slugs/dates)                        |
+| CMS                  | Payload 4 (beta), `@payloadcms/tanstack-start`, `@payloadcms/db-postgres`, `@payloadcms/storage-s3` |
+| Server               | Vite 8 + `@vitejs/plugin-rsc`, Nitro (`node .output/server/index.mjs`), Node 24                     |
+| Database             | PostgreSQL 16                                                                                       |
+| Shared package       | `@nature-urbaine/database` — collections, migrations, seeds, generated types                        |
+| Workspace            | pnpm 10                                                                                             |
+| Linting / Formatting | oxlint, oxfmt, lefthook (pre-commit)                                                                |
 
 ---
 
@@ -107,7 +108,7 @@ Category ─1─⟶ N Report ─1─⟶ N Picture ─N─⟶ N Tag ─N─⟶ 1 
 
 ### Prerequisites
 
-- Node.js ≥ 20
+- Node.js 24 (≥ 24.15, required by Payload 4)
 - pnpm 10 (`npm i -g pnpm@10`)
 - Docker (for the dev database)
 
@@ -123,8 +124,7 @@ pnpm install
 docker compose up -d
 
 # 3. Copy and fill environment variables
-cp apps/cms-payload/.env.example apps/cms-payload/.env
-cp apps/website/.env.example     apps/website/.env
+cp apps/website/.env.example apps/website/.env
 
 # 4. Run migrations
 pnpm migrate
@@ -132,30 +132,20 @@ pnpm migrate
 # 5. Seed development data
 pnpm seed:dev
 
-# 6. Start both apps
-pnpm dev:cms-payload   # http://localhost:3001/admin
-pnpm dev:website       # http://localhost:3000
+# 6. Start the app
+pnpm dev:website       # site http://localhost:3000, admin http://localhost:3000/admin
 ```
 
 ### Environment variables
 
-**`apps/cms-payload/.env`**
+**`apps/website/.env`** (see `.env.example` for the email and bucket variables)
 
 ```env
 PAYLOAD_SECRET=<random-string>
 DATABASE_URL="postgresql://postgres:password@localhost:5434/nature-urbaine"
 ```
 
-**`apps/website/.env`**
-
-```env
-PAYLOAD_SECRET=<same-random-string>
-DATABASE_URL="postgresql://postgres:password@localhost:5434/nature-urbaine"
-BACKEND_URL=http://localhost:3001
-VITE_BACKEND_URL=http://localhost:3001
-```
-
-> Both apps share the same `PAYLOAD_SECRET` and `DATABASE_URL` because the website accesses the database via the Payload local API.
+Leave the `S3_*` variables empty locally: uploads are then written to `apps/website/media` and `apps/website/pictures` and served by Payload's own `/api/<collection>/file/*` route.
 
 ---
 
@@ -163,24 +153,26 @@ VITE_BACKEND_URL=http://localhost:3001
 
 ### Development
 
-| Command                | Description                             |
-| ---------------------- | --------------------------------------- |
-| `pnpm dev:cms-payload` | Start the Payload CMS admin (port 3001) |
-| `pnpm dev:website`     | Start the public website (port 3000)    |
+| Command            | Description                                       |
+| ------------------ | ------------------------------------------------- |
+| `pnpm dev:website` | Start the site, admin and API (port 3000)         |
+| `pnpm build`       | Production build (`payload build` → `.output/`)   |
+| `pnpm start`       | Serve the production build with Node, no wrappers |
 
 ### Database
 
-| Command                | Description                                  |
-| ---------------------- | -------------------------------------------- |
-| `pnpm migrate`         | Run pending migrations                       |
-| `pnpm migrate:create`  | Generate a new migration from schema changes |
-| `pnpm migrate:status`  | Show migration status                        |
-| `pnpm migrate:down`    | Roll back last migration                     |
-| `pnpm migrate:refresh` | Roll back and re-run all migrations          |
-| `pnpm migrate:reset`   | Reset the database                           |
-| `pnpm migrate:fresh`   | Drop all tables and re-run from scratch      |
-| `pnpm seed:dev`        | Drop and re-seed development data            |
-| `pnpm seed:prod`       | Seed production data (non-destructive)       |
+| Command                | Description                                              |
+| ---------------------- | -------------------------------------------------------- |
+| `pnpm migrate`         | Run pending migrations                                   |
+| `pnpm migrate:create`  | Generate a new migration from schema changes             |
+| `pnpm migrate:status`  | Show migration status                                    |
+| `pnpm migrate:down`    | Roll back last migration                                 |
+| `pnpm migrate:refresh` | Roll back and re-run all migrations                      |
+| `pnpm migrate:reset`   | Reset the database                                       |
+| `pnpm migrate:fresh`   | Drop all tables and re-run from scratch                  |
+| `pnpm seed:dev`        | Drop and re-seed development data                        |
+| `pnpm seed:prod`       | Seed production data (non-destructive)                   |
+| `pnpm storage:check`   | Read-only: every upload row has its object in the bucket |
 
 ### Code generation
 
@@ -201,13 +193,29 @@ VITE_BACKEND_URL=http://localhost:3001
 
 ---
 
+## Deployment (Railway)
+
+One Railway service builds from the repo root with Railpack (`packageManager` and `engines.node` in the root `package.json` pick pnpm 10 and Node 24).
+
+| Setting            | Value                                                                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Build command      | `pnpm build`                                                                                                                       |
+| Start command      | `pnpm start` (runs `node` directly)                                                                                                |
+| Pre-deploy command | `pnpm migrate && pnpm storage:check`                                                                                               |
+| Healthcheck path   | `/`                                                                                                                                |
+| Variables          | `PAYLOAD_SECRET`, `DATABASE_URL`, the `S3_*` bucket references, SMTP and contact email variables (see `apps/website/.env.example`) |
+
+Without `S3_*` on Railway the app refuses to boot (`packages/database/src/storage.ts`), so uploads can't land on the container disk. `railway.json` is deprecated by Railway, so these settings live in the service settings, not in the repo.
+
+---
+
 ## Conventions
 
 - **Language:** code identifiers in English (`reports`, `interviews`); user-facing labels and CMS field labels in French.
-- **Routing:** add new routes under `apps/website/src/routes/` — TanStack Router auto-generates `routeTree.gen.ts`.
+- **Routing:** add new routes under `apps/website/src/app/` (Payload's convention) — TanStack Router auto-generates `routeTree.gen.ts`. `src/app/_payload/` holds the admin and API routes.
 - **Styling:** Chakra UI primitives + design-system CSS variables. No raw inline styles.
 - **Forms:** TanStack Form + Zod. Re-use `useAppForm` from `apps/website/src/hooks/form-context.ts`.
-- **Server functions:** co-locate under `apps/website/src/server/`, validate inputs with Zod via `inputValidator`, use `baseProcedure` for DB access.
+- **Server functions:** co-locate under `apps/website/src/server/`, validate inputs with Zod via `.validator()`, use `baseProcedure` for DB access.
 - **Migrations:** never hand-edit the database directly — use `pnpm migrate:create` then `pnpm migrate`.
 - **ADRs:** when a spec ambiguity is resolved, write `docs/adr/NNNN-<slug>.md`.
 - **Pre-commit hooks** (lefthook): `oxfmt` and `oxlint --fix` run automatically on staged files.

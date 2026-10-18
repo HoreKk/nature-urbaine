@@ -18,10 +18,12 @@
 		"seed:update": "pnpm --filter @nature-urbaine/database seed:update",
 		"storage:check": "pnpm --filter @nature-urbaine/database storage:check",
 		"dev:website": "cd apps/website && pnpm dev",
-		"dev:emails": "pnpm --filter @nature-urbaine/emails email:dev",
+		"dev:emails": "pnpm --filter @nature-urbaine/emails dev",
 		"chakra:typegen": "pnpm --filter website chakra:typegen",
 		"chakra:typegen:watch": "pnpm --filter website chakra:typegen:watch",
+		"build": "pnpm --filter website build",
 		"build:loose": "turbo build --env-mode=loose",
+		"start": "node apps/website/.output/server/index.mjs",
 		"serve:web": "cd apps/website && pnpm start",
 		"format": "oxfmt",
 		"format:check": "oxfmt --check",
@@ -34,6 +36,9 @@
 		"oxfmt": "^0.46.0",
 		"oxlint": "^1.61.0",
 		"turbo": "^2.9.10"
+	},
+	"engines": {
+		"node": "24.x"
 	},
 	"packageManager": "pnpm@10.28.2"
 }

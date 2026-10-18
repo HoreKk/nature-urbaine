@@ -20,7 +20,7 @@ Legend: **[fact]** is verified against a primary source cited inline. **[announc
 - **Spike (§7):**
   - One TanStack Start app without Next.js runs the site, `/admin` and `/api` on v4 beta.2. It works in dev and in a production build, on a DB copy, after migrations.
   - At peak it used ~27% less memory than today's two services (432 MB vs 590 MB, macOS footprint, same load).
-  - Nitro had to go (it breaks Chakra SSR in the build), and the codemod missed most of our `overrideAccess` call sites.
+  - Nitro works with the latest beta plus two build fixes (§7). The codemod missed most of our `overrideAccess` call sites.
   - A quick win that doesn't need v4: start the Railway services with `node`, not through `pnpm`, which saves ~56 MB per wrapper process.
 
 ---
@@ -319,14 +319,14 @@ The spike was run on a copy of the local dev DB (639 reports, 18 pictures, 1,318
 
 ### Problems found and fixed
 
-1. **Nitro breaks the production build.**
-   - With `nitro(pluginOptions.nitro)`:
-     - every SSR page threw `ContextError: … forgot to wrap component within <ChakraProvider />`
-     - the file route failed with `Cannot find package 'strtok3'`
-     - `tslib` needed a manual external
-   - In dev, Nitro also answered `/api/<upload>/file/*.png` with a 404 before Payload saw it.
-   - **Fix:** drop Nitro and serve like Payload's own `templates/blank-tanstack`: `payload build` → `dist/`, `start: srvx --prod --dir=. --static=dist/client --entry=dist/server/server.js`. Every route then returns 200.
-   - **Cost:** we lose Nitro's `compressPublicAssets` pre-compression. This needs a replacement (a Vite compression plugin or compression in srvx) before production, because Railway egress is billed.
+1. **Nitro: fixed on 2026-10-18 (second pass); Nitro is back.**
+   - The first pass used `nitro@3.0.260429-beta`. It failed with a Chakra `ContextError` on every SSR page, `Cannot find package 'strtok3'` on the file route, a missing `tslib`, and dev 404s on `/api/<upload>/file/*`, so it was swapped for srvx.
+   - The retry used `nitro@3.0.260903-beta`, set up as in Nitro's `vite-rsc` and `vite-ssr-tss-react` examples plus Payload's `pluginOptions.nitro`.
+   - What it took:
+     - The Chakra and dev-404 problems were gone with the newer Nitro.
+     - `tslib`: the AWS SDK, which Payload bundles for storage-s3, imports it. Rolldown's CJS interop on tslib's UMD build drops `default` (`Cannot destructure property '__extends'`). Fix: `tslib` in `rollupOptions.external` for the `ssr` and `rsc` environments.
+     - `strtok3`: `file-type` loads it with a runtime-built `import()` that tracing cannot see. Fix: `traceDeps: [...pluginOptions.nitro.traceDeps, 'strtok3*']`. The `*` copies the whole package; without it only `package.json` is traced.
+   - Result: every page, `/admin`, `/api`, uploads and the file route return 200 in dev and in the build. `compressPublicAssets` (br + gzip) is back. Start command: `node .output/server/index.mjs`. `srvx` is removed.
 2. **Dev: the file route returns 500 after the admin loads** (`Vite module runner has been closed`, from `file-type`'s lazy imports). Fix: `withPayload(..., { devServerExternalPackages: ['file-type'] })`.
 3. **pnpm strict layout:** the adapter keeps DB adapters and server-only leaf packages external. `@payloadcms/db-postgres`, `@payloadcms/email-nodemailer`, `@payloadcms/transformer-sharp`, `pg` and `nodemailer` had to become direct `apps/website` dependencies.
 4. **The search-param serializer is router-wide (`qs`).** Our `validateSearch` schemas already coerce, so they work. Old shared links in the JSON format (`?category=[1,2]`) will no longer validate.
@@ -344,18 +344,27 @@ Scenario for both setups:
 | -------------------------------------------------- | ---------------------- | ---------------------- | ---------------------- |
 | **v3 today: website (Nitro) + CMS (`next start`)** | 112 + 205 = **317 MB** | 122 + 222 = **344 MB** | 290 + 300 = **590 MB** |
 | **v4 spike: one app (srvx)**                       | **176 MB**             | **291 MB**             | **432 MB**             |
+| **v4 spike: one app (Nitro, second pass)**         | **178 MB**             | **216 MB**             | **~355 MB**            |
 
 - **[measured]** At peak, one process uses **~160 MB (≈27%) less** than the two current services combined. The admin no longer pays for a second Payload boot, a second `pg` pool or Next.js.
 - **[measured, extra overhead]** Each service that starts through `pnpm` keeps a `pnpm` node process alive: **~56 MB footprint** each, measured here with one wrapper level. On Railway the start commands are `pnpm serve:web` / `pnpm serve:admin`, which run `cd … && pnpm start`. That makes two `pnpm` levels per service, so roughly 4 wrapper processes today against 2 after merging. **This is a quick win that doesn't need v4:** start each Railway service with `node` directly, e.g. `node apps/website/.output/server/index.mjs` and `node_modules/.bin/next start` in `apps/cms-payload`.
 - **[estimate]** macOS footprint is not the same as Railway's Linux container memory, and real traffic isn't this synthetic load. The absolute numbers will differ on Railway; the relative gap is what matters. Re-measure on Railway with a preview environment before deciding.
 
-### Open after the spike
+### Open after the spike (updated 2026-10-18, second pass)
 
-- The S3 path wasn't tested: no bucket credentials locally. The `signedDownloads` + transformer path (the file route calls `staticHandler` with `operation: 'transform'`) and ADR-0003's day-stable signing still need checking against the Railway bucket.
-- Railway deploy wasn't tested: Node 24.15 image, srvx start command, a single service with `/admin` on the public domain.
-- The admin is now on the public site's domain. Decide whether `/admin` needs extra protection (rate limits, IP allow-list), and keep in mind that an admin OOM now takes the site down too.
-- Docs still describe two apps: `README.md`, `docs/CONTEXT.md` and the ADR-0003 fallback paragraph.
-- The adapter still has no custom admin route and no `draftMode()` (see §2).
+- **S3: tested against a local S3 (localstack), not yet against the Railway bucket.**
+  - Uploads land at `<prefix>/<_objectKey>/<file>`.
+  - The file route answers 302 to a presigned URL.
+  - The site serves day-stable signed URLs.
+  - This found a regression, now fixed: v4 adds `?prefix=` to URLs and an `_objectKey` folder to keys, so `media-urls.ts` had stopped signing and every image went through the 302. `storage:check` had also stopped checking thumbnails (`sizes_*` → `variants_*`). Both now use plugin-cloud-storage's read rule. See ADR-0003's update.
+  - **Before the switch:** run `pnpm storage:check` against prod with the v4 schema in a Railway preview environment.
+- **Railway deploy: still not tested.**
+  - Root `package.json` now has `build`, `start` (plain `node`) and `engines.node: 24.x`.
+  - README § Deployment lists the service settings.
+  - `railway.json` was not added: Railway deprecated Config as Code (new services can't use it, and it stops being read on 2026-12-01).
+- **`/admin` on the public domain.** Payload locks an account after 5 failed logins (default `maxLoginAttempts`). There is no IP rate limit; add one at the proxy if needed. An admin OOM now takes the site down too.
+- **Docs.** `README.md`, `docs/CONTEXT.md` and ADR-0003 are updated.
+- **Adapter gaps remain:** no custom admin route and no `draftMode()` (see §2).
 
 ---
 
@@ -365,5 +374,5 @@ Scenario for both setups:
 - Whether TanStack Start mode supports every admin feature the Next adapter has, beyond the documented gaps (custom admin route, `draftMode`). There is no feature-parity table.
 - The actual per-service RAM on Railway, and whether the 1–1.5 GB includes Postgres.
 - Billing of sleeping services on Railway, and whether the CMS's `pg` pool lets it sleep.
-- ~~Chakra UI v3 / Emotion compatibility with `@vitejs/plugin-rsc`.~~ Works in dev and with the srvx production build; breaks only with Nitro (see §7).
+- ~~Chakra UI v3 / Emotion compatibility with `@vitejs/plugin-rsc`.~~ Works in dev and in the production build, with Nitro too since the second pass (see §7).
 - The full migration guide (https://payloadcms.com/docs/beta/migration-guide/v4) was later read in full and checked against the spike. Items that do not apply here: jobs, API keys, Lexical HTML converters, clientUploads, plugin-added collections.
