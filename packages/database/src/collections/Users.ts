@@ -9,7 +9,11 @@ export const Users: CollectionConfig = {
 	admin: {
 		useAsTitle: "email",
 	},
-	auth: true,
+	auth: {
+		// The admin shares the public HTTPS domain: never send the session over
+		// plain HTTP in production. Local dev stays on http://localhost.
+		cookies: { secure: process.env.NODE_ENV === "production" },
+	},
 	fields: [
 		// Email added by default
 		// Add more fields as needed

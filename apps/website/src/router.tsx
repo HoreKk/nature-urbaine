@@ -1,11 +1,9 @@
-import {
-	payloadParseSearch,
-	payloadStringifySearch,
-} from '@payloadcms/tanstack-start/shared';
+import { payloadStringifySearch } from '@payloadcms/tanstack-start/shared';
 import { createRouter } from '@tanstack/react-router';
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query';
 import RouterDefaultError from '@/components/standard/RouterDefaultError';
 import RouterDefaultNotFound from '@/components/standard/RouterDefaultNotFound';
+import { parseSearch } from '@/utils/search-params';
 import * as TanstackQuery from './integrations/tanstack-query/root-provider';
 
 // Import the generated route tree
@@ -25,7 +23,8 @@ export const getRouter = () => {
 		scrollRestoration: true,
 		// Payload's admin needs qs-style search params (nested `where` filters).
 		// Router-global: our own `validateSearch` schemas must coerce from strings.
-		parseSearch: payloadParseSearch,
+		// `parseSearch` also still reads pre-v4 JSON links (`?category=[1,2]`).
+		parseSearch,
 		stringifySearch: payloadStringifySearch,
 		defaultPreload: 'intent',
 		defaultViewTransition: true,
