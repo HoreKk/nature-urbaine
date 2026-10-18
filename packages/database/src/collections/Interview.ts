@@ -3,6 +3,11 @@ import { seedKeyField } from "../utils/seed-key-field";
 
 export const Interviews: CollectionConfig = {
 	slug: "interviews",
+	// Public catalog data: the website reads it without a user (Payload 4
+	// enforces access on the Local API by default).
+	access: {
+		read: () => true,
+	},
 	labels: {
 		singular: "Interview",
 		plural: "Interviews",

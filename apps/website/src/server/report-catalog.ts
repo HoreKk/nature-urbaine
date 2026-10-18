@@ -79,7 +79,6 @@ export const findReportCatalog = createServerFn({ method: 'GET' })
 		const { page, pageSize, filter } = data;
 
 		const reports = await context.db.find({
-			overrideAccess: true,
 			collection: 'reports',
 			limit: pageSize,
 			page,
@@ -100,7 +99,6 @@ export const findReportById = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
 	.handler(async ({ data: id, context }) => {
 		const report = await context.db.findByID({
-			overrideAccess: true,
 			collection: 'reports',
 			id,
 			depth: 2,

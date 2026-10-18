@@ -13,6 +13,8 @@ export const createSubmission = createServerFn({ method: 'POST' })
 			return { id: 0 };
 		}
 
+		// Trusted server-side writes for an anonymous visitor: creating `media` and
+		// cleaning up after a failure need no user, so these calls bypass access.
 		const uploadedPictures = await Promise.all(
 			data.pictures.map(async (picture, index) => {
 				const buffer = Buffer.from(picture.base64, 'base64');

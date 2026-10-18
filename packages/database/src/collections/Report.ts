@@ -14,6 +14,11 @@ export const CITY_STRATUM_OPTIONS = [
 
 export const Reports: CollectionConfig = {
 	slug: "reports",
+	// Public catalog data: the website reads it without a user (Payload 4
+	// enforces access on the Local API by default).
+	access: {
+		read: () => true,
+	},
 	labels: {
 		singular: "Reportage",
 		plural: "Reportages",

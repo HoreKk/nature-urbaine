@@ -6,7 +6,6 @@ export const getAllCategories = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
 	.handler(async ({ context }) => {
 		const categories = await context.db.find({
-			overrideAccess: true,
 			collection: 'categories',
 			limit: 100,
 			depth: 1,
@@ -21,15 +20,14 @@ export const getLibraryStats = createServerFn({ method: 'GET' })
 	.handler(async ({ context }) => {
 		const [categories, reports, interviews] = await Promise.all([
 			context.db.find({
-				overrideAccess: true,
 				collection: 'categories',
 				limit: 100,
 				depth: 1,
 				sort: 'name',
 				joins: { relatedReports: { count: true } },
 			}),
-			context.db.count({ overrideAccess: true, collection: 'reports' }),
-			context.db.count({ overrideAccess: true, collection: 'interviews' }),
+			context.db.count({ collection: 'reports' }),
+			context.db.count({ collection: 'interviews' }),
 		]);
 
 		const categoryCounts = categories.docs.map((category) => ({
@@ -55,7 +53,6 @@ export const getCategoryById = createServerFn({ method: 'GET' })
 	.validator(z.number())
 	.handler(async ({ data: id, context }) => {
 		const category = await context.db.findByID({
-			overrideAccess: true,
 			collection: 'categories',
 			id,
 			depth: 1,

@@ -66,7 +66,6 @@ export const getInterviews = createServerFn({ method: 'GET' })
 		}
 
 		const interviews = await context.db.find({
-			overrideAccess: true,
 			collection: 'interviews',
 			limit: pageSize,
 			page,
@@ -83,7 +82,6 @@ export const getInterviewById = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
 	.handler(async ({ data: id, context }) => {
 		const interview = await context.db.findByID({
-			overrideAccess: true,
 			collection: 'interviews',
 			id,
 			depth: 1,

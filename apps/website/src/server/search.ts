@@ -23,7 +23,6 @@ export const getSearchResults = createServerFn({ method: 'GET' })
 		if (!searchTerm) return [];
 
 		const tags = await context.db.find({
-			overrideAccess: true,
 			collection: 'tags',
 			where: { name: { contains: searchTerm } },
 			limit: 10,
