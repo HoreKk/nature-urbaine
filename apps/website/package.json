@@ -12,7 +12,7 @@
 		"lint": "oxlint",
 		"lint:fix": "oxlint --fix",
 		"check": "oxfmt --check && oxlint",
-		"start": "srvx --prod --dir=. --static=dist/client --entry=dist/server/server.js",
+		"start": "node .output/server/index.mjs",
 		"check-types": "tsc --noEmit",
 		"chakra:typegen": "chakra typegen src/utils/chakra-theme.ts --tsconfig tsconfig.json",
 		"chakra:typegen:watch": "chakra typegen src/utils/chakra-theme.ts --tsconfig tsconfig.json --watch",
@@ -60,7 +60,6 @@
 		"react-dom": "^19.2.0",
 		"react-icons": "^5.5.0",
 		"sharp": "^0.34.5",
-		"srvx": "0.11.21",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {

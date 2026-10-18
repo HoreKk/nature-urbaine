@@ -119,9 +119,6 @@ importers:
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
-      srvx:
-        specifier: 0.11.21
-        version: 0.11.21
       zod:
         specifier: ^4.4.3
         version: 4.6.7
@@ -5460,11 +5457,6 @@ packages:
   split2@4.2.0:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
     engines: {node: '>= 10.x'}
-
-  srvx@0.11.21:
-    resolution: {integrity: sha512-GWTHjKMeekX8CwJf4VU9Oo6mJpSGaflGMddbCvR+Cmmh9sslRMiGbAoqqZacE0r1ncARh6buCEETr2W52F8b1w==}
-    engines: {node: '>=20.16.0'}
-    hasBin: true
 
   srvx@1.0.6:
     resolution: {integrity: sha512-QeTKgAhk8OSsfeq60bl3wuVs9PmBftzmk7owBInA/F1YQne+TRw0UcPymNpURldAmx8hfmM2PNNGH/zgo3GpLA==}
@@ -12065,8 +12057,6 @@ snapshots:
   source-map@0.7.6: {}
 
   split2@4.2.0: {}
-
-  srvx@0.11.21: {}
 
   srvx@1.0.6: {}
 

@@ -30,6 +30,9 @@ export default defineConfig(
 				viteReact(pluginOptions.react),
 				nitro({
 					...pluginOptions.nitro,
+					// `file-type` loads `strtok3` through a runtime-built import that
+					// static tracing can't see; Payload's file route needs it.
+					traceDeps: [...(pluginOptions.nitro.traceDeps ?? []), 'strtok3*'],
 					compressPublicAssets: { gzip: true, brotli: true },
 				}),
 			],
