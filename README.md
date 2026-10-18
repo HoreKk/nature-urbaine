@@ -161,18 +161,20 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 
 ### Database
 
-| Command                | Description                                              |
-| ---------------------- | -------------------------------------------------------- |
-| `pnpm migrate`         | Run pending migrations                                   |
-| `pnpm migrate:create`  | Generate a new migration from schema changes             |
-| `pnpm migrate:status`  | Show migration status                                    |
-| `pnpm migrate:down`    | Roll back last migration                                 |
-| `pnpm migrate:refresh` | Roll back and re-run all migrations                      |
-| `pnpm migrate:reset`   | Reset the database                                       |
-| `pnpm migrate:fresh`   | Drop all tables and re-run from scratch                  |
-| `pnpm seed:dev`        | Drop and re-seed development data                        |
-| `pnpm seed:prod`       | Seed production data (non-destructive)                   |
-| `pnpm storage:check`   | Read-only: every upload row has its object in the bucket |
+| Command                        | Description                                                                       |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| `pnpm migrate`                 | Run pending migrations                                                            |
+| `pnpm migrate:create`          | Generate a new migration from schema changes                                      |
+| `pnpm migrate:status`          | Show migration status                                                             |
+| `pnpm migrate:down`            | Roll back last migration                                                          |
+| `pnpm migrate:refresh`         | Roll back and re-run all migrations                                               |
+| `pnpm migrate:reset`           | Reset the database                                                                |
+| `pnpm migrate:fresh`           | Drop all tables and re-run from scratch                                           |
+| `pnpm seed:dev`                | Drop and re-seed development data                                                 |
+| `pnpm seed:prod`               | Seed production data (non-destructive)                                            |
+| `pnpm storage:check`           | Read-only: every upload row has its object in the bucket                          |
+| `pnpm storage:fixtures`        | Dev only: add one row per prod upload layout and write the objects to RustFS      |
+| `pnpm storage:fixtures:verify` | Dev only: fetch every fixture image through the running app (`FIXTURES_BASE_URL`) |
 
 ### Code generation
 
@@ -184,12 +186,22 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 
 ### Quality
 
-| Command            | Description                     |
-| ------------------ | ------------------------------- |
-| `pnpm lint`        | Run oxlint across all packages  |
-| `pnpm format`      | Run oxfmt across all packages   |
-| `pnpm check`       | Run both lint and format checks |
-| `pnpm build:loose` | Build all apps (Turbo)          |
+| Command       | Description                     |
+| ------------- | ------------------------------- |
+| `pnpm lint`   | Run oxlint across all packages  |
+| `pnpm format` | Run oxfmt across all packages   |
+| `pnpm check`  | Run both lint and format checks |
+
+### Testing an upload-storage migration locally
+
+`storage:fixtures` recreates every upload layout production has: `media` with an empty or `media` prefix, pictures with and without a thumbnail, NFD accents, apostrophes, commas and screenshot names, and `_objectKey` folders. It writes their objects to RustFS at the keys the current Payload version uses. To check a Payload upgrade end to end:
+
+1. Build a DB on the old schema: run the old branch's `pnpm migrate` against an empty database.
+2. `pnpm storage:fixtures` on it (with the `S3_*` RustFS variables set).
+3. Switch branch, then run `pnpm migrate && pnpm storage:check`.
+4. `pnpm build`, start the app, then run `pnpm storage:fixtures:verify` against it.
+
+The script refuses any non-local bucket.
 
 ---
 

@@ -24,7 +24,6 @@
 		"chakra:typegen": "pnpm --filter website chakra:typegen",
 		"chakra:typegen:watch": "pnpm --filter website chakra:typegen:watch",
 		"build": "pnpm --filter website build",
-		"build:loose": "turbo build --env-mode=loose",
 		"start": "node apps/website/.output/server/index.mjs",
 		"serve:web": "cd apps/website && pnpm start",
 		"format": "oxfmt",
@@ -36,8 +35,7 @@
 	"devDependencies": {
 		"lefthook": "^2.1.6",
 		"oxfmt": "^0.46.0",
-		"oxlint": "^1.61.0",
-		"turbo": "^2.9.10"
+		"oxlint": "^1.61.0"
 	},
 	"engines": {
 		"node": "24.x"
