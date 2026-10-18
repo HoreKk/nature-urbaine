@@ -21,9 +21,10 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
  */
 
 // Relative (`/api/...`) today; also accepts an absolute URL in case Payload's
-// `serverURL` is ever set, so signing still applies.
+// `serverURL` is ever set, so signing still applies. Payload 4 appends
+// `?prefix=<prefix>` to every storage URL.
 const UPLOAD_PATH =
-	/^(?:https?:\/\/[^/]+)?\/api\/(pictures|media)\/file\/([^?#]+)$/;
+	/^(?:https?:\/\/[^/]+)?\/api\/(pictures|media)\/file\/([^?#]+)(?:\?[^#]*)?$/;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
 // Payload results are acyclic JSON a handful of levels deep; the cap only
@@ -126,15 +127,37 @@ export function signUploadUrl(
 	return pending;
 }
 
-function objectKeyFromPath(path: string): string | null {
+/** Where a stored file lives: the doc's (or variant's) `prefix` and `_objectKey`. */
+type StorageLocation = { prefix?: unknown; _objectKey?: unknown };
+
+const segment = (value: unknown): string =>
+	typeof value === 'string' ? value.replace(/^\/+|\/+$/g, '') : '';
+
+/**
+ * Mirrors plugin-cloud-storage's read path (`buildPrefixWithObjectKey`, then
+ * `docPrefix || collectionPrefix`), like `scripts/check-storage.ts`: Payload 4
+ * stores new uploads under `<prefix>/<_objectKey>/`, rows from before the
+ * upgrade have no `_objectKey`, and old `media` rows with an empty prefix fall
+ * back to the collection prefix (equal to its slug).
+ */
+export function objectKeyFromPath(
+	path: string,
+	location: StorageLocation = {},
+): string | null {
 	const match = UPLOAD_PATH.exec(path);
 	if (!match) return null;
-	// CMS stores each collection under a prefix equal to its slug.
-	return `${match[1]}/${decodeURIComponent(match[2])}`;
+	const folder =
+		[segment(location.prefix), segment(location._objectKey)]
+			.filter(Boolean)
+			.join('/') || match[1];
+	return `${folder}/${decodeURIComponent(match[2])}`;
 }
 
-async function resolveUploadPath(path: string): Promise<string> {
-	const objectKey = objectKeyFromPath(path);
+async function resolveUploadPath(
+	path: string,
+	location: StorageLocation,
+): Promise<string> {
+	const objectKey = objectKeyFromPath(path, location);
 	const signed = objectKey ? signUploadUrl(objectKey) : null;
 	// Without bucket credentials (local dev) Payload serves the file itself,
 	// on this same origin.
@@ -161,7 +184,7 @@ async function rewriteUploadDoc(
 	for (const field of ['url', 'thumbnailURL'] as const) {
 		const value = doc[field];
 		if (typeof value === 'string' && UPLOAD_PATH.test(value)) {
-			next[field] = await resolveUploadPath(value);
+			next[field] = await resolveUploadPath(value, doc);
 		}
 	}
 	if (isRecord(doc.variants)) {
@@ -170,7 +193,11 @@ async function rewriteUploadDoc(
 			if (isRecord(variant) && typeof variant.url === 'string') {
 				variants[name] = {
 					...variant,
-					url: await resolveUploadPath(variant.url),
+					// A variant row carries its own location; older rows only the doc's.
+					url: await resolveUploadPath(variant.url, {
+						prefix: variant.prefix ?? doc.prefix,
+						_objectKey: variant._objectKey ?? doc._objectKey,
+					}),
 				};
 			} else {
 				variants[name] = variant;

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { signUploadUrl, withMediaUrls } from './media-urls';
+import { objectKeyFromPath, signUploadUrl, withMediaUrls } from './media-urls';
 
 const ORIGINAL_ENV = process.env;
 
@@ -98,6 +98,44 @@ describe('withMediaUrls', () => {
 			const result = await withMediaUrls(doc);
 			expect(result.url).toMatch(
 				/^https:\/\/t3\.storageapi\.dev\/nu-bucket\/pictures\/parc%20a\.png\?/,
+			);
+		});
+
+		it('signs Payload 4 uploads under <prefix>/<_objectKey>/', async () => {
+			const doc = {
+				id: 21,
+				filename: 's3-test-original.png',
+				url: '/api/pictures/file/s3-test-original.png?prefix=pictures',
+				prefix: 'pictures',
+				_objectKey: '2be7d0d4',
+				variants: {
+					thumbnail: {
+						url: '/api/pictures/file/s3-test-original-400x300.png?prefix=pictures',
+						filename: 's3-test-original-400x300.png',
+						prefix: 'pictures',
+						_objectKey: '2be7d0d4',
+					},
+				},
+			};
+			const result = await withMediaUrls(doc);
+			expect(result.url).toMatch(
+				/\/nu-bucket\/pictures\/2be7d0d4\/s3-test-original\.png\?/,
+			);
+			expect(result.variants.thumbnail.url).toMatch(
+				/\/nu-bucket\/pictures\/2be7d0d4\/s3-test-original-400x300\.png\?/,
+			);
+		});
+
+		it('keeps pre-upgrade and empty-prefix rows at <collection>/<file>', () => {
+			expect(
+				objectKeyFromPath('/api/pictures/file/a.png?prefix=pictures', {
+					prefix: 'pictures',
+					_objectKey: null,
+				}),
+			).toBe('pictures/a.png');
+			// 77 prod `media` rows were stored before the prefix was configured.
+			expect(objectKeyFromPath('/api/media/file/b.jpg', { prefix: '' })).toBe(
+				'media/b.jpg',
 			);
 		});
 

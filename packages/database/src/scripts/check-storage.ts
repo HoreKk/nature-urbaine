@@ -1,7 +1,7 @@
 /**
  * Read-only integrity check: every `media` / `pictures` row (and each of its
- * generated sizes) must have its object in the bucket, at the key the CMS
- * resolves and at the key the website signs.
+ * generated sizes) must have its object in the bucket, at the key Payload
+ * resolves. The website signs that same key (apps/website/src/server/media-urls.ts).
  *
  * Catches the failure where uploads were written to a container disk instead
  * of S3 (missing env vars, a collection without the storage plugin): the row
@@ -22,7 +22,6 @@ type Job = {
 	collection: string;
 	id: number;
 	key: string;
-	websiteKey: string;
 };
 
 type Problem = {
@@ -83,15 +82,6 @@ async function checkAll(jobs: Job[]) {
 			checked++;
 			if (!(await exists(job.key))) {
 				problems.push({ ...job, reason: "object missing" });
-			} else if (
-				job.websiteKey !== job.key &&
-				!(await exists(job.websiteKey))
-			) {
-				problems.push({
-					...job,
-					key: job.websiteKey,
-					reason: "missing at the key the website signs",
-				});
 			}
 		}
 	};
@@ -109,13 +99,22 @@ for (const collection of storageCollections) {
 			[collection],
 		)
 	).rows.map((row) => row.column_name);
-	// `_objectkey` only exists once the Payload 3.90 migration has run.
-	const objectKey = columns.includes("_objectkey") ? "_objectkey" : "null";
-	const sizeColumns = columns.filter((name) =>
-		/^sizes_.+_filename$/.test(name),
-	);
+	const column = (name: string) =>
+		columns.includes(name) ? `"${name}"` : "null";
+	// Image sizes: `sizes_<name>_*` in Payload 3, `variants_<name>_*` in 4, where
+	// each variant also stores its own `prefix`/`_objectkey`.
+	const variants = columns.flatMap((name) => {
+		const match = /^(sizes|variants)_(.+)_filename$/.exec(name);
+		return match ? [`${match[1]}_${match[2]}`] : [];
+	});
+	const variantSelect = variants
+		.map(
+			(base) =>
+				`, "${base}_filename", ${column(`${base}_prefix`)} as "${base}_prefix", ${column(`${base}__objectkey`)} as "${base}__objectkey"`,
+		)
+		.join("");
 	const { rows } = await client.query<Record<string, string | null>>(
-		`select id, filename, prefix, ${objectKey} as object_key${sizeColumns.map((name) => `, "${name}"`).join("")} from "${collection}"`,
+		`select id, filename, prefix, ${column("_objectkey")} as object_key${variantSelect} from "${collection}"`,
 	);
 
 	const jobs: Job[] = [];
@@ -126,24 +125,23 @@ for (const collection of storageCollections) {
 			continue;
 		}
 		if (!row.prefix) legacyEmptyPrefix++;
-		const folder = folderOf(
+		const prefix = row.prefix ?? null;
+		const objectKey = row.object_key ?? null;
+		jobs.push({
 			collection,
-			row.prefix ?? null,
-			row.object_key ?? null,
-		);
-		const files = [
-			row.filename,
-			...sizeColumns.map((name) => row[name]).filter(Boolean),
-		] as string[];
-		for (const file of files) {
-			// The website signs `<collection>/<file>` directly
-			// (apps/website/src/server/media-urls.ts).
-			jobs.push({
+			id,
+			key: `${folderOf(collection, prefix, objectKey)}/${row.filename}`,
+		});
+		for (const base of variants) {
+			const file = row[`${base}_filename`];
+			if (!file) continue;
+			// Rows from before the upgrade have no per-variant location.
+			const folder = folderOf(
 				collection,
-				id,
-				key: `${folder}/${file}`,
-				websiteKey: `${collection}/${file}`,
-			});
+				row[`${base}_prefix`] ?? prefix,
+				row[`${base}__objectkey`] ?? objectKey,
+			);
+			jobs.push({ collection, id, key: `${folder}/${file}` });
 		}
 	}
 	await checkAll(jobs);
