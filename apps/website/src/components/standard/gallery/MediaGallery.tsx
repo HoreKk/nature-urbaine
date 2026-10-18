@@ -4,7 +4,6 @@ import {
 	chakra,
 	Flex,
 	Grid,
-	HStack,
 	Icon,
 	IconButton,
 	Stack,
@@ -19,6 +18,8 @@ import {
 } from 'react-icons/ri';
 import PictureImg from '@/components/standard/PictureImg';
 import GalleryLightbox, { type GalleryImage } from './GalleryLightbox';
+import GalleryScrubber from './GalleryScrubber';
+import { isNearSlide } from './slide-window';
 
 type MediaGalleryProps = {
 	images: GalleryImage[];
@@ -30,64 +31,6 @@ type MediaGalleryProps = {
 };
 
 const DEFAULT_GRID_COUNT = 8;
-const FEATURED_EASE = 'cubic-bezier(0.25, 1, 0.5, 1)';
-
-type FeaturedIndicatorsProps = {
-	count: number;
-	current: number;
-	onJump: (index: number) => void;
-};
-
-function segmentColor(active: boolean, seen: boolean): string {
-	if (active) return 'primary.solid';
-	if (seen) return 'fg.muted';
-	return 'border';
-}
-
-/** Story-style progress strip; segments are click-to-jump on `sm`+, indicator-only below. */
-const FeaturedIndicators = ({
-	count,
-	current,
-	onJump,
-}: FeaturedIndicatorsProps) => (
-	<Flex align="center" gap={3}>
-		<HStack gap={1} flex={1} minW={0}>
-			{Array.from({ length: count }, (_, index) => {
-				const seen = index < current;
-				const active = index === current;
-				return (
-					<chakra.button
-						key={index}
-						type="button"
-						aria-label={`Image ${index + 1}`}
-						aria-current={active}
-						onClick={() => onJump(index)}
-						position="relative"
-						flex={1}
-						minW="3px"
-						h="3px"
-						borderRadius="full"
-						bgColor={segmentColor(active, seen)}
-						pointerEvents={{ base: 'none', sm: 'auto' }}
-						cursor={{ base: 'default', sm: 'pointer' }}
-						transition={`background-color 0.2s ${FEATURED_EASE}, height 0.15s ${FEATURED_EASE}`}
-						_after={{
-							content: '""',
-							position: 'absolute',
-							insetInline: 0,
-							insetBlock: '-7px',
-						}}
-						_hover={{ h: '6px' }}
-					/>
-				);
-			})}
-		</HStack>
-		<Text textStyle="mono.s" color="fg.muted" whiteSpace="nowrap">
-			{current + 1} / {count}
-		</Text>
-	</Flex>
-);
-
 const MediaGallery = ({
 	images: rawImages,
 	initialGridCount = DEFAULT_GRID_COUNT,
@@ -165,11 +108,13 @@ const MediaGallery = ({
 									cursor="zoom-in"
 									onClick={() => setLightboxIndex(index)}
 								>
-									<PictureImg
-										source={image.source}
-										alt={image.alt}
-										priority={index === 0}
-									/>
+									{isNearSlide(index, featuredPage, images.length) ? (
+										<PictureImg
+											source={image.source}
+											alt={image.alt}
+											priority
+										/>
+									) : null}
 								</chakra.button>
 							</Carousel.Item>
 						))}
@@ -191,11 +136,13 @@ const MediaGallery = ({
 						</IconButton>
 					</Carousel.NextTrigger>
 				</Carousel.Control>
-				<FeaturedIndicators
-					count={images.length}
-					current={featuredPage}
-					onJump={setFeaturedPage}
-				/>
+				{images.length > 1 ? (
+					<GalleryScrubber
+						images={images}
+						current={featuredPage}
+						onJump={setFeaturedPage}
+					/>
+				) : null}
 			</Carousel.Root>
 			{hasGrid ? (
 				<Stack gap={4}>

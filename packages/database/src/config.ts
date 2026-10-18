@@ -16,6 +16,7 @@ import { Submissions } from "./collections/Submission";
 import { Tags } from "./collections/Tag";
 import { TagCategories } from "./collections/TagCategory";
 import { Users } from "./collections/Users";
+import { pictureVariants } from "./image-variants";
 import { storageAdapter, storageCoverageGuard } from "./storage";
 
 const filename = fileURLToPath(import.meta.url);
@@ -118,14 +119,7 @@ export const buildPayloadConfig = ({
 						pictures: {
 							crop: true,
 							focalPoint: true,
-							variants: [
-								{
-									name: "thumbnail",
-									width: 400,
-									height: 300,
-									position: "centre",
-								},
-							],
+							variants: pictureVariants,
 						},
 					},
 				}),

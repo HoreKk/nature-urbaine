@@ -1,5 +1,6 @@
 import {
 	AspectRatio,
+	Box,
 	Carousel,
 	CloseButton,
 	Dialog,
@@ -12,10 +13,15 @@ import { useEffect, useRef } from 'react';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
 import PictureImg from '@/components/standard/PictureImg';
 import type { ImageSource } from '@/utils/picture-src';
+import { isNearSlide } from './slide-window';
+
+/** The dialog is `container.xl` wide at most. */
+const LIGHTBOX_SIZES = '(min-width: 80rem) 80rem, 100vw';
 
 export type GalleryImage = {
 	id: string | number;
-	/** The original, shown with `object-fit: contain` in the lightbox. */
+	/** Uncropped (`fullSource`), with `sizes` for the inline carousel; the
+	 * lightbox swaps in its own `sizes`. */
 	source: ImageSource;
 	/** Small candidate for grids and indicator strips. */
 	thumbnail: ImageSource;
@@ -41,13 +47,20 @@ const GalleryLightbox = ({
 	const current = open ? images[activeIndex] : null;
 	const thumbStripRef = useRef<HTMLDivElement | null>(null);
 
+	// Scroll the strip itself: `scrollIntoView` also scrolls the slide track,
+	// whose own smooth scroll then cancels it.
 	useEffect(() => {
-		thumbStripRef.current?.querySelector('[data-current]')?.scrollIntoView({
+		const strip = thumbStripRef.current;
+		const thumb = strip?.children[activeIndex] as HTMLElement | undefined;
+		if (!strip || !thumb) return;
+		const offset =
+			thumb.getBoundingClientRect().left - strip.getBoundingClientRect().left;
+		strip.scrollTo({
+			left:
+				strip.scrollLeft + offset - (strip.clientWidth - thumb.offsetWidth) / 2,
 			behavior: 'smooth',
-			inline: 'center',
-			block: 'nearest',
 		});
-	}, [activeIndex]);
+	}, [activeIndex, open]);
 
 	return (
 		<Dialog.Root
@@ -109,11 +122,24 @@ const GalleryLightbox = ({
 													w="full"
 													maxH={{ base: '70dvh', md: '78vh' }}
 												>
-													<PictureImg
-														source={image.source}
-														alt={image.alt}
-														objectFit="contain"
-													/>
+													{isNearSlide(
+														itemIndex,
+														activeIndex,
+														images.length,
+													) ? (
+														<PictureImg
+															source={{
+																...image.source,
+																sizes: LIGHTBOX_SIZES,
+															}}
+															alt={image.alt}
+															objectFit="contain"
+															priority
+														/>
+													) : (
+														// AspectRatio needs exactly one child.
+														<Box />
+													)}
 												</AspectRatio>
 											</Carousel.Item>
 										))}
@@ -154,6 +180,9 @@ const GalleryLightbox = ({
 								</Flex>
 								<Carousel.IndicatorGroup
 									ref={thumbStripRef}
+									// `safe`: a centred strip wider than the dialog would push
+									// its first thumbnails out of scroll reach.
+									justifyContent="safe center"
 									gap={2}
 									px={{ base: 4, md: 6 }}
 									pt={{ base: 2, md: 0 }}
