@@ -23,8 +23,10 @@ import { getBackendUrl } from '@/utils/backend-url';
 
 // Relative (`/api/...`) today; also accepts an absolute URL in case Payload's
 // `serverURL` is ever set, so signing still applies.
+// Since the S3 plugin also runs in the website's Payload config, it appends
+// `?prefix=<prefix>` to every upload URL.
 const UPLOAD_PATH =
-	/^(?:https?:\/\/[^/]+)?\/api\/(pictures|media)\/file\/([^?#]+)$/;
+	/^(?:https?:\/\/[^/]+)?\/api\/(pictures|media)\/file\/([^?#]+)(?:\?[^#]*)?$/;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
 // Payload results are acyclic JSON a handful of levels deep; the cap only
@@ -127,15 +129,37 @@ export function signUploadUrl(
 	return pending;
 }
 
-function objectKeyFromPath(path: string): string | null {
+/** Where a stored file lives: the upload doc's `prefix` and `_objectKey`. */
+type StorageLocation = { prefix?: unknown; _objectKey?: unknown };
+
+const segment = (value: unknown): string =>
+	typeof value === 'string' ? value.replace(/^\/+|\/+$/g, '') : '';
+
+/**
+ * Mirrors plugin-cloud-storage's read path (`buildPrefixWithObjectKey`, then
+ * `docPrefix || collectionPrefix`), like `scripts/check-storage.ts`: uploads
+ * since Payload 3.90 live under `<prefix>/<_objectKey>/`, older rows have no
+ * `_objectKey`, and old `media` rows with an empty prefix fall back to the
+ * collection prefix (equal to its slug).
+ */
+export function objectKeyFromPath(
+	path: string,
+	location: StorageLocation = {},
+): string | null {
 	const match = UPLOAD_PATH.exec(path);
 	if (!match) return null;
-	// CMS stores each collection under a prefix equal to its slug.
-	return `${match[1]}/${decodeURIComponent(match[2])}`;
+	const folder =
+		[segment(location.prefix), segment(location._objectKey)]
+			.filter(Boolean)
+			.join('/') || match[1];
+	return `${folder}/${decodeURIComponent(match[2])}`;
 }
 
-async function resolveUploadPath(path: string): Promise<string> {
-	const objectKey = objectKeyFromPath(path);
+async function resolveUploadPath(
+	path: string,
+	location: StorageLocation,
+): Promise<string> {
+	const objectKey = objectKeyFromPath(path, location);
 	const signed = objectKey ? signUploadUrl(objectKey) : null;
 	if (signed) return signed;
 	return path.startsWith('/') ? getBackendUrl(path) : path;
@@ -161,14 +185,15 @@ async function rewriteUploadDoc(
 	for (const field of ['url', 'thumbnailURL'] as const) {
 		const value = doc[field];
 		if (typeof value === 'string' && UPLOAD_PATH.test(value)) {
-			next[field] = await resolveUploadPath(value);
+			next[field] = await resolveUploadPath(value, doc);
 		}
 	}
 	if (isRecord(doc.sizes)) {
 		const sizes: Record<string, unknown> = {};
 		for (const [name, size] of Object.entries(doc.sizes)) {
 			if (isRecord(size) && typeof size.url === 'string') {
-				sizes[name] = { ...size, url: await resolveUploadPath(size.url) };
+				// Sizes are stored next to the original, in the doc's folder.
+				sizes[name] = { ...size, url: await resolveUploadPath(size.url, doc) };
 			} else {
 				sizes[name] = size;
 			}

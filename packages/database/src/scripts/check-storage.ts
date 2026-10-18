@@ -1,7 +1,7 @@
 /**
  * Read-only integrity check: every `media` / `pictures` row (and each of its
- * generated sizes) must have its object in the bucket, at the key the CMS
- * resolves and at the key the website signs.
+ * generated sizes) must have its object in the bucket, at the key Payload
+ * resolves. The website signs that same key (apps/website/src/server/media-urls.ts).
  *
  * Catches the failure where uploads were written to a container disk instead
  * of S3 (missing env vars, a collection without the storage plugin): the row
@@ -22,7 +22,6 @@ type Job = {
 	collection: string;
 	id: number;
 	key: string;
-	websiteKey: string;
 };
 
 type Problem = {
@@ -83,15 +82,6 @@ async function checkAll(jobs: Job[]) {
 			checked++;
 			if (!(await exists(job.key))) {
 				problems.push({ ...job, reason: "object missing" });
-			} else if (
-				job.websiteKey !== job.key &&
-				!(await exists(job.websiteKey))
-			) {
-				problems.push({
-					...job,
-					key: job.websiteKey,
-					reason: "missing at the key the website signs",
-				});
 			}
 		}
 	};
@@ -136,14 +126,8 @@ for (const collection of storageCollections) {
 			...sizeColumns.map((name) => row[name]).filter(Boolean),
 		] as string[];
 		for (const file of files) {
-			// The website signs `<collection>/<file>` directly
-			// (apps/website/src/server/media-urls.ts).
-			jobs.push({
-				collection,
-				id,
-				key: `${folder}/${file}`,
-				websiteKey: `${collection}/${file}`,
-			});
+			// The website signs this same key (apps/website/src/server/media-urls.ts).
+			jobs.push({ collection, id, key: `${folder}/${file}` });
 		}
 	}
 	await checkAll(jobs);
