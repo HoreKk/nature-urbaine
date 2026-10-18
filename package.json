@@ -17,6 +17,8 @@
 		"seed:prod": "pnpm --filter @nature-urbaine/database seed:prod",
 		"seed:update": "pnpm --filter @nature-urbaine/database seed:update",
 		"storage:check": "pnpm --filter @nature-urbaine/database storage:check",
+		"storage:fixtures": "pnpm --filter @nature-urbaine/database storage:fixtures",
+		"storage:fixtures:verify": "pnpm --filter @nature-urbaine/database storage:fixtures:verify",
 		"dev:website": "cd apps/website && pnpm dev",
 		"dev:emails": "pnpm --filter @nature-urbaine/emails dev",
 		"chakra:typegen": "pnpm --filter website chakra:typegen",
