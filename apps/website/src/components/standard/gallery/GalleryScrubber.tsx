@@ -23,8 +23,8 @@ type Hover = { index: number; x: number };
  * Home/End). Short galleries also show a mark per stop. Hovering or dragging
  * previews the thumbnail under the pointer; the jump happens on release, so
  * dragging across 200 photos never scrolls the carousel through all of them.
- * Rail, fill and knob change state without transitions: none of them is in
- * DESIGN.md's allowed-motion table.
+ * The rail keeps one size and the fill and knob move without transitions:
+ * none of that is in DESIGN.md's allowed-motion table.
  */
 const GalleryScrubber = ({ images, current, onJump }: GalleryScrubberProps) => {
 	const count = images.length;
@@ -91,8 +91,6 @@ const GalleryScrubber = ({ images, current, onJump }: GalleryScrubberProps) => {
 		onJump(Math.min(Math.max(next, 0), count - 1));
 	};
 
-	const active = dragging || hover !== null;
-
 	return (
 		<Flex align="center" gap={4}>
 			<chakra.div
@@ -131,7 +129,7 @@ const GalleryScrubber = ({ images, current, onJump }: GalleryScrubberProps) => {
 				<Box
 					ref={railRef}
 					position="relative"
-					h={active ? '6px' : '3px'}
+					h="3px"
 					borderRadius="full"
 					bgColor="border"
 				>
