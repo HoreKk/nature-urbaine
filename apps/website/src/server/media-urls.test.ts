@@ -101,6 +101,29 @@ describe('withMediaUrls', () => {
 			);
 		});
 
+		it('signs URLs carrying ?prefix= (S3 plugin in the website config)', async () => {
+			// Exact shape served in production on 2026-10-18, which broke images
+			// (see #20), with v4's `variants` in place of `sizes`.
+			const doc = {
+				...picture,
+				prefix: 'pictures',
+				url: '/api/pictures/file/parc%20a.png?prefix=pictures',
+				variants: {
+					thumbnail: {
+						...picture.variants.thumbnail,
+						url: '/api/pictures/file/parc%20a-400x300.png?prefix=pictures',
+					},
+				},
+			};
+			const result = await withMediaUrls({ docs: [doc] });
+			expect(result.docs[0].url).toMatch(
+				/^https:\/\/t3\.storageapi\.dev\/nu-bucket\/pictures\/parc%20a\.png\?/,
+			);
+			expect(result.docs[0].variants.thumbnail.url).toMatch(
+				/\/nu-bucket\/pictures\/parc%20a-400x300\.png\?/,
+			);
+		});
+
 		it('signs Payload 4 uploads under <prefix>/<_objectKey>/', async () => {
 			const doc = {
 				id: 21,
