@@ -177,6 +177,7 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 | `pnpm storage:fixtures:verify`       | Dev only: fetch every fixture image through the running app (`FIXTURES_BASE_URL`)             |
 | `pnpm storage:fixtures:large-report` | Dev only: one report with 240 photos of 4000×3000 (`FIXTURE_COUNT`), uploaded through Payload |
 | `pnpm storage:variants:backfill`     | Add the `medium`/`large` WebP variants to older pictures (dry run unless `BACKFILL_WRITE=1`)  |
+| `pnpm reports:names:backfill`        | List Reports whose name differs from the computed one (dry run unless `REPORT_NAMES_WRITE=1`) |
 
 ### Code generation
 

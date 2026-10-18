@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { getSeasonFromDate } from "../utils/hooks";
+import { computeReportNameHook, getSeasonFromDate } from "../utils/hooks";
 import { seedKeyField } from "../utils/seed-key-field";
 
 export const CITY_STRATUM_OPTIONS = [
@@ -37,7 +37,20 @@ export const Reports: CollectionConfig = {
 			name: "name",
 			type: "text",
 			label: "Nom",
+			// Stored (search, sorting and the slug read it) but never typed:
+			// recomputed from Pays, Ville and Nom du projet on every save. The
+			// hook never yields an empty name; `validate` only stops the admin's
+			// client-side `required` check on the still-empty read-only input of
+			// a new Report.
 			required: true,
+			validate: () => true as const,
+			admin: {
+				readOnly: true,
+				description: "Calculé à partir de la ville et du nom du projet.",
+			},
+			hooks: {
+				beforeChange: [computeReportNameHook],
+			},
 		},
 		{
 			name: "slug",

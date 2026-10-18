@@ -16,6 +16,7 @@
 		"lint:fix": "oxlint --fix",
 		"check": "oxfmt --check && oxlint",
 		"typecheck": "tsc --noEmit",
+		"test": "node --test 'src/**/*.test.ts'",
 		"seed:dev": "NODE_ENV=development PAYLOAD_DROP_DATABASE=true payload run ./src/seed/index.ts",
 		"seed:prod": "NODE_ENV=production payload run ./src/seed/index.ts",
 		"seed:update": "PAYLOAD_CONFIG_PATH=./src/default-config.ts payload run ./src/seed/update.ts",
@@ -23,7 +24,8 @@
 		"storage:fixtures": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/storage-fixtures.ts",
 		"storage:fixtures:verify": "FIXTURES_VERIFY=1 PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/storage-fixtures.ts",
 		"storage:fixtures:large-report": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/large-report-fixture.ts",
-		"storage:variants:backfill": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/backfill-variants.ts"
+		"storage:variants:backfill": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/backfill-variants.ts",
+		"reports:names:backfill": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/backfill-report-names.ts"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1037.0",

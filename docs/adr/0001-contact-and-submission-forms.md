@@ -62,6 +62,8 @@ Address autocomplete uses [api-adresse.data.gouv.fr](https://api-adresse.data.go
 
 A Payload `afterChange` hook on `Submission`: when `status` flips `pending → accepted` and `promoted` is false, the hook creates a `Report` draft pre-filled from submission fields, sets `promotedReport`, and sets `promoted = true`. The hook is idempotent (`if (promoted) return`).
 
+The Report's `name` is computed, not copied (issue #10, `utils/report-name.ts`): the hook maps the submission's `name` (project title) to `projectName` and `locationDetails.city` to `locationDetails.city`, and leaves `country` empty (BAN is France-only).
+
 Submission rows are kept after promotion (`status = 'accepted'`, `promoted = true`, `promotedReport` set) for audit. The default admin list view filters to `status = 'pending'` so the queue stays clean.
 
 Photo handling on promotion is **deferred** — for now the operator manually creates `Picture` rows from the submitted media. The hook does not auto-create Pictures.

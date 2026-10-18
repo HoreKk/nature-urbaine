@@ -91,8 +91,9 @@ Defined in `packages/database/src/collections/`. Field names below are the actua
 
 The core unit. Drafts enabled (`versions.drafts.validate`). Admin title: `name`.
 
-- Required: `name`, `description`, `category` (→ `categories`), `date`.
+- Required: `description`, `category` (→ `categories`), `date`.
 - Virtual / read-only: `slug` (computed from `name`), `season` (computed from `date`).
+- Computed, stored, read-only: `name` = `"CITY, PROJECT"` in France, `"Country, CITY, PROJECT"` elsewhere (empty country counts as France), recomputed on every save by `computeReportName` (`utils/report-name.ts`). Missing parts are dropped (no dangling comma); with neither city nor project name it is `"Reportage sans nom"`, so drafts always save. Stored so search, sorting and `slug` keep reading it. Hand-typed names from the import are aligned by `pnpm reports:names:backfill` (dry run unless `REPORT_NAMES_WRITE=1`).
 - Optional `projectName`.
 - Group `locationDetails` (see Glossary).
 - Group `projectDetails` (see Glossary).

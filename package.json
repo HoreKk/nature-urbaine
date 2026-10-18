@@ -21,6 +21,7 @@
 		"storage:fixtures:verify": "pnpm --filter @nature-urbaine/database storage:fixtures:verify",
 		"storage:fixtures:large-report": "pnpm --filter @nature-urbaine/database storage:fixtures:large-report",
 		"storage:variants:backfill": "pnpm --filter @nature-urbaine/database storage:variants:backfill",
+		"reports:names:backfill": "pnpm --filter @nature-urbaine/database reports:names:backfill",
 		"dev:website": "cd apps/website && pnpm dev",
 		"dev:emails": "pnpm --filter @nature-urbaine/emails dev",
 		"chakra:typegen": "pnpm --filter website chakra:typegen",
