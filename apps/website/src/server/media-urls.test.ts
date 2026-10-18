@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { signUploadUrl, withMediaUrls } from './media-urls';
+import { objectKeyFromPath, signUploadUrl, withMediaUrls } from './media-urls';
 
 const ORIGINAL_ENV = process.env;
 
@@ -98,6 +98,51 @@ describe('withMediaUrls', () => {
 			const result = await withMediaUrls(doc);
 			expect(result.url).toMatch(
 				/^https:\/\/t3\.storageapi\.dev\/nu-bucket\/pictures\/parc%20a\.png\?/,
+			);
+		});
+
+		it('signs URLs carrying ?prefix= (S3 plugin in the website config)', async () => {
+			// Exact shape served in production on 2026-10-18, which broke images.
+			const doc = {
+				...picture,
+				prefix: 'pictures',
+				url: '/api/pictures/file/parc%20a.png?prefix=pictures',
+				sizes: {
+					thumbnail: {
+						...picture.sizes.thumbnail,
+						url: '/api/pictures/file/parc%20a-400x300.png?prefix=pictures',
+					},
+				},
+			};
+			const result = await withMediaUrls({ docs: [doc] });
+			expect(result.docs[0].url).toMatch(
+				/^https:\/\/t3\.storageapi\.dev\/nu-bucket\/pictures\/parc%20a\.png\?/,
+			);
+			expect(result.docs[0].sizes.thumbnail.url).toMatch(
+				/\/nu-bucket\/pictures\/parc%20a-400x300\.png\?/,
+			);
+		});
+
+		it('signs new uploads under <prefix>/<_objectKey>/', async () => {
+			const doc = {
+				...picture,
+				prefix: 'pictures',
+				_objectKey: '2be7d0d4',
+				url: '/api/pictures/file/parc%20a.png?prefix=pictures',
+			};
+			const result = await withMediaUrls(doc);
+			expect(result.url).toMatch(
+				/\/nu-bucket\/pictures\/2be7d0d4\/parc%20a\.png\?/,
+			);
+			expect(result.sizes.thumbnail.url).toMatch(
+				/\/nu-bucket\/pictures\/2be7d0d4\/parc%20a-400x300\.png\?/,
+			);
+		});
+
+		it('keeps empty-prefix media rows at media/<file>', () => {
+			// 77 prod `media` rows were stored before the prefix was configured.
+			expect(objectKeyFromPath('/api/media/file/b.jpg', { prefix: '' })).toBe(
+				'media/b.jpg',
 			);
 		});
 
