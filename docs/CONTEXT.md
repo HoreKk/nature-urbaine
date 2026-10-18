@@ -93,7 +93,7 @@ The core unit. Drafts enabled (`versions.drafts.validate`). Admin title: `name`.
 
 - Required: `description`, `category` (→ `categories`), `date`.
 - Virtual / read-only: `slug` (computed from `name`), `season` (computed from `date`).
-- Computed, stored, read-only: `name` = `"CITY, PROJECT"` in France, `"Country, CITY, PROJECT"` elsewhere (empty country counts as France), recomputed on every save by `computeReportName` (`utils/report-name.ts`). Missing parts are dropped (no dangling comma); with neither city nor project name it is `"Reportage sans nom"`, so drafts always save. Stored so search, sorting and `slug` keep reading it. Hand-typed names from the import are aligned by `pnpm reports:names:backfill` (dry run unless `REPORT_NAMES_WRITE=1`).
+- Computed, stored, read-only: `name` = `"CITY, PROJECT"` in France, `"Country, CITY, PROJECT"` elsewhere (empty country counts as France; in the project name, hyphens become spaces and an elided L or D gets its apostrophe back: `DE L EAU` → `DE L'EAU`), recomputed on every save by `computeReportName` (`utils/report-name.ts`). Missing parts are dropped (no dangling comma); with neither city nor project name it is `"Reportage sans nom"`, so drafts always save. Stored so search, sorting and `slug` keep reading it. Hand-typed names from the import are aligned by `pnpm reports:names:backfill` (dry run unless `REPORT_NAMES_WRITE=1`).
 - Optional `projectName`.
 - Group `locationDetails` (see Glossary).
 - Group `projectDetails` (see Glossary).

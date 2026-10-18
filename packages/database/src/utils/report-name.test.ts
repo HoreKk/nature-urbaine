@@ -70,3 +70,65 @@ test("a report with neither city nor project name gets a placeholder", () => {
 		"Reportage sans nom",
 	);
 });
+
+test("hyphens in the project name become spaces, the city keeps its own", () => {
+	assert.equal(
+		computeReportName({
+			country: "France",
+			city: "SEVRAN",
+			projectName: "PARC-NATIONAL-FORESTIER-DE-LA-POUDRERIE-DE-SEVRAN",
+		}),
+		"SEVRAN, PARC NATIONAL FORESTIER DE LA POUDRERIE DE SEVRAN",
+	);
+	assert.equal(
+		computeReportName({
+			country: "France",
+			city: "SAINT-DENIS",
+			projectName: "PARVIS - GARE",
+		}),
+		"SAINT-DENIS, PARVIS GARE",
+	);
+});
+
+test("an elided L or D in the project name gets its apostrophe back", () => {
+	assert.equal(
+		computeReportName({
+			country: "France",
+			city: "VILLENEUVE LE ROI",
+			projectName: "JARDIN DU BORD DE L EAU",
+		}),
+		"VILLENEUVE LE ROI, JARDIN DU BORD DE L'EAU",
+	);
+	assert.equal(
+		computeReportName({
+			country: "France",
+			city: "ÉTRETAT",
+			projectName: "LES-JARDINS-D-ÉTRETAT",
+		}),
+		"ÉTRETAT, LES JARDINS D'ÉTRETAT",
+	);
+	assert.equal(
+		computeReportName({
+			country: "France",
+			city: "PARIS",
+			projectName: "PARC DU PEUPLE DE L HERBE",
+		}),
+		"PARIS, PARC DU PEUPLE DE L'HERBE",
+	);
+	assert.equal(
+		computeReportName({
+			country: "France",
+			city: "PARIS",
+			projectName: "RUE D'ABOUKIR",
+		}),
+		"PARIS, RUE D'ABOUKIR",
+	);
+	assert.equal(
+		computeReportName({
+			country: "France",
+			city: "PARIS",
+			projectName: "BATIMENT D BLOC L",
+		}),
+		"PARIS, BATIMENT D BLOC L",
+	);
+});
