@@ -7,9 +7,10 @@
  *   BACKFILL_WRITE=1 pnpm storage:variants:backfill    # write
  *   BACKFILL_REPORT=639 BACKFILL_LIMIT=50 ...          # narrow the run
  *
- * Additive only. For each row it reads the stored original, writes new
- * objects next to it (`<folder>/<name>-<w>x<h>.webp`, never overwriting an
- * existing key) and fills the empty `variants_<name>_*` columns. It never
+ * Additive only. For each row it reads the stored original, writes the
+ * missing variants next to it (`<folder>/<name>-<w>x<h>.webp`, suffixed
+ * `-1`, `-2`… when the name is taken; never overwriting an existing key) and
+ * fills only those empty `variants_<name>_*` columns. It never
  * touches the original, the thumbnail or any other column, so a failed or
  * interrupted run leaves every page working; rerunning resumes where it
  * stopped. Plain SQL + S3 like `check-storage.ts`, so `storage:check` covers
@@ -27,7 +28,7 @@ import {
 } from "@aws-sdk/client-s3";
 import pg from "pg";
 import sharp from "sharp";
-import { backfillableVariants } from "../image-variants";
+import { backfillableVariants, pictureVariants } from "../image-variants";
 import { readS3Env } from "../storage";
 
 const write = process.env.BACKFILL_WRITE === "1";
@@ -66,6 +67,8 @@ type Row = {
 	filename: string;
 	prefix: string | null;
 	object_key: string | null;
+	/** Names of the backfillable variants this row has no file for yet. */
+	missing: string[];
 };
 
 // Same resolution as check-storage.ts and the website's media-urls.ts.
@@ -75,6 +78,18 @@ const folderOf = (row: Row) =>
 const missing = backfillableVariants
 	.map((variant) => `variants_${variant.name}_filename is null`)
 	.join(" or ");
+const missingList = `array_remove(array[${backfillableVariants
+	.map(
+		(variant) =>
+			`case when variants_${variant.name}_filename is null then '${variant.name}' end`,
+	)
+	.join(", ")}], null)`;
+// Every column that names a stored file: a backfilled name must not be one.
+const filenameColumns = [
+	"filename",
+	"original_filename",
+	...pictureVariants.map((variant) => `variants_${variant.name}_filename`),
+];
 
 const params: unknown[] = [];
 let where = `filename is not null and mime_type like 'image/%' and mime_type <> 'image/svg+xml' and (${missing})`;
@@ -100,15 +115,68 @@ if (!write) {
 	process.exit(0);
 }
 
-async function exists(key: string) {
+/** Metadata key recording which picture a backfilled object belongs to. */
+const OWNER = "picture-id";
+
+/** The object's owner, `""` when it has none, `null` when there is no object. */
+async function ownerOf(key: string): Promise<string | null> {
 	try {
-		await s3.send(new HeadObjectCommand({ Bucket: env!.bucket, Key: key }));
-		return true;
+		const head = await s3.send(
+			new HeadObjectCommand({ Bucket: env!.bucket, Key: key }),
+		);
+		return head.Metadata?.[OWNER] ?? "";
 	} catch (error) {
 		const status = (error as { $metadata?: { httpStatusCode?: number } })
 			.$metadata?.httpStatusCode;
-		if (status === 404) return false;
+		if (status === 404) return null;
 		throw error;
+	}
+}
+
+async function referencedByAnotherRow(filename: string, id: number) {
+	const { rowCount } = await db.query(
+		`select 1 from pictures where id <> $1 and $2 in (${filenameColumns.map((column) => `"${column}"`).join(", ")}) limit 1`,
+		[id, filename],
+	);
+	return (rowCount ?? 0) > 0;
+}
+
+// Keys claimed during this run, so two workers never pick the same free key.
+const claimed = new Map<string, number>();
+/** Claimant of a key some other picture or object already uses. */
+const TAKEN = -1;
+
+/**
+ * Picks the variant's filename the way Payload's `getSafeFileName` would:
+ * `<base>-<w>x<h>.<ext>`, then `-1`, `-2`… while that name is taken. Legacy
+ * rows share one flat folder, so `parc.jpg` and `parc.png` would otherwise
+ * both claim `parc-2048x1536.webp` and one would show the other's photo. A
+ * key is reused only when this picture wrote it (earlier run, or `medium`
+ * and `large` at the same size); `upload` says whether to write it.
+ */
+async function claimFilename(
+	row: Row,
+	folder: string,
+	stem: string,
+	extension: string,
+): Promise<{ filename: string; upload: boolean }> {
+	for (let attempt = 0; ; attempt++) {
+		const filename = `${stem}${attempt > 0 ? `-${attempt}` : ""}.${extension}`;
+		const key = `${folder}/${filename}`;
+		const claimant = claimed.get(key);
+		if (claimant !== undefined) {
+			if (claimant === row.id) return { filename, upload: false };
+			continue;
+		}
+		// Reserve before any await: a worker checking the same name meanwhile
+		// moves on to the next suffix.
+		claimed.set(key, row.id);
+		const owner = await ownerOf(key);
+		if (owner === String(row.id)) return { filename, upload: false };
+		if (owner === null && !(await referencedByAnotherRow(filename, row.id))) {
+			return { filename, upload: true };
+		}
+		claimed.set(key, TAKEN);
 	}
 }
 
@@ -133,21 +201,26 @@ async function backfill(row: Row) {
 	};
 
 	for (const variant of backfillableVariants) {
+		if (!row.missing.includes(variant.name)) continue;
 		const { data, info } = await source
 			.clone()
 			.resize({ width: variant.width, withoutEnlargement: true })
 			.toFormat(variant.formatOptions.format, variant.formatOptions.options)
 			.toBuffer({ resolveWithObject: true });
-		const filename = `${base}-${info.width}x${info.height}.${info.format}`;
-		const key = `${folder}/${filename}`;
-		// `medium` and `large` share a file when the original is small.
-		if (!(await exists(key))) {
+		const { filename, upload } = await claimFilename(
+			row,
+			folder,
+			`${base}-${info.width}x${info.height}`,
+			info.format,
+		);
+		if (upload) {
 			await s3.send(
 				new PutObjectCommand({
 					Bucket: env!.bucket,
-					Key: key,
+					Key: `${folder}/${filename}`,
 					Body: data,
 					ContentType: `image/${info.format}`,
+					Metadata: { [OWNER]: String(row.id) },
 				}),
 			);
 		}
@@ -180,7 +253,7 @@ for (;;) {
 	if (remaining <= 0) break;
 	const batchParams = [...params, lastId, Math.min(200, remaining)];
 	const { rows } = await db.query<Row>(
-		`select id, filename, prefix, _objectkey as object_key from pictures
+		`select id, filename, prefix, _objectkey as object_key, ${missingList} as missing from pictures
 		 where ${where} and id > $${batchParams.length - 1}
 		 order by id limit $${batchParams.length}`,
 		batchParams,

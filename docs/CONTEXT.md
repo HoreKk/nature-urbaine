@@ -51,7 +51,7 @@ nature-urbaine/
 ### Stack
 
 - **Public website (`apps/website`)** — React 19, **TanStack Start** (SSR + server functions), **TanStack Router** (file-based routes under `src/app/`, Payload's admin and API routes under `src/app/_payload/`), **TanStack Query** for data fetching, **Chakra UI 3** for primitives, **TanStack Form** + Zod for forms, a small `PictureImg` component (`components/standard/PictureImg.tsx`) over Chakra `Image` for pictures, fed by `utils/picture-src.ts`; upload URLs are made browser-fetchable server-side by `server/media-urls.ts` (see §7 and ADR-0003). Built via Vite (`payload build`) and served by Nitro (`.output/server/index.mjs`).
-- **CMS (inside `apps/website`)** — **Payload 4 (beta)** through `@payloadcms/tanstack-start` and `@vitejs/plugin-rsc`, admin at `/admin`, REST at `/api`, with `@payloadcms/db-postgres`, `@payloadcms/richtext-lexical`, `@payloadcms/storage-s3` and `@payloadcms/transformer-sharp` (`variants.thumbnail`). No Next.js.
+- **CMS (inside `apps/website`)** — **Payload 4 (beta)** through `@payloadcms/tanstack-start` and `@vitejs/plugin-rsc`, admin at `/admin`, REST at `/api`, with `@payloadcms/db-postgres`, `@payloadcms/richtext-lexical`, `@payloadcms/storage-s3` and `@payloadcms/transformer-sharp` (`Picture` variants `thumbnail`, `medium`, `large`; see `packages/database/src/image-variants.ts`). No Next.js.
 - **Shared (`packages/database`)** — exports the Payload `config`, generated TypeScript types (`Report`, `Interview`, etc.), Lexical helpers, migrations / seed scripts, and the SMTP email adapter configuration used by `payload.sendEmail`. The app and the scripts import from `@nature-urbaine/database`.
 - **Shared (`packages/emails`)** — exports React Email templates and typed render helpers (`renderContactEmail`) used by website server functions. Local preview runs via `pnpm dev:emails` on port `4000`.
 - **Tooling** — `pnpm@10`, `oxlint`, `oxfmt`, `lefthook`. Migrations and seeding flow through root scripts (`pnpm migrate`, `pnpm seed:dev`, etc.).
@@ -113,7 +113,12 @@ The cahier specifies a **500-character summary** and **1500-character** answers 
 
 ### Picture — `Picture.ts` (slug `pictures`)
 
-Upload-enabled (`mimeTypes: ['image/*']`), with a `thumbnail` 400×300 image size for admin previews.
+Upload-enabled (`mimeTypes: ['image/*']`), with three variants:
+
+- a `thumbnail` 400×300 centre crop, for admin previews, cards and grids;
+- `medium` (1024 px wide) and `large` (2048 px wide), uncropped WebP files for the report banner, carousel and lightbox.
+
+Rows uploaded before `medium`/`large` existed get them from `pnpm storage:variants:backfill` (ADR-0003).
 
 - `alt` (required).
 - `report` (→ `reports`, required) — owning reportage.
