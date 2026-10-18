@@ -161,20 +161,22 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 
 ### Database
 
-| Command                        | Description                                                                       |
-| ------------------------------ | --------------------------------------------------------------------------------- |
-| `pnpm migrate`                 | Run pending migrations                                                            |
-| `pnpm migrate:create`          | Generate a new migration from schema changes                                      |
-| `pnpm migrate:status`          | Show migration status                                                             |
-| `pnpm migrate:down`            | Roll back last migration                                                          |
-| `pnpm migrate:refresh`         | Roll back and re-run all migrations                                               |
-| `pnpm migrate:reset`           | Reset the database                                                                |
-| `pnpm migrate:fresh`           | Drop all tables and re-run from scratch                                           |
-| `pnpm seed:dev`                | Drop and re-seed development data                                                 |
-| `pnpm seed:prod`               | Seed production data (non-destructive)                                            |
-| `pnpm storage:check`           | Read-only: every upload row has its object in the bucket                          |
-| `pnpm storage:fixtures`        | Dev only: add one row per prod upload layout and write the objects to RustFS      |
-| `pnpm storage:fixtures:verify` | Dev only: fetch every fixture image through the running app (`FIXTURES_BASE_URL`) |
+| Command                              | Description                                                                                   |
+| ------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `pnpm migrate`                       | Run pending migrations                                                                        |
+| `pnpm migrate:create`                | Generate a new migration from schema changes                                                  |
+| `pnpm migrate:status`                | Show migration status                                                                         |
+| `pnpm migrate:down`                  | Roll back last migration                                                                      |
+| `pnpm migrate:refresh`               | Roll back and re-run all migrations                                                           |
+| `pnpm migrate:reset`                 | Reset the database                                                                            |
+| `pnpm migrate:fresh`                 | Drop all tables and re-run from scratch                                                       |
+| `pnpm seed:dev`                      | Drop and re-seed development data                                                             |
+| `pnpm seed:prod`                     | Seed production data (non-destructive)                                                        |
+| `pnpm storage:check`                 | Read-only: every upload row has its object in the bucket                                      |
+| `pnpm storage:fixtures`              | Dev only: add one row per prod upload layout and write the objects to RustFS                  |
+| `pnpm storage:fixtures:verify`       | Dev only: fetch every fixture image through the running app (`FIXTURES_BASE_URL`)             |
+| `pnpm storage:fixtures:large-report` | Dev only: one report with 240 photos of 4000×3000 (`FIXTURE_COUNT`), uploaded through Payload |
+| `pnpm storage:variants:backfill`     | Add the `medium`/`large` WebP variants to older pictures (dry run unless `BACKFILL_WRITE=1`)  |
 
 ### Code generation
 
@@ -202,6 +204,21 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 4. `pnpm build`, start the app, then run `pnpm storage:fixtures:verify` against it.
 
 The script refuses any non-local bucket.
+
+### Picture variants
+
+Every `pictures` upload gets three variants (`packages/database/src/image-variants.ts`): a 400×300 `thumbnail` crop for cards and grids, and uncropped `medium` (1024 px wide) and `large` (2048 px wide) WebP files. The report banner, carousel and lightbox only use `medium`/`large` through `srcSet`; they fall back to the original only for rows that were not backfilled yet.
+
+Pictures uploaded before a variant existed get it from `storage:variants:backfill`. It only adds objects and fills empty `variants_*` columns: it never rewrites an original or an existing key, and an interrupted run resumes where it stopped.
+
+```bash
+pnpm storage:variants:backfill                                  # dry run: how many rows miss a variant
+BACKFILL_WRITE=1 BACKFILL_REPORT=639 pnpm storage:variants:backfill   # one report first
+BACKFILL_WRITE=1 pnpm storage:variants:backfill                 # everything (BACKFILL_CONCURRENCY, default 2)
+pnpm storage:check                                              # every new object is there
+```
+
+To reproduce a large report locally, `pnpm storage:fixtures:large-report` (with the RustFS `S3_*` variables set) creates « Reportage de test · 240 photos » (`FIXTURE_COUNT=5` for « … · 5 photos »).
 
 ---
 

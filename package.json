@@ -19,6 +19,8 @@
 		"storage:check": "pnpm --filter @nature-urbaine/database storage:check",
 		"storage:fixtures": "pnpm --filter @nature-urbaine/database storage:fixtures",
 		"storage:fixtures:verify": "pnpm --filter @nature-urbaine/database storage:fixtures:verify",
+		"storage:fixtures:large-report": "pnpm --filter @nature-urbaine/database storage:fixtures:large-report",
+		"storage:variants:backfill": "pnpm --filter @nature-urbaine/database storage:variants:backfill",
 		"dev:website": "cd apps/website && pnpm dev",
 		"dev:emails": "pnpm --filter @nature-urbaine/emails dev",
 		"chakra:typegen": "pnpm --filter website chakra:typegen",

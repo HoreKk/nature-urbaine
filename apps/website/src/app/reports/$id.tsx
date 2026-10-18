@@ -21,6 +21,10 @@ import {
 	joinNonEmpty,
 } from '@/utils/tools';
 
+/** The gallery column: 8 of 12 columns from `md`, inside `container.xl`. */
+const GALLERY_SIZES =
+	'(min-width: 80rem) 52rem, (min-width: 48rem) 66vw, 100vw';
+
 export const Route = createFileRoute('/reports/$id')({
 	component: RouteComponent,
 	loader: async ({ params }) => findReportById({ data: Number(params.id) }),
@@ -166,7 +170,7 @@ function RouteComponent() {
 								.filter((picture) => picture.url)
 								.map((picture) => ({
 									id: picture.id,
-									source: fullSource(picture),
+									source: fullSource(picture, GALLERY_SIZES),
 									thumbnail: thumbnailSource(picture),
 									alt: picture.alt,
 									caption: picture.alt,
