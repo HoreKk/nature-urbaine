@@ -120,7 +120,7 @@ git clone <repo-url> nature-urbaine
 cd nature-urbaine
 pnpm install
 
-# 2. Start PostgreSQL
+# 2. Start PostgreSQL, maildev and the RustFS object store
 docker compose up -d
 
 # 3. Copy and fill environment variables
@@ -145,7 +145,7 @@ PAYLOAD_SECRET=<random-string>
 DATABASE_URL="postgresql://postgres:password@localhost:5434/nature-urbaine"
 ```
 
-Leave the `S3_*` variables empty locally: uploads are then written to `apps/website/media` and `apps/website/pictures` and served by Payload's own `/api/<collection>/file/*` route.
+Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:9101`, bucket `nature-urbaine` created by `docker compose up`), so dev takes the same path as the Railway bucket. The `S3_*` values are in `.env.example`. Leave them empty to write uploads to `apps/website/media` and `apps/website/pictures` instead.
 
 ---
 
