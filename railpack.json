@@ -1,0 +1,10 @@
+{
+	"$schema": "https://schema.railpack.com",
+	"deploy": {
+		"aptPackages": ["...", "libjemalloc2"],
+		"variables": {
+			"NODE_OPTIONS": "--max-old-space-size=512",
+			"LD_PRELOAD": "/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"
+		}
+	}
+}
