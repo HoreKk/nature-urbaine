@@ -8,11 +8,6 @@ type PictureImgProps = Omit<ImageProps, 'src' | 'srcSet' | 'sizes' | 'alt'> & {
 	priority?: boolean;
 };
 
-/**
- * Plain `<img>` with the attributes that actually save bandwidth: lazy
- * loading, async decoding, intrinsic dimensions (no layout shift) and an
- * optional `srcSet`. Chakra style props apply to the element via `asChild`.
- */
 export const PictureImg = ({
 	source,
 	alt,

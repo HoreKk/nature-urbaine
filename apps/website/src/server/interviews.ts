@@ -20,7 +20,6 @@ export type SafeInterview = Omit<
 	intervieweePicture?: Media | null;
 };
 
-// Detail view: projectDetails fields are pre-converted to HTML strings.
 export type InterviewDetail = Omit<
 	Interview,
 	'projectDetails' | 'thumbnail' | 'intervieweePicture'

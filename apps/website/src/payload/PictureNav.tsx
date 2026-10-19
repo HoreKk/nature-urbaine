@@ -20,11 +20,6 @@ const toId = (value: unknown): DocId | null => {
 	return value as DocId;
 };
 
-/**
- * Prev/next buttons rendered in the Photo edit header. Lets editors step
- * through the photos of a report in their ordered sequence (the report's
- * `relatedPictures` join) without bouncing back to the list view.
- */
 export const PictureNav = () => {
 	const router = useRouter();
 	const { id, data } = useDocumentInfo();
@@ -46,8 +41,6 @@ export const PictureNav = () => {
 		setNext(null);
 
 		const load = async () => {
-			// Resolve the report this photo belongs to. Prefer the already-loaded
-			// document data; fall back to fetching the photo if it's missing.
 			let reportId = toId(reportRef);
 			if (reportId == null) {
 				const res = await fetch(`${apiRoute}/pictures/${id}?depth=0`, {
@@ -57,7 +50,7 @@ export const PictureNav = () => {
 			}
 			if (reportId == null) return;
 
-			// Pull the report's photos in their ordered sequence (the join order).
+			// The `relatedPictures` join order is the report's photo sequence.
 			const res = await fetch(
 				`${apiRoute}/reports/${reportId}?depth=0&joins[relatedPictures][limit]=1000`,
 				{ credentials: 'include' },

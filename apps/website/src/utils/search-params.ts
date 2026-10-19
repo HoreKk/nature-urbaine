@@ -1,9 +1,7 @@
 import { payloadParseSearch } from '@payloadcms/tanstack-start/shared';
 
-// Before Payload 4, TanStack Router's default serializer wrote search params
-// as JSON: `?category=[1,2]`, or `?search="2024"` for a string that reads as
-// a number. Shared and bookmarked links still carry that form, and Payload's
-// qs parser hands it to `validateSearch` as a raw string, which fails.
+// Pre-v4 links still carry TanStack's JSON form (`?category=[1,2]`, `?search="2024"`),
+// which Payload's qs parser hands to `validateSearch` as a raw string.
 const LEGACY_JSON = /^(?:\[.*\]|\{.*\}|".*")$/s;
 
 function decodeLegacyValue(value: unknown): unknown {
@@ -15,11 +13,7 @@ function decodeLegacyValue(value: unknown): unknown {
 	}
 }
 
-/**
- * Payload's qs `parseSearch` (the admin needs its nested `where` filters),
- * plus decoding of top-level values written by the pre-v4 JSON serializer.
- * Nested qs values are left alone, so admin filters are unaffected.
- */
+/** Decodes only top-level values: nested qs values are the admin's `where` filters. */
 export function parseSearch(searchStr: string): Record<string, unknown> {
 	const parsed = payloadParseSearch(searchStr);
 	return Object.fromEntries(

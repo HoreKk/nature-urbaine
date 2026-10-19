@@ -1,18 +1,6 @@
 /**
- * Read-only integrity check: every `media` / `pictures` row (and each of its
- * generated sizes) must have its object in the bucket, at the key Payload
- * resolves. The website signs that same key (apps/website/src/server/media-urls.ts).
- *
- * Catches the failure where uploads were written to a container disk instead
- * of S3 (missing env vars, a collection without the storage plugin): the row
- * exists, the link is dead. Exits 1 when anything is missing, so it can run as
- * a Railway cron / pre-deploy step and surface as a failed run.
- *
- * Deliberately independent of Payload: plain SQL inside a READ ONLY
- * transaction plus S3 HEAD requests. It gives the same answer before and after
- * a migration, on any Payload version, and cannot write anywhere.
- *
- *   pnpm storage:check            # uses S3_* and DATABASE_URL from the env
+ * Exits 1 on any missing object, so it can run as a Railway cron / pre-deploy step.
+ * Plain SQL (READ ONLY) + S3 HEAD instead of Payload: same answer across Payload versions.
  */
 import { HeadObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import pg from "pg";
@@ -61,10 +49,8 @@ async function exists(key: string): Promise<boolean> {
 	}
 }
 
-// Mirrors plugin-cloud-storage: `prefix/_objectKey` (buildPrefixWithObjectKey),
-// and an empty result falls back to the collection prefix (getFileKey). Rows
-// uploaded before `media` had a prefix are stored with `prefix: ""` and are
-// served from `media/` through that fallback.
+// Mirrors plugin-cloud-storage (buildPrefixWithObjectKey, getFileKey); legacy
+// `media` rows with `prefix: ""` are served from `media/` through the fallback.
 const folderOf = (
 	collection: string,
 	prefix: string | null,

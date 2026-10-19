@@ -1,20 +1,6 @@
 /**
- * Dev only: recreates, in the local RustFS bucket, every upload layout that
- * production has, so a Payload upgrade (prefixes, `_objectKey` folders,
- * `sizes` → `variants`) can be checked end to end without production data.
- *
- *   pnpm storage:fixtures          # add the fixture rows, write missing objects
- *   pnpm storage:fixtures:verify   # against a running app (FIXTURES_BASE_URL,
- *                                  # default http://localhost:3000)
- *
- * Works on a Payload 3 schema (`sizes_*`) and on a Payload 4 one
- * (`variants_*`). To test a migration: run it on the old schema, write the
- * objects, run `pnpm migrate`, start the app, then verify.
- *
- * Besides the fixture rows it writes a placeholder object for every other
- * upload row whose object is missing, so local pages have no broken images.
- * It never overwrites an existing object, and refuses to run against anything
- * but a local bucket.
+ * Dev only. To test a migration: `pnpm storage:fixtures` on the old schema, `pnpm migrate`,
+ * start the app, then `pnpm storage:fixtures:verify` (FIXTURES_BASE_URL, default localhost:3000).
  */
 import {
 	HeadObjectCommand,
@@ -122,8 +108,7 @@ const cases: UploadCase[] = [
 const thumbnailName = (filename: string) =>
 	filename.replace(/(\.[^.]+)$/, "-400x300$1");
 
-// How Payload wrote objects, in 3.x and 4.x alike: `<prefix>/<_objectKey>/`,
-// and the collection prefix when both are empty.
+// Payload 3.x and 4.x alike fall back to the collection prefix when both are empty.
 const folderOf = (
 	collection: string,
 	prefix: string | null,
@@ -363,7 +348,7 @@ async function verify(baseUrl: string) {
 		}
 	};
 
-	// 1. Payload's own file route, as the admin uses it (302 to the bucket).
+	// Payload's own file route, as the admin uses it (302 to the bucket).
 	for (const [collection, list] of [
 		["media", ids.media],
 		["pictures", ids.pictures],
@@ -382,8 +367,7 @@ async function verify(baseUrl: string) {
 		}
 	}
 
-	// 2. What visitors get: every image on the fixture report and interview
-	// pages, signed by the website (ADR-0003).
+	// Images on the public pages, signed by the website (see ADR-0003).
 	for (const page of [
 		`/reports/${ids.report}`,
 		`/interviews/${ids.interview}`,

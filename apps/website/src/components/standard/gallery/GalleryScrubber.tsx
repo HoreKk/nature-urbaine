@@ -17,14 +17,8 @@ const MAX_MARKS = 24;
 type Hover = { index: number; x: number };
 
 /**
- * The gallery's position indicator, from 2 photos to 200+: a progress rail
- * with a knob (one stop per photo, first at 0 %, last at 100 %), exposed as a
- * slider to assistive tech and the keyboard (arrows, Page Up/Down by 10,
- * Home/End). Short galleries also show a mark per stop. Hovering or dragging
- * previews the thumbnail under the pointer; the jump happens on release, so
- * dragging across 200 photos never scrolls the carousel through all of them.
- * The rail keeps one size and the fill and knob move without transitions:
- * none of that is in DESIGN.md's allowed-motion table.
+ * Jumps on release so dragging across 200 photos never scrolls the carousel through each one.
+ * No size change or transitions on rail, fill and knob: not in DESIGN.md's allowed-motion table.
  */
 const GalleryScrubber = ({ images, current, onJump }: GalleryScrubberProps) => {
 	const count = images.length;
@@ -47,7 +41,6 @@ const GalleryScrubber = ({ images, current, onJump }: GalleryScrubberProps) => {
 		const half = PREVIEW_WIDTH / 2;
 		return {
 			index,
-			// Over the stop, kept inside the rail's box.
 			x: Math.min(
 				Math.max((stopAt(index) / 100) * rect.width, half),
 				rect.width - half,

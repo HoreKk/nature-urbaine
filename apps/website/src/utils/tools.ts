@@ -34,7 +34,6 @@ export function stripExtension(filename: string) {
 	return filename.replace(/\.[^.]+$/, '');
 }
 
-/** Strips diacritics and lowercases — useful for accent-insensitive comparisons. */
 export function normalizeString(str: string): string {
 	return str
 		.normalize('NFD')

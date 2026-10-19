@@ -180,7 +180,6 @@ export function TagTreeView({
 					if (!value) return;
 					const tagId = tagIdFromValue(value);
 					if (tagId === null) return;
-					// Only leaf tags navigate; parents only expand.
 					const node = collection.findNode(value);
 					if (node?.childrenCount && node.childrenCount > 0) return;
 					navigate({ to: '/tags/$id', params: { id: tagId.toString() } });

@@ -1,8 +1,4 @@
-/**
- * Whether slide `index` is within `radius` of `current` in a looping carousel
- * of `count` slides. Only those slides mount their `<img>`: a report can hold
- * 200+ photos, and every decoded image costs memory even when off-screen.
- */
+/** Only slides in the window mount their `<img>`: a report can hold 200+ photos, each decoded one costing memory. */
 export function isNearSlide(
 	index: number,
 	current: number,
@@ -13,7 +9,6 @@ export function isNearSlide(
 	return Math.min(distance, count - distance) <= radius;
 }
 
-/** `index + delta`, wrapped into `[0, count)`. */
 export function wrapIndex(index: number, count: number): number {
 	return ((index % count) + count) % count;
 }

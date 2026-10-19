@@ -1,24 +1,6 @@
 /**
- * Adds the uncropped `medium` / `large` WebP variants (image-variants.ts) to
- * `pictures` rows uploaded before they existed — in production, all ~19k.
- * Without them the website falls back to the multi-megabyte original.
- *
- *   pnpm storage:variants:backfill                     # dry run: counts only
- *   BACKFILL_WRITE=1 pnpm storage:variants:backfill    # write
- *   BACKFILL_REPORT=639 BACKFILL_LIMIT=50 ...          # narrow the run
- *
- * Additive only. For each row it reads the stored original, writes the
- * missing variants next to it (`<folder>/<name>-<w>x<h>.webp`, suffixed
- * `-1`, `-2`… when the name is taken; never overwriting an existing key) and
- * fills only those empty `variants_<name>_*` columns. It never
- * touches the original, the thumbnail or any other column, so a failed or
- * interrupted run leaves every page working; rerunning resumes where it
- * stopped. Plain SQL + S3 like `check-storage.ts`, so `storage:check` covers
- * the new objects right after.
- *
- * Files are produced exactly as Payload's Sharp transformer would on upload:
- * EXIF rotation, `resize({ width, withoutEnlargement })`, then the variant's
- * `formatOptions`.
+ * Dry run by default; `BACKFILL_WRITE=1` writes. Narrow with `BACKFILL_REPORT` / `BACKFILL_LIMIT`.
+ * Additive and resumable: only fills empty `variants_*` columns, never overwrites a key.
  */
 import {
 	GetObjectCommand,
@@ -67,7 +49,7 @@ type Row = {
 	filename: string;
 	prefix: string | null;
 	object_key: string | null;
-	/** Names of the backfillable variants this row has no file for yet. */
+	/** Backfillable variants this row has no file for yet. */
 	missing: string[];
 };
 
@@ -115,7 +97,7 @@ if (!write) {
 	process.exit(0);
 }
 
-/** Metadata key recording which picture a backfilled object belongs to. */
+/** S3 metadata key recording which picture a backfilled object belongs to. */
 const OWNER = "picture-id";
 
 /** The object's owner, `""` when it has none, `null` when there is no object. */
@@ -147,12 +129,8 @@ const claimed = new Map<string, number>();
 const TAKEN = -1;
 
 /**
- * Picks the variant's filename the way Payload's `getSafeFileName` would:
- * `<base>-<w>x<h>.<ext>`, then `-1`, `-2`… while that name is taken. Legacy
- * rows share one flat folder, so `parc.jpg` and `parc.png` would otherwise
- * both claim `parc-2048x1536.webp` and one would show the other's photo. A
- * key is reused only when this picture wrote it (earlier run, or `medium`
- * and `large` at the same size); `upload` says whether to write it.
+ * Suffixes `-1`, `-2`… like Payload's `getSafeFileName`: legacy rows share one flat folder,
+ * so `parc.jpg` and `parc.png` would otherwise both claim `parc-2048x1536.webp`.
  */
 async function claimFilename(
 	row: Row,

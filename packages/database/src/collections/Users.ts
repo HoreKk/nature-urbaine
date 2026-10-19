@@ -14,10 +14,7 @@ export const Users: CollectionConfig = {
 		// plain HTTP in production. Local dev stays on http://localhost.
 		cookies: { secure: process.env.NODE_ENV === "production" },
 	},
-	fields: [
-		// Email added by default
-		// Add more fields as needed
-	],
+	fields: [],
 	versions: false,
 	authorship: false,
 };

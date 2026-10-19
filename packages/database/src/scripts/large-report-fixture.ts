@@ -1,14 +1,6 @@
 /**
- * Dev only: creates one report with as many photos as the largest production
- * reports (200+), each a 4000×3000 JPEG of a few megabytes like the real
- * ones, uploaded through Payload so RustFS gets the same `thumbnail`,
- * `medium` and `large` variants production does.
- *
- *   pnpm storage:fixtures:large-report            # 240 photos
- *   FIXTURE_COUNT=60 pnpm storage:fixtures:large-report
- *
- * Idempotent per size: deletes the previous fixture report of that size and its photos (files
- * included) first. Refuses to run against anything but a local bucket.
+ * Local bucket only: `[FIXTURE_COUNT=60] pnpm storage:fixtures:large-report` (default 240).
+ * Uploads through Payload so variants match production; reruns replace that size's fixture.
  */
 import { getPayload } from "payload";
 import sharp from "sharp";
@@ -40,10 +32,7 @@ const payload = await getPayload({ config });
 
 const hues = [24, 48, 96, 140, 170, 200, 260, 320];
 
-/**
- * Noise keeps the JPEG as heavy as a real photo (~3–5 MB); the label makes
- * each slide recognisable. Every fifth photo is portrait, as some are in prod.
- */
+/** Noise keeps the JPEG as heavy as a real photo (~3–5 MB); every fifth is portrait, as in prod. */
 async function photo(index: number) {
 	const portrait = index % 5 === 4;
 	const [width, height] = portrait ? [3000, 4000] : [4000, 3000];
@@ -76,7 +65,7 @@ async function photo(index: number) {
 		.toBuffer();
 }
 
-// Clean up the previous run; deleting through Payload removes the files too.
+// Deleting through Payload removes the files too.
 const previous = await payload.find({
 	collection: "reports",
 	overrideAccess: true,

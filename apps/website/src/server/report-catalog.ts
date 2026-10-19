@@ -98,9 +98,8 @@ export const findReportById = createServerFn({ method: 'GET' })
 	.validator(z.number().min(1))
 	.middleware([baseProcedure])
 	.handler(async ({ data: id, context }) => {
-		// Reports can hold 200+ pictures: populate each with only what the
-		// gallery renders, so the server neither loads their tags nor ships
-		// unused signed URLs (`original`, `thumbnailURL`) in the page payload.
+		// Reports can hold 200+ pictures: populate only what the gallery renders,
+		// skipping their tags and unused signed URLs (`original`, `thumbnailURL`).
 		const report = await context.db.findByID({
 			collection: 'reports',
 			id,

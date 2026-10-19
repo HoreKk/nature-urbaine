@@ -1,16 +1,7 @@
 import type { ImageSize } from "payload";
 
-/**
- * Resized copies Payload stores next to every `pictures` upload, under the
- * doc's `variants`. Shared by `config.ts` (new uploads) and
- * `scripts/backfill-variants.ts` (rows uploaded before a variant existed), so
- * both write the same files.
- *
- * - `thumbnail`: 400×300 centre crop, for cards and grids (`object-fit: cover`).
- * - `medium` / `large`: the whole picture, never cropped nor enlarged, as WebP.
- *   The carousel, lightbox and report banner pick one through `srcSet`, so no
- *   page ever needs the multi-megabyte original (~4000×3000 in production).
- */
+/** Shared by `config.ts` and `scripts/backfill-variants.ts` so new and backfilled
+ * uploads write the same files. Pages pick `medium`/`large` via `srcSet`, never the original. */
 export const pictureVariants = [
 	{
 		name: "thumbnail",

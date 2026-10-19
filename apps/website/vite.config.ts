@@ -17,9 +17,8 @@ export default defineConfig(
 					'@': fileURLToPath(new URL('./src', import.meta.url)),
 				},
 			},
-			// AWS SDK (bundled by Payload for storage-s3) pulls in `tslib`; bundling
-			// its UMD build loses the `default` export under Rolldown's CJS interop.
-			// Keep it external so Nitro traces the real package instead.
+			// Bundling `tslib`'s UMD build (pulled in by the AWS SDK) loses its `default`
+			// export under Rolldown's CJS interop; external lets Nitro trace the real package.
 			environments: {
 				rsc: { build: { rollupOptions: { external: ['tslib'] } } },
 				ssr: { build: { rollupOptions: { external: ['tslib'] } } },
@@ -39,9 +38,8 @@ export default defineConfig(
 		}),
 		{
 			payloadConfigPath: path.resolve(dirname, 'src', 'payload.config.ts'),
-			// `file-type` lazy-imports its parsers at request time; through Vite's
-			// module runner that breaks once the runner is recycled (dep
-			// re-optimisation), and Payload's file route then 500s.
+			// `file-type` lazy-imports its parsers; once Vite's module runner is recycled
+			// (dep re-optimisation) that breaks and Payload's file route 500s.
 			devServerExternalPackages: ['file-type'],
 		},
 	),

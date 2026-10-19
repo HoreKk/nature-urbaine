@@ -72,9 +72,8 @@ function SearchCombobox({
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
 		if (event.key !== 'Enter') return;
-		// Let Chakra's Combobox handle Enter when a highlighted item exists; the
-		// combobox stops propagation in that case. If Enter reaches us, no item
-		// was active — navigate to the picker with the current query.
+		// The combobox stops Enter's propagation when an item is highlighted, so
+		// reaching here means no item was active.
 		event.preventDefault();
 		const trimmed = search.trim();
 		navigate(

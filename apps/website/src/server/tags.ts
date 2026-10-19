@@ -33,12 +33,7 @@ export const getTagById = createServerFn({ method: 'GET' })
 
 export type TagCategoryWithCount = TagCategory & { rootTagCount: number };
 
-/**
- * Returns each TagCategory annotated with the count of its root-level tags
- * (tags with no `parentId`). Used by the `/tags` TreeView to render
- * top-level branches with a known `childrenCount` so Chakra treats them as
- * lazy-loadable branches (see ADR-0002).
- */
+/** The root count lets Chakra's TreeView treat categories as lazy-loadable branches (see ADR-0002). */
 export const getTagCategoriesWithRootCount = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
 	.handler(async ({ context }) => {
@@ -93,15 +88,8 @@ const relationId = (
 ): number | null => (typeof ref === 'number' ? ref : (ref?.id ?? null));
 
 /**
- * Aggregated counts used to annotate every node of the `/tags` TreeView with
- * the number of pictures reachable through it (recursive, matching
- * `getPicturesByTagRecursive` semantics) and the number of descendant tags
- * under it.
- *
- * Computed from two bulk reads (all tags + all picture→tag links) folded in
- * memory, rather than one query per visible node, to avoid N+1 round-trips on
- * every branch expansion. The same ADR-0002 migration triggers as
- * `getPicturesByTagRecursive` apply once the catalog outgrows in-memory walks.
+ * Two bulk reads folded in memory to avoid N+1 queries on every branch expansion;
+ * ADR-0002's migration triggers apply once the catalog outgrows in-memory walks.
  */
 export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
@@ -142,9 +130,7 @@ export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 			}
 		}
 
-		// Descendant counts via memoized DFS; the visiting set guards against
-		// cycles in malformed `parentId` chains (the same risk the BFS in
-		// getPicturesByTagRecursive caps with its depth limit).
+		// The visiting set guards against cycles in malformed `parentId` chains.
 		const descendantCount = new Map<number, number>();
 		const countDescendants = (id: number, visiting: Set<number>): number => {
 			const cached = descendantCount.get(id);
@@ -173,10 +159,8 @@ export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 			return chain;
 		};
 
-		// Distinct picture counts, bubbled to every ancestor tag and owning
-		// category. Each picture is counted once per ancestor whose subtree holds
-		// one of its tags — matching the recursive find on the detail page, where
-		// a picture appears at most once regardless of how many of its tags match.
+		// A picture counts once per ancestor however many of its tags match,
+		// like the recursive find on the tag detail page.
 		const tagPictureCount = new Map<number, number>();
 		const categoryPictureCount = new Map<number, number>();
 		for (const picture of picturesResult.docs as Array<{
@@ -234,8 +218,6 @@ export const getChildTags = createServerFn({ method: 'GET' })
 		}),
 	)
 	.handler(async ({ data, context }) => {
-		// Root-level tags inside a TagCategory: no parent set, but matching tagCategory.
-		// Nested children: parentId === <tag id>.
 		let where: Parameters<typeof context.db.find>[0]['where'];
 		if (data.parentId !== null) {
 			where = { parentId: { equals: data.parentId } };
@@ -259,17 +241,7 @@ export const getChildTags = createServerFn({ method: 'GET' })
 		>;
 	});
 
-/**
- * Recursive descendant picture search.
- *
- * BFS walk: start with [tagId], fetch direct children via parentId, collect ids,
- * repeat until no more children. Then query pictures whose `relatedTags` overlap
- * with [tagId, ...descendants].
- *
- * See ADR-0002 for trade-off and migration triggers (closure table) when:
- *   - p95 latency > 200ms, or
- *   - descendant set size > 500.
- */
+/** Move to a closure table once p95 > 200ms or descendants > 500 (see ADR-0002). */
 export const getPicturesByTagRecursive = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
 	.validator(
@@ -285,9 +257,8 @@ export const getPicturesByTagRecursive = createServerFn({ method: 'GET' })
 		const descendants = new Set<number>([data.tagId]);
 		let frontier: number[] = [data.tagId];
 		let depth = 0;
-		// Hard depth cap protects against cycles in `parentId` chains. The 10000
-		// limit per level is generous: the cahier targets ~2000 tags total across
-		// 3 strata, so any single level realistically holds dozens-to-hundreds.
+		// Depth cap guards against `parentId` cycles; the cahier targets ~2000 tags
+		// in 3 strata, so 10000 per level is never reached.
 		while (frontier.length > 0 && depth < 10) {
 			const children = await context.db.find({
 				collection: 'tags',
@@ -308,10 +279,8 @@ export const getPicturesByTagRecursive = createServerFn({ method: 'GET' })
 		}
 
 		const ids = [...descendants];
-		// `depth: 1` hydrates `report` and `relatedTags` as objects (Payload's
-		// behaviour). The `as PictureWithReport[]` cast trusts that — if Payload
-		// ever stops doing this on depth:1, the lightbox will break visibly (city,
-		// date, tag chips). Worth a runtime guard if we ever see flakiness here.
+		// The `PictureWithReport` cast trusts `depth: 1` to hydrate `report` and
+		// `relatedTags` as objects; the lightbox breaks visibly otherwise.
 		const result = await context.db.find({
 			collection: 'pictures',
 			limit: data.pageSize,

@@ -18,10 +18,6 @@ interface RenderedEmail {
 	text: string;
 }
 
-/**
- * Sends a pre-rendered templated email to the operator address.
- * Centralises: env config read, Payload instance, sendEmail call, and error logging.
- */
 export async function sendTemplatedEmail(
 	rendered: RenderedEmail,
 	replyTo: string,

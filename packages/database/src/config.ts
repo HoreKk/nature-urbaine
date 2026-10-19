@@ -20,11 +20,8 @@ import { Users } from "./collections/Users";
 import { pictureVariants } from "./image-variants";
 import { storageAdapter, storageCoverageGuard } from "./storage";
 
-// One web process serves the site, the admin and upload processing. A
-// ~4000×3000 original decodes to ~50 MB of pixels and each upload renders
-// three variants, so libvips' cache and one thread per core push RSS up by
-// hundreds of MB that the allocator rarely hands back. Uploads are rare;
-// keep them slow and lean instead.
+// One process serves site, admin and uploads: libvips' cache and per-core threads
+// add hundreds of MB of RSS per ~50 MB decode. Uploads are rare; keep them lean.
 sharp.cache(false);
 sharp.concurrency(1);
 
@@ -47,10 +44,8 @@ function buildEmailAdapter() {
 		defaultFromAddress:
 			process.env.CONTACT_EMAIL_FROM ?? "no-reply@nature-urbaine.fr",
 		defaultFromName: process.env.CONTACT_EMAIL_FROM_NAME ?? "Nature Urbaine",
-		// Payload awaits the verify before it finishes starting, so an
-		// unreachable SMTP host (Railway blocks SMTP below the Pro plan) held
-		// every boot and pre-deploy command for nodemailer's 2-minute default.
-		// A real send still surfaces the failure, after 10 s instead.
+		// Payload awaits the verify at boot; an unreachable SMTP host (Railway blocks
+		// SMTP below Pro) stalled boot 2 min. A real send still fails, after 10 s.
 		skipVerify: true,
 		transportOptions: {
 			host: process.env.SMTP_HOST,
@@ -70,13 +65,8 @@ function buildEmailAdapter() {
 export interface BuildPayloadConfigOptions {
 	importMapBaseDir?: string;
 	plugins?: Plugin[];
-	/**
-	 * Controls Drizzle dev schema push. Leave undefined to keep Payload's
-	 * default (push in development). Consumers that only read the DB — e.g. the
-	 * website — should pass `false` so they never attempt to sync the schema
-	 * (which would otherwise propose dropping columns their config doesn't
-	 * declare, such as the S3 `prefix` fields, and hang on the data-loss prompt).
-	 */
+	/** Undefined keeps Payload's default. Read-only consumers pass `false`, else push
+	 * proposes dropping columns they don't declare and hangs on the data-loss prompt. */
 	push?: boolean;
 }
 

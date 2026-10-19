@@ -63,7 +63,6 @@ describe('withMediaUrls', () => {
 				/\/pictures\/parc%20a-400x300\.png\?/,
 			);
 			expect(front.thumbnailURL).toMatch(/-400x300\.png\?/);
-			// Untouched fields survive the copy.
 			expect(front.alt).toBe('Parc');
 			expect(result.docs[0].tags).toEqual([{ id: 1 }]);
 			expect(result.totalDocs).toBe(1);

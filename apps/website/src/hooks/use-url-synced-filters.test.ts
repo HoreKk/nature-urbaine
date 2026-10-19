@@ -8,11 +8,7 @@ type Values = { search: string; category: string[] };
 
 const empty: Values = { search: '', category: [] };
 
-/**
- * Stands in for a catalogue route: `url` plays the router search params and
- * `form` the TanStack Form values. Committing to the URL is deferred until
- * `flushNavigation` so tests can model the router catching up late.
- */
+/** URL commits wait for `flushNavigation` so tests can model the router catching up late. */
 function useCatalogHarness(initialUrl: Values) {
 	const [url, setUrl] = useState(initialUrl);
 	const [form, setForm] = useState(initialUrl);

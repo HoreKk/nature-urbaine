@@ -1,7 +1,4 @@
-/**
- * Picks which file an `<img>` should load from a Payload upload doc whose
- * URLs were already made browser-fetchable by `server/media-urls.ts`.
- */
+// Input URLs are already browser-fetchable (signed by `server/media-urls.ts`).
 
 type VariantLike = {
 	url?: string | null;
@@ -43,10 +40,7 @@ function candidate(variant: VariantLike | undefined): Candidate | null {
 	return { url: variant.url, width, height: dimension(variant.height) };
 }
 
-/**
- * The uncropped variants, smallest first, one per width: `withoutEnlargement`
- * gives `medium` and `large` the same width when the original is small.
- */
+/** Deduped by width: `withoutEnlargement` gives `medium` and `large` the same width on small originals. */
 function uncroppedCandidates(picture: PictureLike): Candidate[] {
 	const byWidth = new Map<number, Candidate>();
 	for (const variant of [picture.variants?.medium, picture.variants?.large]) {
@@ -77,12 +71,7 @@ const original = (picture: PictureLike): ImageSource => ({
 	height: dimension(picture.height),
 });
 
-/**
- * Cards and grids: the 400×300 `thumbnail` Payload already generated, falling
- * back to the original for docs uploaded before the size existed. The
- * original is deliberately absent from `srcSet`, so a high-DPR screen cannot
- * pull a multi-megabyte file for a 300px card.
- */
+/** No `srcSet` with the original, so a high-DPR screen cannot pull a multi-megabyte file for a 300px card. */
 export function thumbnailSource(picture: PictureLike): ImageSource {
 	const thumbnail = picture.variants?.thumbnail;
 	if (thumbnail?.url) {
@@ -95,13 +84,7 @@ export function thumbnailSource(picture: PictureLike): ImageSource {
 	return original(picture);
 }
 
-/**
- * Carousels, lightboxes and banners: the uncropped `medium`/`large` variants,
- * chosen by the browser from `sizes` (the rendered width). The original is
- * never a candidate once a variant exists, and the cropped thumbnail never is,
- * so `object-fit: contain` cannot show a crop. Docs not backfilled yet fall
- * back to the original alone.
- */
+/** Never the cropped thumbnail, so `object-fit: contain` cannot show a crop. */
 export function fullSource(picture: PictureLike, sizes = '100vw'): ImageSource {
 	const candidates = uncroppedCandidates(picture);
 	return candidates.length > 0
@@ -109,11 +92,7 @@ export function fullSource(picture: PictureLike, sizes = '100vw'): ImageSource {
 		: original(picture);
 }
 
-/**
- * Full-bleed heroes rendered with `object-fit: cover` only. Like
- * `fullSource`, plus the cropped thumbnail as the smallest candidate, which is
- * valid under `cover`; without uncropped variants the original is the largest.
- */
+/** `object-fit: cover` only: that is what makes the cropped thumbnail a valid candidate. */
 export function heroSource(picture: PictureLike, sizes = '100vw'): ImageSource {
 	const uncropped = uncroppedCandidates(picture);
 	const top: Candidate[] =
