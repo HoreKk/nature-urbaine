@@ -29,16 +29,22 @@ export const PictureNav = () => {
 
 	const reportRef = data?.report;
 
-	const [prev, setPrev] = useState<DocId | null>(null);
-	const [next, setNext] = useState<DocId | null>(null);
+	const [siblings, setSiblings] = useState<{
+		of: DocId;
+		prev: DocId | null;
+		next: DocId | null;
+	} | null>(null);
+	// Neighbours loaded for another photo are never shown, even while the new ones load.
+	const current =
+		siblings && id != null && String(siblings.of) === String(id)
+			? siblings
+			: null;
+	const prev = current?.prev ?? null;
+	const next = current?.next ?? null;
 
 	useEffect(() => {
 		if (!id) return;
 		let cancelled = false;
-		// Reset so stale neighbors from the previous photo can't be clicked
-		// while the new siblings are still loading.
-		setPrev(null);
-		setNext(null);
 
 		const load = async () => {
 			let reportId = toId(reportRef);
@@ -63,8 +69,11 @@ export const PictureNav = () => {
 			const index = ids.findIndex((docId) => String(docId) === String(id));
 			if (index === -1 || cancelled) return;
 
-			setPrev(index > 0 ? (ids[index - 1] ?? null) : null);
-			setNext(index < ids.length - 1 ? (ids[index + 1] ?? null) : null);
+			setSiblings({
+				of: id,
+				prev: index > 0 ? (ids[index - 1] ?? null) : null,
+				next: index < ids.length - 1 ? (ids[index + 1] ?? null) : null,
+			});
 		};
 
 		load().catch((err) => {

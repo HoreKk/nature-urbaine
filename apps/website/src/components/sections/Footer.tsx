@@ -14,6 +14,8 @@ import {
 import { Link, type LinkProps } from '@tanstack/react-router';
 import Wordmark from '@/components/standard/Wordmark';
 
+const YEAR = new Date().getFullYear();
+
 type FooterLink = { label: string; to: LinkProps['to'] };
 type FooterColumn = { title: string; links: FooterLink[] };
 
@@ -91,7 +93,7 @@ const Footer = () => {
 					flexWrap="wrap"
 					gap={3}
 				>
-					<Text>&copy; {new Date().getFullYear()} Nature Urbaine</Text>
+					<Text>&copy; {YEAR} Nature Urbaine</Text>
 					<HStack gap={2}>
 						<Text fontFamily="mono">v0.1</Text>
 						<Badge

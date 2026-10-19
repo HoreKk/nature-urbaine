@@ -60,6 +60,8 @@ const GalleryLightbox = ({
 				strip.scrollLeft + offset - (strip.clientWidth - thumb.offsetWidth) / 2,
 			behavior: 'smooth',
 		});
+		// `open` re-runs the effect once the dialog has mounted the strip.
+		// oxlint-disable-next-line react/exhaustive-effect-dependencies
 	}, [activeIndex, open]);
 
 	return (

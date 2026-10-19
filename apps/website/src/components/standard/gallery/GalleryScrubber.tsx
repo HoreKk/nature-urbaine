@@ -87,6 +87,8 @@ const GalleryScrubber = ({ images, current, onJump }: GalleryScrubberProps) => {
 	return (
 		<Flex align="center" gap={4}>
 			<chakra.div
+				// A native range input can't render the hover preview and pointer scrubbing.
+				// oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
 				role="slider"
 				tabIndex={0}
 				aria-label="Choisir une photo"

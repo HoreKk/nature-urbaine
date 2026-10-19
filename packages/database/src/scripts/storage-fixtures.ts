@@ -162,14 +162,17 @@ const hasObjectKey = pictureColumns.includes("_objectkey");
 const schema =
 	thumbnailBase === "variants_thumbnail" ? "Payload 4" : "Payload 3";
 
+const queryIds = async (sql: string) =>
+	(await db.query<{ id: number }>(sql, [`${MARKER}%`])).rows.map((r) => r.id);
+
 async function fixtureIds() {
-	const ids = async (sql: string) =>
-		(await db.query<{ id: number }>(sql, [`${MARKER}%`])).rows.map((r) => r.id);
 	return {
-		report: (await ids("select id from reports where name like $1"))[0],
-		interview: (await ids("select id from interviews where name like $1"))[0],
-		media: await ids("select id from media where alt like $1"),
-		pictures: await ids("select id from pictures where alt like $1"),
+		report: (await queryIds("select id from reports where name like $1"))[0],
+		interview: (
+			await queryIds("select id from interviews where name like $1")
+		)[0],
+		media: await queryIds("select id from media where alt like $1"),
+		pictures: await queryIds("select id from pictures where alt like $1"),
 	};
 }
 
