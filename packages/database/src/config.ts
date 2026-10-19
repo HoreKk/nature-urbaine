@@ -92,6 +92,7 @@ export const buildPayloadConfig = ({
 		},
 		// v4 lowered the default from 2 to 1; the website's queries rely on 2.
 		defaultDepth: 2,
+		graphQL: { disable: true },
 		collections: [
 			Media,
 			Reports,

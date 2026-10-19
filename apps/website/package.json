@@ -39,7 +39,6 @@
 		"@nature-urbaine/emails": "workspace:*",
 		"@payloadcms/db-postgres": "4.0.0-beta.3",
 		"@payloadcms/email-nodemailer": "4.0.0-beta.3",
-		"@payloadcms/graphql": "4.0.0-beta.3",
 		"@payloadcms/richtext-lexical": "4.0.0-beta.3",
 		"@payloadcms/storage-s3": "4.0.0-beta.3",
 		"@payloadcms/tanstack-start": "4.0.0-beta.3",

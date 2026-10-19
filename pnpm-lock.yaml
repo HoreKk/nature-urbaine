@@ -53,9 +53,6 @@ importers:
       '@payloadcms/email-nodemailer':
         specifier: 4.0.0-beta.3
         version: 4.0.0-beta.3(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))
-      '@payloadcms/graphql':
-        specifier: 4.0.0-beta.3
-        version: 4.0.0-beta.3(graphql@16.14.2)(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))(typescript@6.0.3)
       '@payloadcms/richtext-lexical':
         specifier: 4.0.0-beta.3
         version: 4.0.0-beta.3(@faceless-ui/modal@3.0.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@faceless-ui/scroll-info@2.0.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(monaco-editor@0.55.1)(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3)(yjs@13.6.29)
