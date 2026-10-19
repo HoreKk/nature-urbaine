@@ -363,7 +363,7 @@ Scenario for both setups:
   - README § Deployment lists the service settings.
   - `railway.json` was not added: Railway deprecated Config as Code (new services can't use it, and it stops being read on 2026-12-01).
 - **`/admin` on the public domain.** Payload locks an account after 5 failed logins (default `maxLoginAttempts`). There is no IP rate limit; add one at the proxy if needed. An admin OOM now takes the site down too.
-- **Docs.** `README.md`, `docs/CONTEXT.md` and ADR-0003 are updated.
+- **Docs.** `README.md`, `GLOSSARY.md` and ADR-0003 are updated.
 - **Adapter gaps remain:** no custom admin route and no `draftMode()` (see §2).
 
 ---

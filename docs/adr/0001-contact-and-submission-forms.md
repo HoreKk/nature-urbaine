@@ -8,9 +8,9 @@ accepted — 2026-05-01
 
 ## Context
 
-Going into this decision, `apps/website/src/routes/contact.tsx` was a confused hybrid (eyebrow `"Contact · Contribution"`, fields shaped like a contribution form) and `apps/website/src/routes/contribuer.tsx` was a placeholder. The cahier des charges describes them as two distinct top-level pages with different field sets, audiences, and downstream flows. CONTEXT.md §12 had this as an open question: should the contribution form persist to a collection or just send email.
+Going into this decision, `apps/website/src/routes/contact.tsx` was a confused hybrid (eyebrow `"Contact · Contribution"`, fields shaped like a contribution form) and `apps/website/src/routes/contribuer.tsx` was a placeholder. The cahier des charges describes them as two distinct top-level pages with different field sets, audiences, and downstream flows. GLOSSARY.md §12 had this as an open question: should the contribution form persist to a collection or just send email.
 
-Community contributions are not a side feature — CONTEXT.md §1 frames the project as a collaborative catalog where "each image and reference is a community contribution." Treating contributions as transactional emails undersells the core flywheel and loses photos to inbox attachments.
+Community contributions are not a side feature — GLOSSARY.md §1 frames the project as a collaborative catalog where "each image and reference is a community contribution." Treating contributions as transactional emails undersells the core flywheel and loses photos to inbox attachments.
 
 ## Decision
 
@@ -88,7 +88,7 @@ Send: (a) operator notification on new submission, (b) contributor email on reje
 ## Considered alternatives
 
 - **Merge into one form** — rejected. Different jobs, different fields, different downstream flows. The current `/contact` confusion is a code bug, not a real signal.
-- **Email-only contributions** (no `Submission` collection) — rejected. Photos as inbox attachments, no moderation queue, no audit, no path to the spec's right-click-save-with-email-gate connection log (CONTEXT.md §10) which would reuse the same plumbing.
+- **Email-only contributions** (no `Submission` collection) — rejected. Photos as inbox attachments, no moderation queue, no audit, no path to the spec's right-click-save-with-email-gate connection log (GLOSSARY.md §10) which would reuse the same plumbing.
 - **Custom admin "Promouvoir" button** instead of an `afterChange` hook — rejected for v1. Hooks are idiomatic Payload, no React drift on upgrades, low operator volume.
 - **Topic/kind picker on `/contact`** — rejected. Volume doesn't justify the schema and the operator can route from the message body.
 

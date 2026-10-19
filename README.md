@@ -21,7 +21,7 @@ nature-urbaine/
 ├── docs/
 │   ├── adr/              ← Architecture Decision Records
 │   └── agents/           ← Agent usage guidelines
-├── CONTEXT.md            ← Single source of domain truth
+├── GLOSSARY.md           ← Single source of domain truth
 └── docker-compose.yaml   ← Dev PostgreSQL
 ```
 
@@ -262,6 +262,6 @@ Without `S3_*` on Railway the app refuses to boot (`packages/database/src/storag
 
 | File                                               | Purpose                                                             |
 | -------------------------------------------------- | ------------------------------------------------------------------- |
-| [`CONTEXT.md`](./CONTEXT.md)                       | Full domain model, glossary, routes, server functions, design notes |
+| [`GLOSSARY.md`](./GLOSSARY.md)                     | Full domain model, glossary, routes, server functions, design notes |
 | [`docs/adr/`](./docs/adr/)                         | Architecture Decision Records                                       |
 | [`docs/agents/domain.md`](./docs/agents/domain.md) | Guidelines for AI agents working in this repo                       |

@@ -1,4 +1,4 @@
-# Nature Urbaine — CONTEXT
+# Nature Urbaine — GLOSSARY
 
 > Single source of project-level domain truth for agents. Pair with `docs/adr/` for decisions and `/Users/horek/Downloads/design_handoff/` for the design specification.
 
@@ -42,8 +42,9 @@ nature-urbaine/
 ├── packages/
 │   ├── database/        ← @nature-urbaine/database — Payload config, collections, types, migrations, seeds
 │   └── emails/          ← @nature-urbaine/emails — React Email templates, layout, render helpers, preview
+├── GLOSSARY.md          ← this file
 ├── docs/
-│   ├── agents/domain.md ← how agents should consume this CONTEXT
+│   ├── agents/          ← how agents consume this glossary + where issues live
 │   └── adr/             ← architecture decision records (lazy)
 └── CLAUDE.md            ← agent skills entry point
 ```
@@ -313,8 +314,7 @@ These are spec asks that aren't captured by the data model alone — surface the
 - **Migrations:** never hand-edit DB; use `pnpm migrate:create` then `pnpm migrate`.
 - **Seeds:** keep in `packages/database` and runnable in both `seed:dev` and `seed:prod`.
 - **ADRs:** when an ambiguity in the cahier is resolved, write `docs/adr/NNNN-<slug>.md` so the decision survives. Reference contradicted ADRs explicitly per `docs/agents/domain.md`.
-- **JSX structure comments:** do **not** use `{/* Section label */}` comments to describe or name blocks of JSX (e.g. `{/* Hero */}`, `{/* Sidebar */}`, `{/* Nav links */}`). JSX structure should be self-evident from component names and props. The only permitted `{/* … */}` comments are those documenting non-obvious behaviour (e.g. security mechanisms like a honeypot field).
-- **Blank lines between JSX blocks:** do **not** use blank lines to visually separate sibling JSX elements or component groups. Rely on component decomposition and indentation for structure instead.
+- **Code style** (comments, JSX layout): see `docs/CODING_STANDARDS.md`.
 
 ## 12. Open questions
 
