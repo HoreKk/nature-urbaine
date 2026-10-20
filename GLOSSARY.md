@@ -33,15 +33,17 @@ The cahier des charges describes more than the current build covers. The followi
 
 ## 2. Architecture at a glance
 
-A pnpm workspace with one app and shared packages. The app serves the site, the Payload admin and Payload's REST API from one process. PostgreSQL is the single backing store.
+One app serves the site, the Payload admin and Payload's REST API from one process. PostgreSQL is the single backing store.
 
 ```
 nature-urbaine/
-├── apps/
-│   └── website/         ← site + Payload admin (/admin) + REST API (/api) — Vite + TanStack Start + Nitro
-├── packages/
-│   ├── database/        ← @nature-urbaine/database — Payload config, collections, types, migrations, seeds
-│   └── emails/          ← @nature-urbaine/emails — React Email templates, layout, render helpers, preview
+├── src/
+│   ├── app/             ← TanStack Start routes; Payload admin + REST under app/_payload/
+│   ├── components/      ← site UI (only `import type` from payload/, lint-enforced)
+│   ├── server/          ← server functions (Payload local API)
+│   ├── payload/         ← Payload config, collections, admin components, types, migrations, seed, scripts
+│   ├── emails/          ← React Email templates, layout, render helpers, previews
+│   └── payload.config.ts
 ├── GLOSSARY.md          ← this file
 ├── docs/
 │   ├── agents/          ← how agents consume this glossary + where issues live
@@ -51,13 +53,13 @@ nature-urbaine/
 
 ### Stack
 
-- **Public website (`apps/website`)** — React 19, **TanStack Start** (SSR + server functions), **TanStack Router** (file-based routes under `src/app/`, Payload's admin and API routes under `src/app/_payload/`), **TanStack Query** for data fetching, **Chakra UI 3** for primitives, **TanStack Form** + Zod for forms, a small `PictureImg` component (`components/standard/PictureImg.tsx`) over Chakra `Image` for pictures, fed by `utils/picture-src.ts`; upload URLs are made browser-fetchable server-side by `server/media-urls.ts` (see §7 and ADR-0003). Built via Vite (`payload build`) and served by Nitro (`.output/server/index.mjs`).
-- **CMS (inside `apps/website`)** — **Payload 4 (beta)** through `@payloadcms/tanstack-start` and `@vitejs/plugin-rsc`, admin at `/admin`, REST at `/api`, with `@payloadcms/db-postgres`, `@payloadcms/richtext-lexical`, `@payloadcms/storage-s3` and `@payloadcms/transformer-sharp` (`Picture` variants `thumbnail`, `medium`, `large`; see `packages/database/src/image-variants.ts`). No Next.js.
-- **Shared (`packages/database`)** — exports the Payload `config`, generated TypeScript types (`Report`, `Interview`, etc.), Lexical helpers, migrations / seed scripts, and the SMTP email adapter configuration used by `payload.sendEmail`. The app and the scripts import from `@nature-urbaine/database`.
-- **Shared (`packages/emails`)** — exports React Email templates and typed render helpers (`renderContactEmail`) used by website server functions. Local preview runs via `pnpm dev:emails` on port `4000`.
-- **Tooling** — `pnpm@10`, `oxlint`, `oxfmt`, `lefthook`. Migrations and seeding flow through root scripts (`pnpm migrate`, `pnpm seed:dev`, etc.).
+- **Public website** — React 19, **TanStack Start** (SSR + server functions), **TanStack Router** (file-based routes under `src/app/`, Payload's admin and API routes under `src/app/_payload/`), **TanStack Query** for data fetching, **Chakra UI 3** for primitives, **TanStack Form** + Zod for forms, a small `PictureImg` component (`components/standard/PictureImg.tsx`) over Chakra `Image` for pictures, fed by `utils/picture-src.ts`; upload URLs are made browser-fetchable server-side by `server/media-urls.ts` (see §7 and ADR-0003). Built via Vite (`payload build`) and served by Nitro (`.output/server/index.mjs`).
+- **CMS (same app)** — **Payload 4 (beta)** through `@payloadcms/tanstack-start` and `@vitejs/plugin-rsc`, admin at `/admin`, REST at `/api`, with `@payloadcms/db-postgres`, `@payloadcms/richtext-lexical`, `@payloadcms/storage-s3` and `@payloadcms/transformer-sharp` (`Picture` variants `thumbnail`, `medium`, `large`; see `src/payload/image-variants.ts`). No Next.js.
+- **Payload code (`src/payload/`)** — the Payload `config`, generated TypeScript types (`Report`, `Interview`, etc.), Lexical helpers, migrations / seed scripts, and the SMTP email adapter configuration used by `payload.sendEmail`. Imported as `@/payload/<module>`; `src/payload.config.ts` (`@payload-config`) is the app's config entry.
+- **Emails (`src/emails/`)** — React Email templates and typed render helpers (`renderContactEmail`) used by server functions. Local preview runs via `pnpm dev:emails` on port `4000`.
+- **Tooling** — `pnpm@10`, `oxlint`, `oxfmt`, `lefthook`. Migrations and seeding are `package.json` scripts (`pnpm migrate`, `pnpm seed:dev`, etc.).
 
-The website talks to the database via **TanStack Start server functions** (`apps/website/src/server/*.ts`) that call Payload's local API in-process, always with `overrideAccess: true` (Payload 4 defaults it to `false`, and most collections have no public `read`). The REST API at `/api` serves the admin and upload files.
+The website talks to the database via **TanStack Start server functions** (`src/server/*.ts`) that call Payload's local API in-process, always with `overrideAccess: true` (Payload 4 defaults it to `false`, and most collections have no public `read`). The REST API at `/api` serves the admin and upload files.
 
 ## 3. Glossary
 
@@ -86,7 +88,7 @@ When writing code, prompts, ADRs, or copy, **use these exact terms** in their co
 
 ## 4. Domain entities
 
-Defined in `packages/database/src/collections/`. Field names below are the actual code identifiers.
+Defined in `src/payload/collections/`. Field names below are the actual code identifiers.
 
 ### Report — `Report.ts` (slug `reports`)
 
@@ -185,7 +187,7 @@ In Payload, `Category.id` is a numeric id, not the string code above — the str
 
 ## 6. Pages and routes
 
-The cahier des charges defines these top-level pages: **Accueil, À la une, Lieux, Carte, Reportages photo, Fournisseurs, Contributions, Contact**. The current website implementation in `apps/website/src/app/` covers a subset:
+The cahier des charges defines these top-level pages: **Accueil, À la une, Lieux, Carte, Reportages photo, Fournisseurs, Contributions, Contact**. The current website implementation in `src/app/` covers a subset:
 
 | Spec section               | Implemented route | Route file                 | Notes                                                                                                                                                                                                                                                                              |
 | -------------------------- | ----------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -216,7 +218,7 @@ Do not add new routes under `/reports/entity` or `/reports/field`. Resource page
 
 ## 7. Server functions (the website's data layer)
 
-Lives in `apps/website/src/server/`. All built with `createServerFn` from `@tanstack/react-start`, gated by a `baseProcedure` middleware that boots a Payload local instance (`server/db.ts`). The Payload local API is the **only** way the website reads data — no HTTP roundtrip to the CMS.
+Lives in `src/server/`. All built with `createServerFn` from `@tanstack/react-start`, gated by a `baseProcedure` middleware that boots a Payload local instance (`server/db.ts`). The Payload local API is the **only** way the website reads data — no HTTP roundtrip to the CMS.
 
 | File                     | Exports                                                                                                           | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -241,7 +243,7 @@ When adding a new server function:
 
 ## 7b. Query layer (`src/queries/`)
 
-A canonical **query layer** lives at `apps/website/src/queries/`, one file per entity. This layer owns all `queryOptions` factories and normalises errors into a typed shape before they reach the UI.
+A canonical **query layer** lives at `src/queries/`, one file per entity. This layer owns all `queryOptions` factories and normalises errors into a typed shape before they reach the UI.
 
 **Rule:** route files and components never define `queryOptions` inline. They always import from `@/queries/*`. The `server/` files only export `createServerFn` definitions — never `queryOptions`.
 
@@ -308,7 +310,7 @@ These are spec asks that aren't captured by the data model alone — surface the
 - **Query layer:** add `queryOptions` factories to `src/queries/` — never inline in route files or components. Import from `@/queries/*`.
 - **Filter state in URL:** any filterable / paginated list page (`/reports`, `/tags`, …) holds its filter and page state in URL search params via TanStack Router's native `validateSearch` + `useSearch` + `loaderDeps`. Never in component `useState`. Re-use the existing Zod schema (e.g. `reportCatalogFilterSchema`) as the `validateSearch` parser. `nuqs` is **not** used — it does not cover TanStack Start SSR and would split the source of truth between the loader and the component.
 - **Styling:** Chakra UI primitives + design-system CSS variables. Avoid raw inline styles.
-- **Forms:** TanStack Form + Zod. Re-use `useAppForm` from `apps/website/src/hooks/form-context.ts`.
+- **Forms:** TanStack Form + Zod. Re-use `useAppForm` from `src/hooks/form-context.ts`.
 - **Migrations:** never hand-edit DB; use `pnpm migrate:create` then `pnpm migrate`.
 - **Seeds:** `seed:dev` rebuilds a local database from `historic-data.xlsx` and refuses a remote one. Production is the source of truth; nothing seeds it.
 - **ADRs:** when an ambiguity in the cahier is resolved, write `docs/adr/NNNN-<slug>.md` so the decision survives. Reference contradicted ADRs explicitly per `docs/agents/domain.md`.

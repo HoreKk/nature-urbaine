@@ -4,8 +4,8 @@
 >
 > **Source of truth, in this order:**
 >
-> 1. [`apps/website/src/utils/chakra-theme.ts`](apps/website/src/utils/chakra-theme.ts) — tokens, semantic tokens, fonts.
-> 2. [`apps/website/src/utils/recipes/`](apps/website/src/utils/recipes/) — `button.ts`, `textStyles.ts`.
+> 1. [`src/utils/chakra-theme.ts`](src/utils/chakra-theme.ts) — tokens, semantic tokens, fonts.
+> 2. [`src/utils/recipes/`](src/utils/recipes/) — `button.ts`, `textStyles.ts`.
 > 3. The design handoff in `/Users/horek/Downloads/design_handoff/` (`DESIGN_SYSTEM.md`, `PAGES.md`, `INTERACTIONS.md`) — editorial intent, page layouts, component behavior.
 >
 > If the theme and the handoff disagree on a token (e.g. accent color), **the theme wins** — the handoff describes original intent, the code is current truth.
@@ -14,7 +14,7 @@
 
 ## 1 · Hard rules (do not deviate)
 
-- **Use Chakra v3** with the `system` exported from `apps/website/src/utils/chakra-theme.ts`. Never import other UI libs.
+- **Use Chakra v3** with the `system` exported from `src/utils/chakra-theme.ts`. Never import other UI libs.
 - **Never hardcode colors.** Use semantic tokens (`bg`, `bg.subtle`, `bg.muted`, `fg`, `fg.muted`, `fg.subtle`, `border`, `border.muted`, `primary.solid`, `primary.fg`, `primary.muted`, `primary.subtle`, `secondary.solid`, `paper.*`).
 - **Never hardcode font sizes for editorial copy.** Use `textStyle="..."` (see §3).
 - **Never introduce dark-mode variants.** Light mode only.
@@ -51,7 +51,7 @@ The 12 reportage categories share `chroma 0.10`, varying hue only. They are **no
 
 ## 3 · Typography — pick a `textStyle`, don't invent
 
-The recipes in [`textStyles.ts`](apps/website/src/utils/recipes/textStyles.ts) cover every editorial role. Defaults:
+The recipes in [`textStyles.ts`](src/utils/recipes/textStyles.ts) cover every editorial role. Defaults:
 
 | Use case                                | `textStyle`                 |
 | --------------------------------------- | --------------------------- |
@@ -90,7 +90,7 @@ The recipes in [`textStyles.ts`](apps/website/src/utils/recipes/textStyles.ts) c
 
 ## 5 · Components — defaults & patterns
 
-### Button (recipe in [`recipes/button.ts`](apps/website/src/utils/recipes/button.ts))
+### Button (recipe in [`recipes/button.ts`](src/utils/recipes/button.ts))
 
 | Variant   | When to use                                         |
 | --------- | --------------------------------------------------- |
@@ -104,11 +104,11 @@ Sizes: `sm` for header / inline actions (`px="14px"` is the convention from `Nav
 
 ### PageHeader
 
-Use [`components/sections/PageHeader.tsx`](apps/website/src/components/sections/PageHeader.tsx) for every top-level page. Pass `eyebrow`, `title`, `description`. Don't roll your own.
+Use [`components/sections/PageHeader.tsx`](src/components/sections/PageHeader.tsx) for every top-level page. Pass `eyebrow`, `title`, `description`. Don't roll your own.
 
 ### Cards
 
-Match [`components/cards/ProjectCard.tsx`](apps/website/src/components/cards/ProjectCard.tsx) for reportage / interview thumbnails. Image aspect `4/3` (default), `5/4` (featured), `4/5` (hero portrait). Hover: shadow lift + subtle `translateY(-1.5px)`, 250ms `cubic-bezier(0.25, 1, 0.5, 1)`. Eyebrow uses `kicker`, title uses `heading.md` or `title.s`, caption uses `mono.s`.
+Match [`components/cards/ProjectCard.tsx`](src/components/cards/ProjectCard.tsx) for reportage / interview thumbnails. Image aspect `4/3` (default), `5/4` (featured), `4/5` (hero portrait). Hover: shadow lift + subtle `translateY(-1.5px)`, 250ms `cubic-bezier(0.25, 1, 0.5, 1)`. Eyebrow uses `kicker`, title uses `heading.md` or `title.s`, caption uses `mono.s`.
 
 The whole card is one link: wrap it in `LinkBox` (via `Card.Root asChild`) and put `LinkOverlay asChild` around the router `Link` on the title. Don't nest other links inside. Focus ring goes on the card with `_focusWithin` (2px `primary.solid` outline, 2px offset). A footer « Lire plus → » is a decorative, `aria-hidden` cue: it turns `primary.solid` on card hover (`_groupHover`), and the arrow stays still.
 

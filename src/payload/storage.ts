@@ -42,7 +42,7 @@ function assertUploadsCovered(slugs: string[]) {
 	);
 	if (uncovered.length === 0) return;
 	throw new Error(
-		`[storage] Upload collection(s) ${uncovered.join(', ')} are not in storageCollections (packages/database/src/storage.ts). ` +
+		`[storage] Upload collection(s) ${uncovered.join(', ')} are not in storageCollections (src/payload/storage.ts). ` +
 			'Their files would be written to the container disk and lost on redeploy.',
 	);
 }
