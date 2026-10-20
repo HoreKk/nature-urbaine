@@ -238,6 +238,9 @@ export interface Report {
    * Identifiant stable utilisé par les scripts de seed pour mettre à jour cet enregistrement. Ne pas modifier.
    */
   seedKey?: string | null;
+  /**
+   * Calculé à partir de la ville et du nom du projet (précédés du pays hors France).
+   */
   name: string;
   slug?: string | null;
   description: string;

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { getSeasonFromDate } from "../utils/hooks";
+import { computeReportNameHook, getSeasonFromDate } from "../utils/hooks";
 import { seedKeyField } from "../utils/seed-key-field";
 
 export const CITY_STRATUM_OPTIONS = [
@@ -38,6 +38,14 @@ export const Reports: CollectionConfig = {
 			type: "text",
 			label: "Nom",
 			required: true,
+			admin: {
+				readOnly: true,
+				description:
+					"Calculé à partir de la ville et du nom du projet (précédés du pays hors France).",
+			},
+			hooks: {
+				beforeChange: [computeReportNameHook],
+			},
 		},
 		{
 			name: "slug",
