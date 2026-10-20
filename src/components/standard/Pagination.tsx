@@ -7,7 +7,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import type { PaginatedDocs } from '@nature-urbaine/database';
+import type { PaginatedDocs } from 'payload';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
 interface UIPaginationProps extends Pick<

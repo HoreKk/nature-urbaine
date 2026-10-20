@@ -1,13 +1,13 @@
+import { notFound } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
+import type { PaginatedDocs } from 'payload';
+import z from 'zod';
 import type {
-	PaginatedDocs,
 	Picture,
 	Report,
 	Tag,
 	TagCategory,
-} from '@nature-urbaine/database';
-import { notFound } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/react-start';
-import z from 'zod';
+} from '@/payload/payload-types';
 import { baseProcedure } from './db';
 import { withMediaUrls } from './media-urls';
 

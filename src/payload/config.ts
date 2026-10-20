@@ -5,7 +5,7 @@ import { nodemailerAdapter } from "@payloadcms/email-nodemailer";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { sharpTransformer } from "@payloadcms/transformer-sharp";
 import { fr } from "@payloadcms/translations/languages/fr";
-import { buildConfig, type Plugin } from "payload";
+import { buildConfig } from "payload";
 import sharp from "sharp";
 
 import { Categories } from "./collections/Category";
@@ -26,7 +26,7 @@ sharp.cache(false);
 sharp.concurrency(1);
 
 const filename = fileURLToPath(import.meta.url);
-const packageDir = path.dirname(filename);
+const payloadDir = path.dirname(filename);
 
 function parseBoolean(value: string | undefined, fallback: boolean): boolean {
 	if (!value) return fallback;
@@ -63,23 +63,18 @@ function buildEmailAdapter() {
 }
 
 export interface BuildPayloadConfigOptions {
-	importMapBaseDir?: string;
-	plugins?: Plugin[];
 	/** Undefined keeps Payload's default. Read-only consumers pass `false`, else push
 	 * proposes dropping columns they don't declare and hangs on the data-loss prompt. */
 	push?: boolean;
 }
 
-export const buildPayloadConfig = ({
-	importMapBaseDir,
-	plugins = [],
-	push,
-}: BuildPayloadConfigOptions = {}) =>
+export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 	buildConfig({
 		admin: {
 			user: Users.slug,
 			importMap: {
-				baseDir: importMapBaseDir ?? packageDir,
+				// Component paths like `/payload/admin/PictureNav` resolve from `src/`.
+				baseDir: path.resolve(payloadDir, ".."),
 			},
 		},
 		i18n: {
@@ -108,14 +103,14 @@ export const buildPayloadConfig = ({
 		secret: process.env.PAYLOAD_SECRET || "",
 		email: buildEmailAdapter(),
 		typescript: {
-			outputFile: path.resolve(packageDir, "./payload-types.ts"),
+			outputFile: path.resolve(payloadDir, "./payload-types.ts"),
 		},
 		db: postgresAdapter({
 			...(push === undefined ? {} : { push }),
 			pool: {
 				connectionString: process.env.DATABASE_URL || "",
 			},
-			migrationDir: path.resolve(packageDir, "./migrations"),
+			migrationDir: path.resolve(payloadDir, "./migrations"),
 		}),
 		upload: {
 			transformers: [
@@ -144,5 +139,5 @@ export const buildPayloadConfig = ({
 				? [`https://${process.env.WEBSITE_DOMAIN}`]
 				: []),
 		],
-		plugins: [...plugins, storageCoverageGuard],
+		plugins: [storageCoverageGuard],
 	});

@@ -1,12 +1,8 @@
-import type {
-	Category,
-	PaginatedDocs,
-	Picture,
-	Report,
-} from '@nature-urbaine/database';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
+import type { PaginatedDocs } from 'payload';
 import { z } from 'zod';
+import type { Category, Picture, Report } from '@/payload/payload-types';
 import { baseProcedure } from './db';
 import { withMediaUrls } from './media-urls';
 

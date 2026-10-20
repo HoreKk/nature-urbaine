@@ -45,7 +45,7 @@ function mapCityStratum(value: string | undefined): string | undefined {
 
 export default async function seedReports(payload: Payload) {
 	const data = readExcelSheet(
-		"./src/seed/historic-data.xlsx",
+		"./src/payload/seed/historic-data.xlsx",
 		"reportages lieux",
 	) as ExcelReport[];
 

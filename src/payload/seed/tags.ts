@@ -10,11 +10,11 @@ type ExcelTags = {
 };
 
 export default async function seedTags(payload: Payload) {
-	const data = readExcelSheet("./src/seed/historic-data.xlsx", "mots_clefs", [
-		"category",
-		"parent",
-		"tag",
-	]) as ExcelTags[];
+	const data = readExcelSheet(
+		"./src/payload/seed/historic-data.xlsx",
+		"mots_clefs",
+		["category", "parent", "tag"],
+	) as ExcelTags[];
 
 	const expandedData: ExcelTags[] = [];
 	for (const item of data) {

@@ -1,6 +1,6 @@
-import { renderContactEmail } from '@nature-urbaine/emails';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
+import { renderContactEmail } from '@/emails/templates/contact/render-contact-email';
 import { getParisTimestamp, sendTemplatedEmail } from './send-email';
 
 const createContactSchema = z.object({

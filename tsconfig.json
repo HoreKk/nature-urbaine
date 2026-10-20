@@ -1,11 +1,12 @@
 {
-	"include": ["**/*.ts", "**/*.tsx"],
+	"include": ["src/**/*.ts", "src/**/*.tsx", "*.ts"],
+	"exclude": ["src/payload/migrations"],
 	"compilerOptions": {
 		"target": "ES2022",
 		"jsx": "react-jsx",
 		"module": "ESNext",
 		"lib": ["ES2025", "DOM", "DOM.Iterable"],
-		"types": ["vite/client"],
+		"types": ["vite/client", "node"],
 
 		/* Bundler mode */
 		"moduleResolution": "bundler",
@@ -13,6 +14,8 @@
 		"verbatimModuleSyntax": false,
 		"noEmit": true,
 		"allowJs": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
 
 		/* Linting */
 		"skipLibCheck": true,

@@ -8,11 +8,11 @@ import {
 	Text,
 	TreeView,
 } from '@chakra-ui/react';
-import type { Tag } from '@nature-urbaine/database';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useMemo, useState, type JSX } from 'react';
 import { LuImages, LuLayers, LuListTree, LuTag, LuTags } from 'react-icons/lu';
+import type { Tag } from '@/payload/payload-types';
 import { childTagsQueryOptions } from '@/queries/tags';
 import type {
 	TagCategoryWithCount,

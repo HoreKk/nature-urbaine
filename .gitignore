@@ -1,6 +1,18 @@
 node_modules
+.DS_Store
 .env
-media/
+*.local
 *.tsbuildinfo
-
 .claude
+
+# Build output
+dist
+.output
+.nitro
+.tanstack
+.react-email
+
+# Local upload dirs when S3 is off (Payload serves them from /api/<collection>/file)
+/media
+/pictures
+.vscode

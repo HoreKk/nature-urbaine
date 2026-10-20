@@ -24,17 +24,18 @@
 		"**/.next/**",
 		"**/.output/**",
 		"**/.turbo/**",
-		"apps/website/src/app/_payload.tsx",
-		"apps/website/src/app/_payload/**",
-		"apps/website/src/routeTree.gen.ts",
-		"apps/website/src/styles.css",
-		"apps/website/src/components/ui/**",
-		"packages/database/src/migrations/**",
-		"packages/database/src/payload-types.ts"
+		"src/app/_payload.tsx",
+		"src/app/_payload/**",
+		"src/routeTree.gen.ts",
+		"src/styles.css",
+		"src/components/ui/**",
+		"src/payload/migrations/**",
+		"src/payload/payload-types.ts"
 	],
 	"overrides": [
 		{
-			"files": ["apps/website/**"],
+			"files": ["src/**", "*.ts"],
+			"excludeFiles": ["src/payload/**", "src/emails/**"],
 			"options": {
 				"singleQuote": true
 			}

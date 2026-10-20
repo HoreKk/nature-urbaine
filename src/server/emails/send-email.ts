@@ -1,4 +1,5 @@
-import { getPayload, payloadConfig } from '@nature-urbaine/database';
+import payloadConfig from '@payload-config';
+import { getPayload } from 'payload';
 import { readEmailConfig } from './email-env';
 
 export function getParisTimestamp(now: Date): string {

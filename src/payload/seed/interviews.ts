@@ -27,7 +27,7 @@ type ExcelInterview = {
 
 export default async function seedInterviews(payload: Payload) {
 	const data = readExcelSheet(
-		"./src/seed/historic-data.xlsx",
+		"./src/payload/seed/historic-data.xlsx",
 		"interviews",
 	) as ExcelInterview[];
 

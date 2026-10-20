@@ -1,8 +1,6 @@
-import {
-	type Config,
-	getPayload,
-	payloadConfig,
-} from '@nature-urbaine/database';
+import payloadConfig from '@payload-config';
+import { getPayload } from 'payload';
+import type { Config } from '@/payload/payload-types';
 
 export async function fetchOrReturnRealValue<
 	T extends keyof Config['collections'],

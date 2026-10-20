@@ -12,7 +12,7 @@ export const Pictures: CollectionConfig = {
 	admin: {
 		components: {
 			edit: {
-				beforeDocumentControls: ["/payload/PictureNav#PictureNav"],
+				beforeDocumentControls: ["/payload/admin/PictureNav#PictureNav"],
 			},
 		},
 	},
