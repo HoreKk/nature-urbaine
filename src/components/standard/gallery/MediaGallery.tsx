@@ -41,10 +41,9 @@ const MediaGallery = ({
 	const [showAll, setShowAll] = useState(false);
 	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
+	const [hero, ...rest] = rawImages;
 	const images =
-		firstImageIsHero && rawImages.length > 1
-			? [...rawImages.slice(1), rawImages[0]]
-			: rawImages;
+		firstImageIsHero && hero && rest.length > 0 ? [...rest, hero] : rawImages;
 
 	if (images.length === 0) {
 		return (

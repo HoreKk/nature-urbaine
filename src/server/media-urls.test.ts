@@ -32,8 +32,10 @@ describe('withMediaUrls', () => {
 	it('falls back to the CMS when no bucket is configured', async () => {
 		delete process.env.S3_BUCKET;
 		const result = await withMediaUrls({ docs: [picture] });
-		expect(result.docs[0].url).toMatch(/\/api\/pictures\/file\/parc%20a\.png$/);
-		expect(result.docs[0].variants.thumbnail.url).toMatch(/-400x300\.png$/);
+		expect(result.docs[0]!.url).toMatch(
+			/\/api\/pictures\/file\/parc%20a\.png$/,
+		);
+		expect(result.docs[0]!.variants.thumbnail.url).toMatch(/-400x300\.png$/);
 	});
 
 	describe('with a bucket', () => {
@@ -52,7 +54,7 @@ describe('withMediaUrls', () => {
 				tags: [{ id: 1 }],
 			};
 			const result = await withMediaUrls({ docs: [report], totalDocs: 1 });
-			const front = result.docs[0].frontPicture;
+			const front = result.docs[0]!.frontPicture;
 			expect(front.url).toMatch(
 				/^https:\/\/t3\.storageapi\.dev\/nu-bucket\/pictures\/parc%20a\.png\?/,
 			);
@@ -64,7 +66,7 @@ describe('withMediaUrls', () => {
 			);
 			expect(front.thumbnailURL).toMatch(/-400x300\.png\?/);
 			expect(front.alt).toBe('Parc');
-			expect(result.docs[0].tags).toEqual([{ id: 1 }]);
+			expect(result.docs[0]!.tags).toEqual([{ id: 1 }]);
 			expect(result.totalDocs).toBe(1);
 		});
 
@@ -115,10 +117,10 @@ describe('withMediaUrls', () => {
 				},
 			};
 			const result = await withMediaUrls({ docs: [doc] });
-			expect(result.docs[0].url).toMatch(
+			expect(result.docs[0]!.url).toMatch(
 				/^https:\/\/t3\.storageapi\.dev\/nu-bucket\/pictures\/parc%20a\.png\?/,
 			);
-			expect(result.docs[0].variants.thumbnail.url).toMatch(
+			expect(result.docs[0]!.variants.thumbnail.url).toMatch(
 				/\/nu-bucket\/pictures\/parc%20a-400x300\.png\?/,
 			);
 		});
@@ -165,7 +167,7 @@ describe('withMediaUrls', () => {
 			const when = new Date('2026-09-27T10:00:00Z');
 			const result = await withMediaUrls({ when, docs: [picture] });
 			expect(result.when).toBe(when);
-			expect(result.docs[0].url).toContain('X-Amz-Signature=');
+			expect(result.docs[0]!.url).toContain('X-Amz-Signature=');
 		});
 	});
 });

@@ -124,11 +124,12 @@ export function objectKeyFromPath(
 ): string | null {
 	const match = UPLOAD_PATH.exec(path);
 	if (!match) return null;
+	const [, pathFolder, filename = ''] = match;
 	const folder =
 		[segment(location.prefix), segment(location._objectKey)]
 			.filter(Boolean)
-			.join('/') || match[1];
-	return `${folder}/${decodeURIComponent(match[2])}`;
+			.join('/') || pathFolder;
+	return `${folder}/${decodeURIComponent(filename)}`;
 }
 
 async function resolveUploadPath(

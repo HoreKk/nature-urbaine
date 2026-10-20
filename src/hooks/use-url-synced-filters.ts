@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 type FilterValue = string | string[];
 type FilterValues = Record<string, FilterValue>;
 
-const isSameValue = (a: FilterValue, b: FilterValue) =>
+const isSameValue = (a?: FilterValue, b?: FilterValue) =>
 	Array.isArray(a) && Array.isArray(b)
 		? a.length === b.length && a.every((v, i) => v === b[i])
 		: a === b;

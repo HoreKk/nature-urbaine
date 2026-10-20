@@ -14,12 +14,14 @@
 		"verbatimModuleSyntax": false,
 		"noEmit": true,
 		"allowJs": true,
+		"checkJs": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 
 		/* Linting */
 		"skipLibCheck": true,
 		"strict": true,
+		"noUncheckedIndexedAccess": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
