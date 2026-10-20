@@ -1,5 +1,4 @@
 import type { CollectionConfig } from "payload";
-import { seedKeyField } from "../utils/seed-key-field";
 
 export const Media: CollectionConfig = {
 	slug: "media",
@@ -11,7 +10,6 @@ export const Media: CollectionConfig = {
 		read: () => true,
 	},
 	fields: [
-		seedKeyField,
 		{
 			name: "alt",
 			type: "text",

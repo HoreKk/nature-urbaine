@@ -1,6 +1,5 @@
 import type { CollectionConfig } from "payload";
 import { computeReportNameHook, getSeasonFromDate } from "../utils/hooks";
-import { seedKeyField } from "../utils/seed-key-field";
 
 export const CITY_STRATUM_OPTIONS = [
 	{ label: "Moins de 500 hab.", value: "moins-de-500" },
@@ -32,7 +31,6 @@ export const Reports: CollectionConfig = {
 		useAsTitle: "name",
 	},
 	fields: [
-		seedKeyField,
 		{
 			name: "name",
 			type: "text",

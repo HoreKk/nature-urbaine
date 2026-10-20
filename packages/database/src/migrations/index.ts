@@ -7,6 +7,7 @@ import * as migration_20260927_181732_payload_3_90_2 from './20260927_181732_pay
 import * as migration_20261017_225324_sizes_to_variants from './20261017_225324_sizes_to_variants';
 import * as migration_20261017_225329_payload_4_beta from './20261017_225329_payload_4_beta';
 import * as migration_20261018_120257_picture_medium_large_variants from './20261018_120257_picture_medium_large_variants';
+import * as migration_20261020_230241_drop_seed_key from './20261020_230241_drop_seed_key';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20261018_120257_picture_medium_large_variants.up,
     down: migration_20261018_120257_picture_medium_large_variants.down,
-    name: '20261018_120257_picture_medium_large_variants'
+    name: '20261018_120257_picture_medium_large_variants',
+  },
+  {
+    up: migration_20261020_230241_drop_seed_key.up,
+    down: migration_20261020_230241_drop_seed_key.down,
+    name: '20261020_230241_drop_seed_key'
   },
 ];

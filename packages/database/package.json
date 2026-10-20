@@ -16,9 +16,7 @@
 		"lint:fix": "oxlint --fix",
 		"check": "oxfmt --check && oxlint",
 		"typecheck": "tsc --noEmit",
-		"seed:dev": "NODE_ENV=development PAYLOAD_DROP_DATABASE=true payload run ./src/seed/index.ts",
-		"seed:prod": "NODE_ENV=production payload run ./src/seed/index.ts",
-		"seed:update": "PAYLOAD_CONFIG_PATH=./src/default-config.ts payload run ./src/seed/update.ts",
+		"seed:dev": "NODE_ENV=development PAYLOAD_DROP_DATABASE=true PAYLOAD_CONFIG_PATH=./src/default-config.ts payload run ./src/seed/index.ts",
 		"storage:check": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/check-storage.ts",
 		"storage:fixtures:large-report": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/large-report-fixture.ts"
 	},

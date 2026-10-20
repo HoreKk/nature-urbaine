@@ -171,7 +171,6 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 | `pnpm migrate:reset`                 | Reset the database                                                                            |
 | `pnpm migrate:fresh`                 | Drop all tables and re-run from scratch                                                       |
 | `pnpm seed:dev`                      | Drop and re-seed development data                                                             |
-| `pnpm seed:prod`                     | Seed production data (non-destructive)                                                        |
 | `pnpm storage:check`                 | Read-only: every upload row has its object in the bucket                                      |
 | `pnpm storage:fixtures:large-report` | Dev only: one report with 240 photos of 4000×3000 (`FIXTURE_COUNT`), uploaded through Payload |
 

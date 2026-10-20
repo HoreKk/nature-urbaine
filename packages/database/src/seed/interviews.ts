@@ -5,8 +5,8 @@ import {
 import { JSDOM } from "jsdom";
 import type { Payload } from "payload";
 import payloadConfig from "../default-config";
+import { createOnce } from "../utils/seed-create";
 import { interviewSeedKey } from "../utils/seed-key";
-import { upsertBySeedKey } from "../utils/seed-upsert";
 import { cleanString, readExcelSheet } from "../utils/tools";
 
 type ExcelInterview = {
@@ -48,9 +48,9 @@ export default async function seedInterviews(payload: Payload) {
 		const realisedAt = parseExcelDate(interview["Date de réalisation"]);
 		const publishedAt = parseExcelDate(interview["Date de l'interview"]);
 
-		await upsertBySeedKey(payload, {
+		await createOnce(payload, {
 			collection: "interviews",
-			seedKey: interviewSeedKey({
+			key: interviewSeedKey({
 				projectName,
 				interviewee: interviewee || "",
 			}),

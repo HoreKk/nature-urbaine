@@ -1,8 +1,8 @@
 import type { Payload } from "payload";
 import { CITY_STRATUM_OPTIONS } from "../collections/Report";
 import { computeReportName } from "../utils/hooks";
-import { categorySeedKey, reportSeedKey } from "../utils/seed-key";
-import { upsertBySeedKey } from "../utils/seed-upsert";
+import { createOnce } from "../utils/seed-create";
+import { reportSeedKey } from "../utils/seed-key";
 import { cleanString, readExcelSheet } from "../utils/tools";
 
 type ExcelReport = {
@@ -68,18 +68,13 @@ export default async function seedReports(payload: Payload) {
 		const name = computeReportName({ country, city, projectName });
 
 		const cleanedCategoryName = cleanString(report.CATEGORIE);
-		const targetCategorySeedKey = categorySeedKey(cleanedCategoryName);
-		const fallbackCategorySeedKey = categorySeedKey(
-			cleanString(DEFAULT_CATEGORY_NAME),
-		);
+		const defaultCategoryName = cleanString(DEFAULT_CATEGORY_NAME);
 		const reportCategory =
 			(cleanedCategoryName
-				? (categories.docs.find(
-						(cat) => cat.seedKey === targetCategorySeedKey,
-					) ??
+				? (categories.docs.find((cat) => cat.name === cleanedCategoryName) ??
 					categories.docs.find((cat) => cat.name.includes(cleanedCategoryName)))
 				: undefined) ??
-			categories.docs.find((cat) => cat.seedKey === fallbackCategorySeedKey);
+			categories.docs.find((cat) => cat.name === defaultCategoryName);
 
 		if (!reportCategory) {
 			console.warn(
@@ -131,7 +126,7 @@ export default async function seedReports(payload: Payload) {
 			},
 		};
 
-		const seedKey = reportSeedKey({
+		const key = reportSeedKey({
 			wordpressPostId: report["code WORD PRESS"],
 			pays: report.PAYS,
 			ville: report.VILLE,
@@ -139,9 +134,9 @@ export default async function seedReports(payload: Payload) {
 			datePhoto: report["DATE PHOTO"],
 		});
 
-		await upsertBySeedKey(payload, {
+		await createOnce(payload, {
 			collection: "reports",
-			seedKey,
+			key,
 			draft: false,
 			data: reportData,
 		});

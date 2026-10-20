@@ -310,7 +310,7 @@ These are spec asks that aren't captured by the data model alone — surface the
 - **Styling:** Chakra UI primitives + design-system CSS variables. Avoid raw inline styles.
 - **Forms:** TanStack Form + Zod. Re-use `useAppForm` from `apps/website/src/hooks/form-context.ts`.
 - **Migrations:** never hand-edit DB; use `pnpm migrate:create` then `pnpm migrate`.
-- **Seeds:** keep in `packages/database` and runnable in both `seed:dev` and `seed:prod`.
+- **Seeds:** `seed:dev` rebuilds a local database from `historic-data.xlsx` and refuses a remote one. Production is the source of truth; nothing seeds it.
 - **ADRs:** when an ambiguity in the cahier is resolved, write `docs/adr/NNNN-<slug>.md` so the decision survives. Reference contradicted ADRs explicitly per `docs/agents/domain.md`.
 - **Code style** (comments, JSX layout): see `docs/CODING_STANDARDS.md`.
 

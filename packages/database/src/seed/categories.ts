@@ -1,6 +1,6 @@
 import type { Payload } from "payload";
+import { createOnce } from "../utils/seed-create";
 import { categorySeedKey } from "../utils/seed-key";
-import { upsertBySeedKey } from "../utils/seed-upsert";
 import { cleanString, readExcelSheet } from "../utils/tools";
 
 type ExcelCategory = {
@@ -17,9 +17,9 @@ export default async function seedCategories(payload: Payload) {
 		const name = cleanString(item.CATEGORIES);
 		if (!name) continue;
 
-		await upsertBySeedKey(payload, {
+		await createOnce(payload, {
 			collection: "categories",
-			seedKey: categorySeedKey(name),
+			key: categorySeedKey(name),
 			data: { name },
 		});
 	}

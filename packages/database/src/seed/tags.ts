@@ -1,6 +1,6 @@
 import type { Payload } from "payload";
+import { createOnce } from "../utils/seed-create";
 import { tagCategorySeedKey, tagSeedKey } from "../utils/seed-key";
-import { upsertBySeedKey } from "../utils/seed-upsert";
 import { cleanString, readExcelSheet } from "../utils/tools";
 
 type ExcelTags = {
@@ -44,21 +44,21 @@ export default async function seedTags(payload: Payload) {
 		const tagName = cleanString(item.tag);
 		const parentName = cleanString(item.parent);
 
-		const tagCategory = await upsertBySeedKey(payload, {
+		const tagCategory = await createOnce(payload, {
 			collection: "tag-categories",
-			seedKey: tagCategorySeedKey(tagCategoryName),
+			key: tagCategorySeedKey(tagCategoryName),
 			data: { name: tagCategoryName },
 		});
 
-		const parentTag = await upsertBySeedKey(payload, {
+		const parentTag = await createOnce(payload, {
 			collection: "tags",
-			seedKey: tagSeedKey(parentName),
+			key: tagSeedKey(parentName),
 			data: { name: parentName, tagCategory: tagCategory.id },
 		});
 
-		await upsertBySeedKey(payload, {
+		await createOnce(payload, {
 			collection: "tags",
-			seedKey: tagSeedKey(tagName, parentName),
+			key: tagSeedKey(tagName, parentName),
 			data: {
 				name: tagName,
 				tagCategory: tagCategory.id,

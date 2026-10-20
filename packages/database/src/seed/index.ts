@@ -5,43 +5,22 @@ import seedInterviews from "./interviews";
 import seedReports from "./reports";
 import seedTags from "./tags";
 
-const seed = async () => {
-	const payload = await getPayload({ config });
-	const adminEmail = "admin@test.loc";
-	const adminPassword = "admin123";
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "db"]);
 
-	const existingAdmin = await payload.find({
+const seed = async () => {
+	// `seed:dev` drops the database: never let it reach a remote one.
+	const host = new URL(process.env.DATABASE_URL ?? "").hostname;
+	if (!LOCAL_HOSTS.has(host)) {
+		throw new Error(`seed:dev refuses non-local database host "${host}".`);
+	}
+
+	const payload = await getPayload({ config });
+
+	await payload.create({
 		collection: "users",
-		limit: 1,
-		pagination: false,
-		where: {
-			email: {
-				equals: adminEmail,
-			},
-		},
+		data: { email: "admin@test.loc", password: "admin123" },
 		overrideAccess: true,
 	});
-
-	if (existingAdmin.docs[0]) {
-		await payload.update({
-			collection: "users",
-			id: existingAdmin.docs[0].id,
-			data: {
-				email: adminEmail,
-				password: adminPassword,
-			},
-			overrideAccess: true,
-		});
-	} else {
-		await payload.create({
-			collection: "users",
-			data: {
-				email: adminEmail,
-				password: adminPassword,
-			},
-			overrideAccess: true,
-		});
-	}
 
 	await seedCategories(payload);
 	await seedReports(payload);

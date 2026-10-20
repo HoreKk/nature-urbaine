@@ -199,10 +199,6 @@ export interface UserAuthOperations {
  */
 export interface Media {
   id: number;
-  /**
-   * Identifiant stable utilisé par les scripts de seed pour mettre à jour cet enregistrement. Ne pas modifier.
-   */
-  seedKey?: string | null;
   alt: string;
   prefix?: string | null;
   _objectKey?: string | null;
@@ -234,10 +230,6 @@ export interface Media {
  */
 export interface Report {
   id: number;
-  /**
-   * Identifiant stable utilisé par les scripts de seed pour mettre à jour cet enregistrement. Ne pas modifier.
-   */
-  seedKey?: string | null;
   /**
    * Calculé à partir de la ville et du nom du projet (précédés du pays hors France).
    */
@@ -358,10 +350,6 @@ export interface Picture {
  */
 export interface Tag {
   id: number;
-  /**
-   * Identifiant stable utilisé par les scripts de seed pour mettre à jour cet enregistrement. Ne pas modifier.
-   */
-  seedKey?: string | null;
   name: string;
   description?: string | null;
   tagCategory: number | TagCategory;
@@ -380,10 +368,6 @@ export interface Tag {
  */
 export interface TagCategory {
   id: number;
-  /**
-   * Identifiant stable utilisé par les scripts de seed pour mettre à jour cet enregistrement. Ne pas modifier.
-   */
-  seedKey?: string | null;
   name: string;
   description?: string | null;
   relatedTags?: {
@@ -400,10 +384,6 @@ export interface TagCategory {
  */
 export interface Category {
   id: number;
-  /**
-   * Identifiant stable utilisé par les scripts de seed pour mettre à jour cet enregistrement. Ne pas modifier.
-   */
-  seedKey?: string | null;
   name: string;
   description?: string | null;
   relatedReports?: {
@@ -420,10 +400,6 @@ export interface Category {
  */
 export interface Interview {
   id: number;
-  /**
-   * Identifiant stable utilisé par les scripts de seed pour mettre à jour cet enregistrement. Ne pas modifier.
-   */
-  seedKey?: string | null;
   thumbnail?: (number | null) | Media;
   name: string;
   interviewee: string;
@@ -631,7 +607,6 @@ export interface PayloadLlmInstruction {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
-  seedKey?: T;
   alt?: T;
   prefix?: T;
   _objectKey?: T;
@@ -664,7 +639,6 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "reports_select".
  */
 export interface ReportsSelect<T extends boolean = true> {
-  seedKey?: T;
   name?: T;
   slug?: T;
   description?: T;
@@ -705,7 +679,6 @@ export interface ReportsSelect<T extends boolean = true> {
  * via the `definition` "interviews_select".
  */
 export interface InterviewsSelect<T extends boolean = true> {
-  seedKey?: T;
   thumbnail?: T;
   name?: T;
   interviewee?: T;
@@ -810,7 +783,6 @@ export interface PicturesSelect<T extends boolean = true> {
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
-  seedKey?: T;
   name?: T;
   description?: T;
   relatedReports?: T;
@@ -850,7 +822,6 @@ export interface SubmissionsSelect<T extends boolean = true> {
  * via the `definition` "tags_select".
  */
 export interface TagsSelect<T extends boolean = true> {
-  seedKey?: T;
   name?: T;
   description?: T;
   tagCategory?: T;
@@ -864,7 +835,6 @@ export interface TagsSelect<T extends boolean = true> {
  * via the `definition` "tag-categories_select".
  */
 export interface TagCategoriesSelect<T extends boolean = true> {
-  seedKey?: T;
   name?: T;
   description?: T;
   relatedTags?: T;
