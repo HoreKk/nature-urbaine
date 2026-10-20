@@ -39,12 +39,12 @@ The migration trigger below fired. Report pages with 200+ Pictures loaded the ~4
   - Carousels and lightboxes now get `medium` + `large` in `srcSet`, and the original only while a row has no variant yet.
   - Heroes get `thumbnail` + `medium` + `large`.
   - The cropped thumbnail is still never offered to `object-fit: contain`.
-- Re-processing the catalogue is no longer ruled out, because it can be done additively. `storage:variants:backfill` (`src/payload/scripts/backfill-variants.ts`) works as follows:
-  - It reads each original and writes only the missing variants as new keys.
-  - New keys follow Payload's naming, `<name>-<w>x<h>.webp`, suffixed `-1`, `-2`… when the name is taken. Pre-v4 rows share one flat folder, so `parc.jpg` and `parc.png` would otherwise collide.
-  - It tags each object with its picture id, so a rerun reuses only its own files.
-  - It never overwrites or deletes an object, and only fills empty `variants_*` columns.
-- The backfill runs once, by hand, after the deploy, not in the pre-deploy command: ~19.3k Pictures take hours, and one unreadable file must not block a release. Until it finishes, pages fall back to the originals.
+- Re-processing the catalogue is no longer ruled out, because it can be done additively. `storage:variants:backfill` (`packages/database/src/scripts/backfill-variants.ts`) worked as follows:
+  - It read each original and wrote only the missing variants as new keys.
+  - New keys followed Payload's naming, `<name>-<w>x<h>.webp`, suffixed `-1`, `-2`… when the name is taken. Pre-v4 rows share one flat folder, so `parc.jpg` and `parc.png` would otherwise collide.
+  - It tagged each object with its picture id, so a rerun reused only its own files.
+  - It never overwrote or deleted an object, and only filled empty `variants_*` columns.
+- The backfill ran once, by hand, after the deploy, not in the pre-deploy command: ~19.3k Pictures take hours, and one unreadable file must not block a release. Until it finished, pages fell back to the originals.
 - Done 2026-10-21: every production Picture has its variants, and the script was deleted. Adding a variant later means writing a new backfill.
 - `withMediaUrls` already signs every `variants.*` entry, so signing needed no change.
 - Carousels and lightboxes also mount only the current slide ±1, so memory no longer grows with the number of photos viewed.

@@ -5,13 +5,16 @@ import seedInterviews from './interviews';
 import seedReports from './reports';
 import seedTags from './tags';
 
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', 'db']);
+// `db` is the Postgres service name when the seed runs inside docker compose.
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', 'db']);
 
 const seed = async () => {
 	// `seed:dev` drops the database: never let it reach a remote one.
-	const host = new URL(process.env.DATABASE_URL ?? '').hostname;
-	if (!LOCAL_HOSTS.has(host)) {
-		throw new Error(`seed:dev refuses non-local database host "${host}".`);
+	const host = URL.parse(process.env.DATABASE_URL ?? '')?.hostname;
+	if (!host || !LOCAL_HOSTS.has(host)) {
+		throw new Error(
+			`seed:dev refuses a non-local DATABASE_URL (host "${host ?? 'none'}").`,
+		);
 	}
 
 	const payload = await getPayload({ config });

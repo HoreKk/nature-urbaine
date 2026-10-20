@@ -63,8 +63,7 @@ function buildEmailAdapter() {
 }
 
 export interface BuildPayloadConfigOptions {
-	/** Undefined keeps Payload's default. Read-only consumers pass `false`, else push
-	 * proposes dropping columns they don't declare and hangs on the data-loss prompt. */
+	/** Undefined keeps Payload's default dev push. */
 	push?: boolean;
 }
 

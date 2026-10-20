@@ -5,8 +5,7 @@ import {
 import { JSDOM } from 'jsdom';
 import type { Payload } from 'payload';
 import payloadConfig from '../default-config';
-import { createOnce } from '../utils/seed-create';
-import { interviewSeedKey } from '../utils/seed-key';
+import { createOnce, interviewKey } from '../utils/seed-once';
 import { cleanString, readExcelSheet } from '../utils/tools';
 
 type ExcelInterview = {
@@ -50,7 +49,7 @@ export default async function seedInterviews(payload: Payload) {
 
 		await createOnce(payload, {
 			collection: 'interviews',
-			key: interviewSeedKey({
+			key: interviewKey({
 				projectName,
 				interviewee: interviewee || '',
 			}),

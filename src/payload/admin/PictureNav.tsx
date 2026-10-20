@@ -30,7 +30,6 @@ const NavButton = ({
 	</Button>
 );
 
-/** Previous / next photo of the same report, in the report's photo order. */
 export const PictureNav = async ({
 	id,
 	payload,

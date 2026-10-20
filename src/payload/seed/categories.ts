@@ -1,6 +1,5 @@
 import type { Payload } from 'payload';
-import { createOnce } from '../utils/seed-create';
-import { categorySeedKey } from '../utils/seed-key';
+import { createOnce, categoryKey } from '../utils/seed-once';
 import { cleanString, readExcelSheet } from '../utils/tools';
 
 type ExcelCategory = {
@@ -19,7 +18,7 @@ export default async function seedCategories(payload: Payload) {
 
 		await createOnce(payload, {
 			collection: 'categories',
-			key: categorySeedKey(name),
+			key: categoryKey(name),
 			data: { name },
 		});
 	}

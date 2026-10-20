@@ -1,8 +1,7 @@
 import type { Payload } from 'payload';
 import { CITY_STRATUM_OPTIONS } from '../collections/Report';
 import { computeReportName } from '../utils/hooks';
-import { createOnce } from '../utils/seed-create';
-import { reportSeedKey } from '../utils/seed-key';
+import { createOnce, reportKey } from '../utils/seed-once';
 import { cleanString, readExcelSheet } from '../utils/tools';
 
 type ExcelReport = {
@@ -126,7 +125,7 @@ export default async function seedReports(payload: Payload) {
 			},
 		};
 
-		const key = reportSeedKey({
+		const key = reportKey({
 			wordpressPostId: report['code WORD PRESS'],
 			pays: report.PAYS,
 			ville: report.VILLE,

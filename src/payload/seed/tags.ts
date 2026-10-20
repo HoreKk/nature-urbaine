@@ -1,6 +1,5 @@
 import type { Payload } from 'payload';
-import { createOnce } from '../utils/seed-create';
-import { tagCategorySeedKey, tagSeedKey } from '../utils/seed-key';
+import { createOnce, tagCategoryKey, tagKey } from '../utils/seed-once';
 import { cleanString, readExcelSheet } from '../utils/tools';
 
 type ExcelTags = {
@@ -46,19 +45,19 @@ export default async function seedTags(payload: Payload) {
 
 		const tagCategory = await createOnce(payload, {
 			collection: 'tag-categories',
-			key: tagCategorySeedKey(tagCategoryName),
+			key: tagCategoryKey(tagCategoryName),
 			data: { name: tagCategoryName },
 		});
 
 		const parentTag = await createOnce(payload, {
 			collection: 'tags',
-			key: tagSeedKey(parentName),
+			key: tagKey(parentName),
 			data: { name: parentName, tagCategory: tagCategory.id },
 		});
 
 		await createOnce(payload, {
 			collection: 'tags',
-			key: tagSeedKey(tagName, parentName),
+			key: tagKey(tagName, parentName),
 			data: {
 				name: tagName,
 				tagCategory: tagCategory.id,
