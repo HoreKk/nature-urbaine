@@ -1,30 +1,11 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { getBackendUrl } from '@/utils/backend-url';
 
-/**
- * Rewrites Payload upload URLs (`/api/<collection>/file/<name>`) into URLs the
- * browser can fetch directly from the Railway bucket.
- *
- * Why not let the CMS do it: Railway buckets are private (no public URLs), so
- * the CMS answers each image request with a DB lookup + a freshly presigned
- * 302. Every URL is unique, so browsers never reuse their cache and the CMS
- * pays a request per image per page view. Bucket egress on Railway is free;
- * service egress is not.
- *
- * What this does instead: the website signs the object URL itself, with the
- * signing date pinned to the start of the current UTC day. The signature is
- * therefore identical for every request of the day, on every instance, which
- * makes the URL cacheable by the browser. Each URL stays valid 7 days (the
- * SigV4 maximum), so a page cached late in the day still works.
- *
- * Without bucket credentials (local dev) URLs point at the CMS as before.
- */
+// Railway buckets are private and the CMS answers with an uncacheable presigned 302 per
+// request, so the website signs URLs itself, pinned to the UTC day so browsers can cache them.
 
-// Relative (`/api/...`) today; also accepts an absolute URL in case Payload's
-// `serverURL` is ever set, so signing still applies.
-// Since the S3 plugin also runs in the website's Payload config, it appends
-// `?prefix=<prefix>` to every upload URL.
+// Accepts absolute URLs in case Payload's `serverURL` is ever set; Payload 4
+// appends `?prefix=<prefix>` to every storage URL.
 const UPLOAD_PATH =
 	/^(?:https?:\/\/[^/]+)?\/api\/(pictures|media)\/file\/([^?#]+)(?:\?[^#]*)?$/;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -83,7 +64,6 @@ function getClient(config: BucketConfig): S3Client {
 	return client;
 }
 
-// One entry per object per UTC day; reset when the day rolls over.
 let cacheDay = -1;
 let signedUrlCache = new Map<string, Promise<string>>();
 
@@ -129,18 +109,14 @@ export function signUploadUrl(
 	return pending;
 }
 
-/** Where a stored file lives: the upload doc's `prefix` and `_objectKey`. */
 type StorageLocation = { prefix?: unknown; _objectKey?: unknown };
 
 const segment = (value: unknown): string =>
 	typeof value === 'string' ? value.replace(/^\/+|\/+$/g, '') : '';
 
 /**
- * Mirrors plugin-cloud-storage's read path (`buildPrefixWithObjectKey`, then
- * `docPrefix || collectionPrefix`), like `scripts/check-storage.ts`: uploads
- * since Payload 3.90 live under `<prefix>/<_objectKey>/`, older rows have no
- * `_objectKey`, and old `media` rows with an empty prefix fall back to the
- * collection prefix (equal to its slug).
+ * Mirrors plugin-cloud-storage's read path (like `scripts/check-storage.ts`): pre-v4 rows
+ * lack `_objectKey`, and old `media` rows with an empty prefix fall back to the collection slug.
  */
 export function objectKeyFromPath(
 	path: string,
@@ -161,8 +137,9 @@ async function resolveUploadPath(
 ): Promise<string> {
 	const objectKey = objectKeyFromPath(path, location);
 	const signed = objectKey ? signUploadUrl(objectKey) : null;
-	if (signed) return signed;
-	return path.startsWith('/') ? getBackendUrl(path) : path;
+	// Without bucket credentials (local dev) Payload serves the file itself,
+	// on this same origin.
+	return signed ?? path;
 }
 
 /** Plain JSON objects only: a `Date`, `Buffer` or class instance is returned as is. */
@@ -188,17 +165,23 @@ async function rewriteUploadDoc(
 			next[field] = await resolveUploadPath(value, doc);
 		}
 	}
-	if (isRecord(doc.sizes)) {
-		const sizes: Record<string, unknown> = {};
-		for (const [name, size] of Object.entries(doc.sizes)) {
-			if (isRecord(size) && typeof size.url === 'string') {
-				// Sizes are stored next to the original, in the doc's folder.
-				sizes[name] = { ...size, url: await resolveUploadPath(size.url, doc) };
+	if (isRecord(doc.variants)) {
+		const variants: Record<string, unknown> = {};
+		for (const [name, variant] of Object.entries(doc.variants)) {
+			if (isRecord(variant) && typeof variant.url === 'string') {
+				variants[name] = {
+					...variant,
+					// A variant row carries its own location; older rows only the doc's.
+					url: await resolveUploadPath(variant.url, {
+						prefix: variant.prefix ?? doc.prefix,
+						_objectKey: variant._objectKey ?? doc._objectKey,
+					}),
+				};
 			} else {
-				sizes[name] = size;
+				variants[name] = variant;
 			}
 		}
-		next.sizes = sizes;
+		next.variants = variants;
 	}
 	return next;
 }
@@ -218,11 +201,7 @@ async function walk(value: unknown, depth: number): Promise<unknown> {
 	return Object.fromEntries(entries);
 }
 
-/**
- * Deep-copies a server-function result, replacing every upload doc's `url`,
- * `thumbnailURL` and `sizes.*.url` with browser-fetchable URLs. Call it on the
- * value a server function returns so the client never sees a CMS path.
- */
+/** Wrap every server-function result so the client never sees a CMS path. */
 export async function withMediaUrls<T>(value: T): Promise<T> {
 	return (await walk(value, 0)) as T;
 }

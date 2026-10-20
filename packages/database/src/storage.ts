@@ -1,9 +1,8 @@
 import { s3Storage } from "@payloadcms/storage-s3";
-import type { Plugin } from "payload";
+import type { Plugin, StorageAdapter } from "payload";
 
-// Upload collections stored in the bucket, each under a prefix equal to its
-// slug. The website's `media-urls.ts` and `scripts/check-storage.ts` rely on
-// this layout.
+// Each collection is stored under a prefix equal to its slug; the website's
+// `media-urls.ts` and `scripts/check-storage.ts` rely on this layout.
 export const storageCollections = ["media", "pictures"] as const;
 
 export function readS3Env() {
@@ -22,14 +21,8 @@ export function readS3Env() {
 }
 
 /**
- * Refuses to boot a deployed Payload instance without bucket credentials.
- *
- * Without them the S3 plugin silently falls back to the container's disk:
- * uploads succeed, the DB row points at a bucket key that was never written,
- * and the file vanishes on the next redeploy. Railway sets
- * `RAILWAY_ENVIRONMENT_NAME` on every service, so this cannot be forgotten the
- * way an opt-in flag could. `ALLOW_LOCAL_UPLOADS=true` is the explicit escape
- * hatch (e.g. a throwaway preview environment).
+ * Without credentials the S3 plugin silently falls back to the container disk and
+ * files vanish on redeploy. Railway sets `RAILWAY_ENVIRONMENT_NAME` on every service.
  */
 function assertStorageConfigured(configured: boolean) {
 	if (configured) return;
@@ -42,11 +35,7 @@ function assertStorageConfigured(configured: boolean) {
 	);
 }
 
-/**
- * Every upload collection must be stored in the bucket. A collection left out
- * of `storageCollections` is silently served from the container disk, which is
- * exactly how files were lost before, so this fails at boot instead.
- */
+/** A collection left out of `storageCollections` silently falls back to the container disk. */
 function assertUploadsCovered(slugs: string[]) {
 	const uncovered = slugs.filter(
 		(slug) => !(storageCollections as readonly string[]).includes(slug),
@@ -59,20 +48,15 @@ function assertUploadsCovered(slugs: string[]) {
 }
 
 /**
- * The one storage config shared by every Payload instance (CMS, website,
- * seed scripts), so an upload lands in the bucket whichever app handles it.
- *
- * `alwaysInsertFields` keeps the `prefix`/`_objectKey` columns in the schema
- * even when S3 is disabled locally, so generated migrations do not depend on
- * whether the S3 env vars happen to be set.
+ * Shared by every Payload instance (CMS, website, seeds). Even when disabled, Payload v4
+ * adds the `prefix`/`_objectKey` columns, so migrations do not depend on the S3 env.
  */
-export function storagePlugin(): Plugin {
+export function storageAdapter(): StorageAdapter {
 	const env = readS3Env();
 	assertStorageConfigured(env !== null);
 
 	return s3Storage({
 		enabled: env !== null,
-		alwaysInsertFields: true,
 		collections: Object.fromEntries(
 			storageCollections.map((slug) => [
 				slug,
@@ -92,10 +76,7 @@ export function storagePlugin(): Plugin {
 	});
 }
 
-/**
- * Must run as the last plugin, so it also sees upload collections added by
- * any other plugin.
- */
+/** Must run as the last plugin, so it also sees upload collections added by other plugins. */
 export const storageCoverageGuard: Plugin = (config) => {
 	assertUploadsCovered(
 		(config.collections ?? [])

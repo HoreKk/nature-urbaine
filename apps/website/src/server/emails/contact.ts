@@ -12,7 +12,7 @@ const createContactSchema = z.object({
 });
 
 export const createContact = createServerFn({ method: 'POST' })
-	.inputValidator(createContactSchema)
+	.validator(createContactSchema)
 	.handler(async ({ data }) => {
 		try {
 			const rendered = await renderContactEmail({

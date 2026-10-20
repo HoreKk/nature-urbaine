@@ -67,7 +67,7 @@ function buildWhere(filter: ReportCatalogFilter) {
 }
 
 export const findReportCatalog = createServerFn({ method: 'GET' })
-	.inputValidator(
+	.validator(
 		z.object({
 			page: z.number().min(1),
 			pageSize: z.number().min(1).max(100),
@@ -95,13 +95,28 @@ export const findReportCatalog = createServerFn({ method: 'GET' })
 	});
 
 export const findReportById = createServerFn({ method: 'GET' })
-	.inputValidator(z.number().min(1))
+	.validator(z.number().min(1))
 	.middleware([baseProcedure])
 	.handler(async ({ data: id, context }) => {
+		// Reports can hold 200+ pictures: populate only what the gallery renders,
+		// skipping their tags and unused signed URLs (`original`, `thumbnailURL`).
 		const report = await context.db.findByID({
 			collection: 'reports',
 			id,
-			depth: 2,
+			depth: 1,
+			populate: {
+				pictures: {
+					alt: true,
+					url: true,
+					filename: true,
+					mimeType: true,
+					width: true,
+					height: true,
+					prefix: true,
+					_objectKey: true,
+					variants: true,
+				},
+			},
 		});
 
 		if (!report) throw notFound();

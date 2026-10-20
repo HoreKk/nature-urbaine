@@ -3,6 +3,11 @@ import { seedKeyField } from "../utils/seed-key-field";
 
 export const TagCategories: CollectionConfig = {
 	slug: "tag-categories",
+	// Public catalog data: the website reads it without a user (Payload 4
+	// enforces access on the Local API by default).
+	access: {
+		read: () => true,
+	},
 	labels: {
 		singular: "Catégorie d'étiquette",
 		plural: "Catégories d'étiquettes",
@@ -32,4 +37,6 @@ export const TagCategories: CollectionConfig = {
 			defaultLimit: 0,
 		},
 	],
+	versions: false,
+	authorship: false,
 };

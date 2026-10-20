@@ -35,11 +35,6 @@ type CatalogLayoutProps = {
 	children: ReactNode;
 };
 
-/**
- * Shared shell for the searchable catalogue pages (/reports, /interviews):
- * filter row, a sticky results bar carrying the count and a compact
- * pagination, the card grid, then the full pagination at the bottom.
- */
 function CatalogLayout({
 	eyebrow,
 	title,

@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { nodemailerAdapter } from "@payloadcms/email-nodemailer";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { sharpTransformer } from "@payloadcms/transformer-sharp";
 import { fr } from "@payloadcms/translations/languages/fr";
 import { buildConfig, type Plugin } from "payload";
 import sharp from "sharp";
@@ -16,7 +17,13 @@ import { Submissions } from "./collections/Submission";
 import { Tags } from "./collections/Tag";
 import { TagCategories } from "./collections/TagCategory";
 import { Users } from "./collections/Users";
-import { storageCoverageGuard, storagePlugin } from "./storage";
+import { pictureVariants } from "./image-variants";
+import { storageAdapter, storageCoverageGuard } from "./storage";
+
+// One process serves site, admin and uploads: libvips' cache and per-core threads
+// add hundreds of MB of RSS per ~50 MB decode. Uploads are rare; keep them lean.
+sharp.cache(false);
+sharp.concurrency(1);
 
 const filename = fileURLToPath(import.meta.url);
 const packageDir = path.dirname(filename);
@@ -37,9 +44,13 @@ function buildEmailAdapter() {
 		defaultFromAddress:
 			process.env.CONTACT_EMAIL_FROM ?? "no-reply@nature-urbaine.fr",
 		defaultFromName: process.env.CONTACT_EMAIL_FROM_NAME ?? "Nature Urbaine",
+		// Payload awaits the verify at boot; an unreachable SMTP host (Railway blocks
+		// SMTP below Pro) stalled boot 2 min. A real send still fails, after 10 s.
+		skipVerify: true,
 		transportOptions: {
 			host: process.env.SMTP_HOST,
 			port: Number(process.env.SMTP_PORT),
+			connectionTimeout: 10_000,
 			secure: parseBoolean(process.env.SMTP_SECURE, false),
 			auth: hasAuth
 				? {
@@ -54,13 +65,8 @@ function buildEmailAdapter() {
 export interface BuildPayloadConfigOptions {
 	importMapBaseDir?: string;
 	plugins?: Plugin[];
-	/**
-	 * Controls Drizzle dev schema push. Leave undefined to keep Payload's
-	 * default (push in development). Consumers that only read the DB — e.g. the
-	 * website — should pass `false` so they never attempt to sync the schema
-	 * (which would otherwise propose dropping columns their config doesn't
-	 * declare, such as the S3 `prefix` fields, and hang on the data-loss prompt).
-	 */
+	/** Undefined keeps Payload's default. Read-only consumers pass `false`, else push
+	 * proposes dropping columns they don't declare and hangs on the data-loss prompt. */
 	push?: boolean;
 }
 
@@ -80,9 +86,13 @@ export const buildPayloadConfig = ({
 			fallbackLanguage: "fr",
 			supportedLanguages: { fr },
 		},
+		// TanStack Start mode serves the admin at the fixed `/admin` route.
 		routes: {
-			admin: "/",
+			admin: "/admin",
 		},
+		// v4 lowered the default from 2 to 1; the website's queries rely on 2.
+		defaultDepth: 2,
+		graphQL: { disable: true },
 		collections: [
 			Media,
 			Reports,
@@ -107,20 +117,26 @@ export const buildPayloadConfig = ({
 			},
 			migrationDir: path.resolve(packageDir, "./migrations"),
 		}),
-		sharp,
-		cors: [
-			"http://localhost:3000",
-			"http://localhost:3001",
-			...(process.env.RAILWAY_PUBLIC_DOMAIN
-				? [`https://${process.env.RAILWAY_PUBLIC_DOMAIN}`]
-				: []),
-			...(process.env.WEBSITE_DOMAIN
-				? [`https://${process.env.WEBSITE_DOMAIN}`]
-				: []),
-		],
+		upload: {
+			transformers: [
+				sharpTransformer({
+					sharp,
+					collections: {
+						media: { crop: true, focalPoint: true },
+						pictures: {
+							crop: true,
+							focalPoint: true,
+							variants: pictureVariants,
+						},
+					},
+				}),
+			],
+		},
+		storage: [storageAdapter()],
+		// Origins whose admin cookie Payload accepts. Leaving this empty would
+		// accept it from any origin, so it stays even with a single app.
 		csrf: [
 			"http://localhost:3000",
-			"http://localhost:3001",
 			...(process.env.RAILWAY_PUBLIC_DOMAIN
 				? [`https://${process.env.RAILWAY_PUBLIC_DOMAIN}`]
 				: []),
@@ -128,5 +144,5 @@ export const buildPayloadConfig = ({
 				? [`https://${process.env.WEBSITE_DOMAIN}`]
 				: []),
 		],
-		plugins: [storagePlugin(), ...plugins, storageCoverageGuard],
+		plugins: [...plugins, storageCoverageGuard],
 	});

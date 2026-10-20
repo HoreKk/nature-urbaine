@@ -20,7 +20,6 @@ export type SafeInterview = Omit<
 	intervieweePicture?: Media | null;
 };
 
-// Detail view: projectDetails fields are pre-converted to HTML strings.
 export type InterviewDetail = Omit<
 	Interview,
 	'projectDetails' | 'thumbnail' | 'intervieweePicture'
@@ -39,7 +38,7 @@ export const interviewFilterSchema = z.object({
 });
 
 export const getInterviews = createServerFn({ method: 'GET' })
-	.inputValidator(
+	.validator(
 		z.object({
 			page: z.number().min(1),
 			pageSize: z.number().min(1).max(100),
@@ -78,7 +77,7 @@ export const getInterviews = createServerFn({ method: 'GET' })
 	});
 
 export const getInterviewById = createServerFn({ method: 'GET' })
-	.inputValidator(z.number().min(1))
+	.validator(z.number().min(1))
 	.middleware([baseProcedure])
 	.handler(async ({ data: id, context }) => {
 		const interview = await context.db.findByID({

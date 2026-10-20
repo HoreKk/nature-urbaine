@@ -50,7 +50,7 @@ export const getLibraryStats = createServerFn({ method: 'GET' })
 
 export const getCategoryById = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
-	.inputValidator(z.number())
+	.validator(z.number())
 	.handler(async ({ data: id, context }) => {
 		const category = await context.db.findByID({
 			collection: 'categories',

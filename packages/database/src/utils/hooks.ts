@@ -23,3 +23,42 @@ export const getSeasonFromDate: TGetSeasonFromDate = async (args) => {
 				? "autumn"
 				: "winter";
 };
+
+type ReportNameParts = {
+	country?: string | null;
+	city?: string | null;
+	projectName?: string | null;
+};
+
+export function computeReportName({
+	country,
+	city,
+	projectName,
+}: ReportNameParts): string {
+	const isAbroad =
+		!!country?.trim() && country.trim().toLowerCase() !== "france";
+
+	return [isAbroad ? country : undefined, city, projectName]
+		.map((part) => part?.trim())
+		.filter(Boolean)
+		.join(", ");
+}
+
+// Partial Local API updates omit untouched fields, so fall back to the stored doc.
+export const computeReportNameHook: FieldHook<
+	Report,
+	string | undefined,
+	Partial<Report>
+> = ({ data, originalDoc, value }) => {
+	const locationDetails = data?.locationDetails ?? originalDoc?.locationDetails;
+	const projectName =
+		data && "projectName" in data ? data.projectName : originalDoc?.projectName;
+
+	const name = computeReportName({
+		country: locationDetails?.country,
+		city: locationDetails?.city,
+		projectName,
+	});
+
+	return name || value;
+};

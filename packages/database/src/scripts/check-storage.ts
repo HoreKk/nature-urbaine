@@ -1,18 +1,6 @@
 /**
- * Read-only integrity check: every `media` / `pictures` row (and each of its
- * generated sizes) must have its object in the bucket, at the key Payload
- * resolves. The website signs that same key (apps/website/src/server/media-urls.ts).
- *
- * Catches the failure where uploads were written to a container disk instead
- * of S3 (missing env vars, a collection without the storage plugin): the row
- * exists, the link is dead. Exits 1 when anything is missing, so it can run as
- * a Railway cron / pre-deploy step and surface as a failed run.
- *
- * Deliberately independent of Payload: plain SQL inside a READ ONLY
- * transaction plus S3 HEAD requests. It gives the same answer before and after
- * a migration, on any Payload version, and cannot write anywhere.
- *
- *   pnpm storage:check            # uses S3_* and DATABASE_URL from the env
+ * Exits 1 on any missing object, so it can run as a Railway cron / pre-deploy step.
+ * Plain SQL (READ ONLY) + S3 HEAD instead of Payload: same answer across Payload versions.
  */
 import { HeadObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import pg from "pg";
@@ -61,10 +49,8 @@ async function exists(key: string): Promise<boolean> {
 	}
 }
 
-// Mirrors plugin-cloud-storage: `prefix/_objectKey` (buildPrefixWithObjectKey),
-// and an empty result falls back to the collection prefix (getFileKey). Rows
-// uploaded before `media` had a prefix are stored with `prefix: ""` and are
-// served from `media/` through that fallback.
+// Mirrors plugin-cloud-storage (buildPrefixWithObjectKey, getFileKey); legacy
+// `media` rows with `prefix: ""` are served from `media/` through the fallback.
 const folderOf = (
 	collection: string,
 	prefix: string | null,
@@ -99,13 +85,22 @@ for (const collection of storageCollections) {
 			[collection],
 		)
 	).rows.map((row) => row.column_name);
-	// `_objectkey` only exists once the Payload 3.90 migration has run.
-	const objectKey = columns.includes("_objectkey") ? "_objectkey" : "null";
-	const sizeColumns = columns.filter((name) =>
-		/^sizes_.+_filename$/.test(name),
-	);
+	const column = (name: string) =>
+		columns.includes(name) ? `"${name}"` : "null";
+	// Image sizes: `sizes_<name>_*` in Payload 3, `variants_<name>_*` in 4, where
+	// each variant also stores its own `prefix`/`_objectkey`.
+	const variants = columns.flatMap((name) => {
+		const match = /^(sizes|variants)_(.+)_filename$/.exec(name);
+		return match ? [`${match[1]}_${match[2]}`] : [];
+	});
+	const variantSelect = variants
+		.map(
+			(base) =>
+				`, "${base}_filename", ${column(`${base}_prefix`)} as "${base}_prefix", ${column(`${base}__objectkey`)} as "${base}__objectkey"`,
+		)
+		.join("");
 	const { rows } = await client.query<Record<string, string | null>>(
-		`select id, filename, prefix, ${objectKey} as object_key${sizeColumns.map((name) => `, "${name}"`).join("")} from "${collection}"`,
+		`select id, filename, prefix, ${column("_objectkey")} as object_key${variantSelect} from "${collection}"`,
 	);
 
 	const jobs: Job[] = [];
@@ -116,17 +111,22 @@ for (const collection of storageCollections) {
 			continue;
 		}
 		if (!row.prefix) legacyEmptyPrefix++;
-		const folder = folderOf(
+		const prefix = row.prefix ?? null;
+		const objectKey = row.object_key ?? null;
+		jobs.push({
 			collection,
-			row.prefix ?? null,
-			row.object_key ?? null,
-		);
-		const files = [
-			row.filename,
-			...sizeColumns.map((name) => row[name]).filter(Boolean),
-		] as string[];
-		for (const file of files) {
-			// The website signs this same key (apps/website/src/server/media-urls.ts).
+			id,
+			key: `${folderOf(collection, prefix, objectKey)}/${row.filename}`,
+		});
+		for (const base of variants) {
+			const file = row[`${base}_filename`];
+			if (!file) continue;
+			// Rows from before the upgrade have no per-variant location.
+			const folder = folderOf(
+				collection,
+				row[`${base}_prefix`] ?? prefix,
+				row[`${base}__objectkey`] ?? objectKey,
+			);
 			jobs.push({ collection, id, key: `${folder}/${file}` });
 		}
 	}

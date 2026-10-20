@@ -1,8 +1,16 @@
 ## Agent skills
 
+### Issue tracker
+
+GitHub Issues on `HoreKk/nature-urbaine` via `gh` (to-tickets publishes here); the client's Notion is off-limits to skills. See `docs/agents/issue-tracker.md`.
+
 ### Domain docs
 
-Domain context lives in `docs/CONTEXT.md`; ADRs in `docs/adr/`. See `docs/agents/domain.md`.
+Single-context: `GLOSSARY.md` at the root, ADRs in `docs/adr/`. See `docs/agents/domain.md`.
+
+### Coding standards
+
+Read `docs/CODING_STANDARDS.md` before writing or reviewing code: comment rules, JSX layout.
 
 ### Design defaults
 

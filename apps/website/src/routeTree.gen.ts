@@ -8,26 +8,29 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as ContribuerRouteImport } from './routes/contribuer'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as CarteRouteImport } from './routes/carte'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as TagsIndexRouteImport } from './routes/tags/index'
-import { Route as ReportsIndexRouteImport } from './routes/reports/index'
-import { Route as InterviewsIndexRouteImport } from './routes/interviews/index'
-import { Route as TagsIdRouteImport } from './routes/tags/$id'
-import { Route as ReportsIdRouteImport } from './routes/reports/$id'
-import { Route as InterviewsIdRouteImport } from './routes/interviews/$id'
+import { Route as rootRouteImport } from './app/__root'
+import { Route as IndexRouteImport } from './app/index'
+import { Route as PayloadRouteImport } from './app/_payload'
+import { Route as CarteRouteImport } from './app/carte'
+import { Route as ContactRouteImport } from './app/contact'
+import { Route as ContribuerRouteImport } from './app/contribuer'
+import { Route as InterviewsIndexRouteImport } from './app/interviews/index'
+import { Route as InterviewsIdRouteImport } from './app/interviews/$id'
+import { Route as ReportsIndexRouteImport } from './app/reports/index'
+import { Route as ReportsIdRouteImport } from './app/reports/$id'
+import { Route as TagsIndexRouteImport } from './app/tags/index'
+import { Route as TagsIdRouteImport } from './app/tags/$id'
+import { Route as PayloadAdminIndexRouteImport } from './app/_payload/admin.index'
+import { Route as PayloadAdminSplatRouteImport } from './app/_payload/admin.$'
+import { Route as PayloadApiSplatRouteImport } from './app/_payload/api.$'
 
-const ContribuerRoute = ContribuerRouteImport.update({
-  id: '/contribuer',
-  path: '/contribuer',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
+const PayloadRoute = PayloadRouteImport.update({
+  id: '/_payload',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CarteRoute = CarteRouteImport.update({
@@ -35,19 +38,14 @@ const CarteRoute = CarteRouteImport.update({
   path: '/carte',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TagsIndexRoute = TagsIndexRouteImport.update({
-  id: '/tags/',
-  path: '/tags/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReportsIndexRoute = ReportsIndexRouteImport.update({
-  id: '/reports/',
-  path: '/reports/',
+const ContribuerRoute = ContribuerRouteImport.update({
+  id: '/contribuer',
+  path: '/contribuer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InterviewsIndexRoute = InterviewsIndexRouteImport.update({
@@ -55,9 +53,14 @@ const InterviewsIndexRoute = InterviewsIndexRouteImport.update({
   path: '/interviews/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TagsIdRoute = TagsIdRouteImport.update({
-  id: '/tags/$id',
-  path: '/tags/$id',
+const InterviewsIdRoute = InterviewsIdRouteImport.update({
+  id: '/interviews/$id',
+  path: '/interviews/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsIndexRoute = ReportsIndexRouteImport.update({
+  id: '/reports/',
+  path: '/reports/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportsIdRoute = ReportsIdRouteImport.update({
@@ -65,10 +68,30 @@ const ReportsIdRoute = ReportsIdRouteImport.update({
   path: '/reports/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InterviewsIdRoute = InterviewsIdRouteImport.update({
-  id: '/interviews/$id',
-  path: '/interviews/$id',
+const TagsIndexRoute = TagsIndexRouteImport.update({
+  id: '/tags/',
+  path: '/tags/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TagsIdRoute = TagsIdRouteImport.update({
+  id: '/tags/$id',
+  path: '/tags/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayloadAdminIndexRoute = PayloadAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => PayloadRoute,
+} as any)
+const PayloadAdminSplatRoute = PayloadAdminSplatRouteImport.update({
+  id: '/admin/$',
+  path: '/admin/$',
+  getParentRoute: () => PayloadRoute,
+} as any)
+const PayloadApiSplatRoute = PayloadApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
+  getParentRoute: () => PayloadRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -82,6 +105,9 @@ export interface FileRoutesByFullPath {
   '/interviews/': typeof InterviewsIndexRoute
   '/reports/': typeof ReportsIndexRoute
   '/tags/': typeof TagsIndexRoute
+  '/admin/$': typeof PayloadAdminSplatRoute
+  '/api/$': typeof PayloadApiSplatRoute
+  '/admin/': typeof PayloadAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,10 +120,14 @@ export interface FileRoutesByTo {
   '/interviews': typeof InterviewsIndexRoute
   '/reports': typeof ReportsIndexRoute
   '/tags': typeof TagsIndexRoute
+  '/admin/$': typeof PayloadAdminSplatRoute
+  '/api/$': typeof PayloadApiSplatRoute
+  '/admin': typeof PayloadAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_payload': typeof PayloadRouteWithChildren
   '/carte': typeof CarteRoute
   '/contact': typeof ContactRoute
   '/contribuer': typeof ContribuerRoute
@@ -107,6 +137,9 @@ export interface FileRoutesById {
   '/interviews/': typeof InterviewsIndexRoute
   '/reports/': typeof ReportsIndexRoute
   '/tags/': typeof TagsIndexRoute
+  '/_payload/admin/$': typeof PayloadAdminSplatRoute
+  '/_payload/api/$': typeof PayloadApiSplatRoute
+  '/_payload/admin/': typeof PayloadAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +154,9 @@ export interface FileRouteTypes {
     | '/interviews/'
     | '/reports/'
     | '/tags/'
+    | '/admin/$'
+    | '/api/$'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,9 +169,13 @@ export interface FileRouteTypes {
     | '/interviews'
     | '/reports'
     | '/tags'
+    | '/admin/$'
+    | '/api/$'
+    | '/admin'
   id:
     | '__root__'
     | '/'
+    | '/_payload'
     | '/carte'
     | '/contact'
     | '/contribuer'
@@ -145,10 +185,14 @@ export interface FileRouteTypes {
     | '/interviews/'
     | '/reports/'
     | '/tags/'
+    | '/_payload/admin/$'
+    | '/_payload/api/$'
+    | '/_payload/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PayloadRoute: typeof PayloadRouteWithChildren
   CarteRoute: typeof CarteRoute
   ContactRoute: typeof ContactRoute
   ContribuerRoute: typeof ContribuerRoute
@@ -162,18 +206,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/contribuer': {
-      id: '/contribuer'
-      path: '/contribuer'
-      fullPath: '/contribuer'
-      preLoaderRoute: typeof ContribuerRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
+    '/_payload': {
+      id: '/_payload'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PayloadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/carte': {
@@ -183,25 +227,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tags/': {
-      id: '/tags/'
-      path: '/tags'
-      fullPath: '/tags/'
-      preLoaderRoute: typeof TagsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reports/': {
-      id: '/reports/'
-      path: '/reports'
-      fullPath: '/reports/'
-      preLoaderRoute: typeof ReportsIndexRouteImport
+    '/contribuer': {
+      id: '/contribuer'
+      path: '/contribuer'
+      fullPath: '/contribuer'
+      preLoaderRoute: typeof ContribuerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/interviews/': {
@@ -211,11 +248,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InterviewsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tags/$id': {
-      id: '/tags/$id'
-      path: '/tags/$id'
-      fullPath: '/tags/$id'
-      preLoaderRoute: typeof TagsIdRouteImport
+    '/interviews/$id': {
+      id: '/interviews/$id'
+      path: '/interviews/$id'
+      fullPath: '/interviews/$id'
+      preLoaderRoute: typeof InterviewsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports/': {
+      id: '/reports/'
+      path: '/reports'
+      fullPath: '/reports/'
+      preLoaderRoute: typeof ReportsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reports/$id': {
@@ -225,18 +269,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/interviews/$id': {
-      id: '/interviews/$id'
-      path: '/interviews/$id'
-      fullPath: '/interviews/$id'
-      preLoaderRoute: typeof InterviewsIdRouteImport
+    '/tags/': {
+      id: '/tags/'
+      path: '/tags'
+      fullPath: '/tags/'
+      preLoaderRoute: typeof TagsIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/tags/$id': {
+      id: '/tags/$id'
+      path: '/tags/$id'
+      fullPath: '/tags/$id'
+      preLoaderRoute: typeof TagsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_payload/admin/': {
+      id: '/_payload/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof PayloadAdminIndexRouteImport
+      parentRoute: typeof PayloadRoute
+    }
+    '/_payload/admin/$': {
+      id: '/_payload/admin/$'
+      path: '/admin/$'
+      fullPath: '/admin/$'
+      preLoaderRoute: typeof PayloadAdminSplatRouteImport
+      parentRoute: typeof PayloadRoute
+    }
+    '/_payload/api/$': {
+      id: '/_payload/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof PayloadApiSplatRouteImport
+      parentRoute: typeof PayloadRoute
     }
   }
 }
 
+interface PayloadRouteChildren {
+  PayloadAdminSplatRoute: typeof PayloadAdminSplatRoute
+  PayloadApiSplatRoute: typeof PayloadApiSplatRoute
+  PayloadAdminIndexRoute: typeof PayloadAdminIndexRoute
+}
+
+const PayloadRouteChildren: PayloadRouteChildren = {
+  PayloadAdminSplatRoute: PayloadAdminSplatRoute,
+  PayloadApiSplatRoute: PayloadApiSplatRoute,
+  PayloadAdminIndexRoute: PayloadAdminIndexRoute,
+}
+
+const PayloadRouteWithChildren =
+  PayloadRoute._addFileChildren(PayloadRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PayloadRoute: PayloadRouteWithChildren,
   CarteRoute: CarteRoute,
   ContactRoute: ContactRoute,
   ContribuerRoute: ContribuerRoute,

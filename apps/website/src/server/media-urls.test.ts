@@ -11,7 +11,7 @@ const picture = {
 	thumbnailURL: '/api/pictures/file/parc%20a-400x300.png',
 	width: 4000,
 	height: 3000,
-	sizes: {
+	variants: {
 		thumbnail: {
 			url: '/api/pictures/file/parc%20a-400x300.png',
 			width: 400,
@@ -33,7 +33,7 @@ describe('withMediaUrls', () => {
 		delete process.env.S3_BUCKET;
 		const result = await withMediaUrls({ docs: [picture] });
 		expect(result.docs[0].url).toMatch(/\/api\/pictures\/file\/parc%20a\.png$/);
-		expect(result.docs[0].sizes.thumbnail.url).toMatch(/-400x300\.png$/);
+		expect(result.docs[0].variants.thumbnail.url).toMatch(/-400x300\.png$/);
 	});
 
 	describe('with a bucket', () => {
@@ -44,7 +44,7 @@ describe('withMediaUrls', () => {
 			process.env.S3_SECRET_KEY = 'secret';
 		});
 
-		it('signs every upload URL, including nested sizes and relations', async () => {
+		it('signs every upload URL, including nested variants and relations', async () => {
 			const report = {
 				id: 9,
 				name: 'R',
@@ -59,11 +59,10 @@ describe('withMediaUrls', () => {
 			expect(front.url).toContain('X-Amz-Signature=');
 			expect(front.url).toContain('X-Amz-Expires=604800');
 			expect(front.url).toContain('response-cache-control=');
-			expect(front.sizes.thumbnail.url).toMatch(
+			expect(front.variants.thumbnail.url).toMatch(
 				/\/pictures\/parc%20a-400x300\.png\?/,
 			);
 			expect(front.thumbnailURL).toMatch(/-400x300\.png\?/);
-			// Untouched fields survive the copy.
 			expect(front.alt).toBe('Parc');
 			expect(result.docs[0].tags).toEqual([{ id: 1 }]);
 			expect(result.totalDocs).toBe(1);
@@ -102,14 +101,15 @@ describe('withMediaUrls', () => {
 		});
 
 		it('signs URLs carrying ?prefix= (S3 plugin in the website config)', async () => {
-			// Exact shape served in production on 2026-10-18, which broke images.
+			// Exact shape served in production on 2026-10-18, which broke images
+			// (see #20), with v4's `variants` in place of `sizes`.
 			const doc = {
 				...picture,
 				prefix: 'pictures',
 				url: '/api/pictures/file/parc%20a.png?prefix=pictures',
-				sizes: {
+				variants: {
 					thumbnail: {
-						...picture.sizes.thumbnail,
+						...picture.variants.thumbnail,
 						url: '/api/pictures/file/parc%20a-400x300.png?prefix=pictures',
 					},
 				},
@@ -118,28 +118,43 @@ describe('withMediaUrls', () => {
 			expect(result.docs[0].url).toMatch(
 				/^https:\/\/t3\.storageapi\.dev\/nu-bucket\/pictures\/parc%20a\.png\?/,
 			);
-			expect(result.docs[0].sizes.thumbnail.url).toMatch(
+			expect(result.docs[0].variants.thumbnail.url).toMatch(
 				/\/nu-bucket\/pictures\/parc%20a-400x300\.png\?/,
 			);
 		});
 
-		it('signs new uploads under <prefix>/<_objectKey>/', async () => {
+		it('signs Payload 4 uploads under <prefix>/<_objectKey>/', async () => {
 			const doc = {
-				...picture,
+				id: 21,
+				filename: 's3-test-original.png',
+				url: '/api/pictures/file/s3-test-original.png?prefix=pictures',
 				prefix: 'pictures',
 				_objectKey: '2be7d0d4',
-				url: '/api/pictures/file/parc%20a.png?prefix=pictures',
+				variants: {
+					thumbnail: {
+						url: '/api/pictures/file/s3-test-original-400x300.png?prefix=pictures',
+						filename: 's3-test-original-400x300.png',
+						prefix: 'pictures',
+						_objectKey: '2be7d0d4',
+					},
+				},
 			};
 			const result = await withMediaUrls(doc);
 			expect(result.url).toMatch(
-				/\/nu-bucket\/pictures\/2be7d0d4\/parc%20a\.png\?/,
+				/\/nu-bucket\/pictures\/2be7d0d4\/s3-test-original\.png\?/,
 			);
-			expect(result.sizes.thumbnail.url).toMatch(
-				/\/nu-bucket\/pictures\/2be7d0d4\/parc%20a-400x300\.png\?/,
+			expect(result.variants.thumbnail.url).toMatch(
+				/\/nu-bucket\/pictures\/2be7d0d4\/s3-test-original-400x300\.png\?/,
 			);
 		});
 
-		it('keeps empty-prefix media rows at media/<file>', () => {
+		it('keeps pre-upgrade and empty-prefix rows at <collection>/<file>', () => {
+			expect(
+				objectKeyFromPath('/api/pictures/file/a.png?prefix=pictures', {
+					prefix: 'pictures',
+					_objectKey: null,
+				}),
+			).toBe('pictures/a.png');
 			// 77 prod `media` rows were stored before the prefix was configured.
 			expect(objectKeyFromPath('/api/media/file/b.jpg', { prefix: '' })).toBe(
 				'media/b.jpg',

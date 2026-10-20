@@ -21,10 +21,8 @@ type UseUrlSyncedFiltersOptions<T extends FilterValues> = {
 };
 
 /**
- * Two-way sync between a filter form and the URL search params, which stay
- * the single source of truth. Form edits are debounced as a whole object so a
- * URL→form sync (back/forward) never races a stale half-debounced value back
- * into the URL.
+ * The URL stays the source of truth. Form edits are debounced as a whole object so a
+ * back/forward sync never races a stale half-debounced value back into the URL.
  */
 export function useUrlSyncedFilters<T extends FilterValues>({
 	formValues,

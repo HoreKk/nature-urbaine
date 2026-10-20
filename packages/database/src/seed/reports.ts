@@ -1,5 +1,6 @@
 import type { Payload } from "payload";
 import { CITY_STRATUM_OPTIONS } from "../collections/Report";
+import { computeReportName } from "../utils/hooks";
 import { categorySeedKey, reportSeedKey } from "../utils/seed-key";
 import { upsertBySeedKey } from "../utils/seed-upsert";
 import { cleanString, readExcelSheet } from "../utils/tools";
@@ -51,6 +52,7 @@ export default async function seedReports(payload: Payload) {
 	const categories = await payload.find({
 		collection: "categories",
 		limit: 0,
+		overrideAccess: true,
 	});
 
 	const sortedData = [...data].toSorted((a, b) => {
@@ -63,9 +65,7 @@ export default async function seedReports(payload: Payload) {
 		const country = formatCountry(report.PAYS);
 		const city = cleanString(report.VILLE);
 		const projectName = cleanString(report.PROJET);
-		const name = isFrench(report.PAYS)
-			? `${city}, ${projectName}`
-			: `${country}, ${city}, ${projectName}`;
+		const name = computeReportName({ country, city, projectName });
 
 		const cleanedCategoryName = cleanString(report.CATEGORIE);
 		const targetCategorySeedKey = categorySeedKey(cleanedCategoryName);
