@@ -1,8 +1,8 @@
-import { render, toPlainText } from "react-email";
+import { render, toPlainText } from 'react-email';
 import {
 	SubmissionNotificationEmail,
 	type SubmissionEmailInput,
-} from "./SubmissionNotificationEmail";
+} from './SubmissionNotificationEmail';
 
 type RenderedSubmissionEmail = {
 	subject: string;
@@ -13,7 +13,7 @@ type RenderedSubmissionEmail = {
 export function getSubmissionSubject({
 	name,
 	category,
-}: Pick<SubmissionEmailInput, "name" | "category">): string {
+}: Pick<SubmissionEmailInput, 'name' | 'category'>): string {
 	return `[Contribution] ${name} - ${category}`;
 }
 

@@ -2,14 +2,14 @@ pre-commit:
   parallel: false
   jobs:
     - name: oxfmt
-      glob: "*.{js,jsx,mjs,cjs,ts,tsx,json,jsonc,css,html,md,yaml,yml,toml}"
+      glob: '*.{js,jsx,mjs,cjs,ts,tsx,json,jsonc,css,html,md,yaml,yml,toml}'
       exclude:
-        - "src/payload/migrations/**"
+        - 'src/payload/migrations/**'
       run: pnpm exec oxfmt {staged_files}
       stage_fixed: true
     - name: oxlint
-      glob: "*.{js,jsx,mjs,cjs,ts,tsx}"
+      glob: '*.{js,jsx,mjs,cjs,ts,tsx}'
       exclude:
-        - "src/payload/migrations/**"
+        - 'src/payload/migrations/**'
       run: pnpm exec oxlint --fix {staged_files}
       stage_fixed: true

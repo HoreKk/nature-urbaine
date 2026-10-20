@@ -1,34 +1,34 @@
 import {
 	convertHTMLToLexical,
 	editorConfigFactory,
-} from "@payloadcms/richtext-lexical";
-import { JSDOM } from "jsdom";
-import type { Payload } from "payload";
-import payloadConfig from "../default-config";
-import { createOnce } from "../utils/seed-create";
-import { interviewSeedKey } from "../utils/seed-key";
-import { cleanString, readExcelSheet } from "../utils/tools";
+} from '@payloadcms/richtext-lexical';
+import { JSDOM } from 'jsdom';
+import type { Payload } from 'payload';
+import payloadConfig from '../default-config';
+import { createOnce } from '../utils/seed-create';
+import { interviewSeedKey } from '../utils/seed-key';
+import { cleanString, readExcelSheet } from '../utils/tools';
 
 type ExcelInterview = {
-	"Ville // Département": string;
-	"NOM DU PROJET": string;
+	'Ville // Département': string;
+	'NOM DU PROJET': string;
 	"Maîtrise d'ouvrage": string;
-	"Maîtrise d’œuvre": string;
-	"Date de réalisation": number | string;
+	'Maîtrise d’œuvre': string;
+	'Date de réalisation': number | string;
 	Coût: string;
 	Superficie: string;
 	Résumé: string;
 	"Date de l'interview": number | string;
-	"A la rencontre de": string;
-	"Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?": string;
-	"Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ? ": string;
-	"Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?": string;
+	'A la rencontre de': string;
+	'Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?': string;
+	'Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ? ': string;
+	'Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?': string;
 };
 
 export default async function seedInterviews(payload: Payload) {
 	const data = readExcelSheet(
-		"./src/payload/seed/historic-data.xlsx",
-		"interviews",
+		'./src/payload/seed/historic-data.xlsx',
+		'interviews',
 	) as ExcelInterview[];
 
 	const editorConfig = await editorConfigFactory.default({
@@ -36,33 +36,33 @@ export default async function seedInterviews(payload: Payload) {
 	});
 
 	for (const interview of data) {
-		const projectName = cleanString(interview["NOM DU PROJET"]);
+		const projectName = cleanString(interview['NOM DU PROJET']);
 
-		const [interviewee, ...interviewRole] = interview["A la rencontre de"]
-			.split(",")
+		const [interviewee, ...interviewRole] = interview['A la rencontre de']
+			.split(',')
 			.map((part) => cleanString(part));
-		const [city, department] = interview["Ville // Département"]
-			.split("//")
+		const [city, department] = interview['Ville // Département']
+			.split('//')
 			.map((part) => cleanString(part));
 
-		const realisedAt = parseExcelDate(interview["Date de réalisation"]);
+		const realisedAt = parseExcelDate(interview['Date de réalisation']);
 		const publishedAt = parseExcelDate(interview["Date de l'interview"]);
 
 		await createOnce(payload, {
-			collection: "interviews",
+			collection: 'interviews',
 			key: interviewSeedKey({
 				projectName,
-				interviewee: interviewee || "",
+				interviewee: interviewee || '',
 			}),
 			draft: false,
 			data: {
 				name: projectName,
-				interviewee: interviewee || "",
-				intervieweeRole: interviewRole.join(", "),
-				city: city || "",
-				department: department || "",
+				interviewee: interviewee || '',
+				intervieweeRole: interviewRole.join(', '),
+				city: city || '',
+				department: department || '',
 				projectOwner: cleanString(interview["Maîtrise d'ouvrage"]),
-				projectManagement: cleanString(interview["Maîtrise d’œuvre"]),
+				projectManagement: cleanString(interview['Maîtrise d’œuvre']),
 				summary: cleanString(interview.Résumé),
 				area: cleanString(interview.Superficie),
 				projectCost: cleanString(interview.Coût) || undefined,
@@ -72,21 +72,21 @@ export default async function seedInterviews(payload: Payload) {
 					objectives: convertHTMLToLexical({
 						editorConfig,
 						html: interview[
-							"Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?"
+							'Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?'
 						].trim(),
 						JSDOM,
 					}),
 					impacts: convertHTMLToLexical({
 						editorConfig,
 						html: interview[
-							"Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ? "
+							'Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ? '
 						].trim(),
 						JSDOM,
 					}),
 					challenges: convertHTMLToLexical({
 						editorConfig,
 						html: interview[
-							"Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?"
+							'Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?'
 						].trim(),
 						JSDOM,
 					}),
@@ -95,13 +95,13 @@ export default async function seedInterviews(payload: Payload) {
 		});
 	}
 
-	console.log("✅ Seed des interviews.");
+	console.log('✅ Seed des interviews.');
 }
 
 function parseExcelDate(value: number | string | undefined | null) {
-	if (value === undefined || value === null || value === "") return undefined;
+	if (value === undefined || value === null || value === '') return undefined;
 
-	if (typeof value === "number" && Number.isFinite(value)) {
+	if (typeof value === 'number' && Number.isFinite(value)) {
 		const str = value.toString();
 		if (str.length === 8) {
 			const iso = `${str.slice(0, 4)}-${str.slice(4, 6)}-${str.slice(6, 8)}`;

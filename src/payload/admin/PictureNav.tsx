@@ -1,11 +1,11 @@
-import { Button, ChevronIcon } from "@payloadcms/ui";
-import type { BeforeDocumentControlsServerProps } from "payload";
-import { formatAdminURL } from "payload/shared";
+import { Button, ChevronIcon } from '@payloadcms/ui';
+import type { BeforeDocumentControlsServerProps } from 'payload';
+import { formatAdminURL } from 'payload/shared';
 
 type DocId = number | string;
 
 const idOf = (value: unknown): DocId | undefined =>
-	typeof value === "object" && value !== null
+	typeof value === 'object' && value !== null
 		? (value as { id?: DocId }).id
 		: (value as DocId | undefined);
 
@@ -16,13 +16,13 @@ const NavButton = ({
 }: {
 	href: string | undefined;
 	label: string;
-	direction: "left" | "right";
+	direction: 'left' | 'right';
 }) => (
 	// `Button` ignores `disabled` on `el="link"`, so the ends render a plain button.
 	<Button
 		buttonStyle="secondary"
 		size="medium"
-		{...(href ? { el: "link", url: href } : { el: "button", disabled: true })}
+		{...(href ? { el: 'link', url: href } : { el: 'button', disabled: true })}
 		tooltip={label}
 		aria-label={label}
 	>
@@ -39,7 +39,7 @@ export const PictureNav = async ({
 	if (id == null) return null;
 
 	const picture = await payload.findByID({
-		collection: "pictures",
+		collection: 'pictures',
 		id,
 		depth: 0,
 		select: { report: true },
@@ -50,7 +50,7 @@ export const PictureNav = async ({
 	if (reportId == null) return null;
 
 	const report = await payload.findByID({
-		collection: "reports",
+		collection: 'reports',
 		id: reportId,
 		depth: 0,
 		select: { relatedPictures: true },
@@ -73,9 +73,9 @@ export const PictureNav = async ({
 	return (
 		<div
 			style={{
-				display: "flex",
-				gap: "var(--base)",
-				marginRight: "var(--base)",
+				display: 'flex',
+				gap: 'var(--base)',
+				marginRight: 'var(--base)',
 			}}
 		>
 			<NavButton

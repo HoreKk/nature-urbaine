@@ -1,8 +1,8 @@
-import { render, toPlainText } from "react-email";
+import { render, toPlainText } from 'react-email';
 import {
 	ContactNotificationEmail,
 	type ContactEmailInput,
-} from "./ContactNotificationEmail";
+} from './ContactNotificationEmail';
 
 type RenderedContactEmail = {
 	subject: string;
@@ -11,11 +11,11 @@ type RenderedContactEmail = {
 };
 
 const SECTOR_LABELS: Record<string, string> = {
-	paysagiste: "Paysagiste",
+	paysagiste: 'Paysagiste',
 	MOA: "Maîtrise d'ouvrage (MOA)",
 	MOE: "Maîtrise d'œuvre (MOE)",
-	urbaniste: "Urbaniste",
-	autre: "Autre",
+	urbaniste: 'Urbaniste',
+	autre: 'Autre',
 };
 
 function getSectorLabel(value: string): string {
@@ -26,7 +26,7 @@ export function getContactSubject({
 	firstName,
 	lastName,
 	sector,
-}: Pick<ContactEmailInput, "firstName" | "lastName" | "sector">): string {
+}: Pick<ContactEmailInput, 'firstName' | 'lastName' | 'sector'>): string {
 	return `[Contact] ${firstName} ${lastName} — ${getSectorLabel(sector)}`;
 }
 

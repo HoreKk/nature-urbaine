@@ -1,19 +1,19 @@
-import { createHash } from "node:crypto";
+import { createHash } from 'node:crypto';
 
 export function slugify(value: string): string {
 	return value
-		.normalize("NFD")
-		.replace(/\p{Diacritic}/gu, "")
+		.normalize('NFD')
+		.replace(/\p{Diacritic}/gu, '')
 		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/(^-|-$)/g, "");
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/(^-|-$)/g, '');
 }
 
 export function shortHash(
 	...parts: (string | number | undefined | null)[]
 ): string {
-	const input = parts.map((p) => (p ?? "").toString().trim()).join("|");
-	return createHash("sha1").update(input).digest("hex").slice(0, 10);
+	const input = parts.map((p) => (p ?? '').toString().trim()).join('|');
+	return createHash('sha1').update(input).digest('hex').slice(0, 10);
 }
 
 export function reportSeedKey(input: {
@@ -24,7 +24,7 @@ export function reportSeedKey(input: {
 	datePhoto?: number | string | null;
 }): string {
 	const wp = input.wordpressPostId;
-	if (wp !== undefined && wp !== null && wp !== "") {
+	if (wp !== undefined && wp !== null && wp !== '') {
 		const wpStr = wp.toString().trim();
 		if (wpStr) return `report-wp-${wpStr}`;
 	}

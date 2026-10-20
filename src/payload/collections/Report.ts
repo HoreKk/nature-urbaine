@@ -1,26 +1,26 @@
-import type { CollectionConfig } from "payload";
-import { computeReportNameHook, getSeasonFromDate } from "../utils/hooks";
+import type { CollectionConfig } from 'payload';
+import { computeReportNameHook, getSeasonFromDate } from '../utils/hooks';
 
 export const CITY_STRATUM_OPTIONS = [
-	{ label: "Moins de 500 hab.", value: "moins-de-500" },
-	{ label: "De 500 à 2 000 hab.", value: "500-a-2000" },
-	{ label: "De 2 000 à 3 500 hab.", value: "2000-a-3500" },
-	{ label: "De 3 500 à 10 000 hab.", value: "3500-a-10000" },
-	{ label: "De 10 000 à 30 000 hab.", value: "10000-a-30000" },
-	{ label: "De 30 000 à 100 000 hab.", value: "30000-a-100000" },
-	{ label: "Plus de 100 000 hab.", value: "plus-de-100000" },
+	{ label: 'Moins de 500 hab.', value: 'moins-de-500' },
+	{ label: 'De 500 à 2 000 hab.', value: '500-a-2000' },
+	{ label: 'De 2 000 à 3 500 hab.', value: '2000-a-3500' },
+	{ label: 'De 3 500 à 10 000 hab.', value: '3500-a-10000' },
+	{ label: 'De 10 000 à 30 000 hab.', value: '10000-a-30000' },
+	{ label: 'De 30 000 à 100 000 hab.', value: '30000-a-100000' },
+	{ label: 'Plus de 100 000 hab.', value: 'plus-de-100000' },
 ] as const;
 
 export const Reports: CollectionConfig = {
-	slug: "reports",
+	slug: 'reports',
 	// Public catalog data: the website reads it without a user (Payload 4
 	// enforces access on the Local API by default).
 	access: {
 		read: () => true,
 	},
 	labels: {
-		singular: "Reportage",
-		plural: "Reportages",
+		singular: 'Reportage',
+		plural: 'Reportages',
 	},
 	versions: {
 		drafts: {
@@ -28,27 +28,27 @@ export const Reports: CollectionConfig = {
 		},
 	},
 	admin: {
-		useAsTitle: "name",
+		useAsTitle: 'name',
 	},
 	fields: [
 		{
-			name: "name",
-			type: "text",
-			label: "Nom",
+			name: 'name',
+			type: 'text',
+			label: 'Nom',
 			required: true,
 			admin: {
 				readOnly: true,
 				description:
-					"Calculé à partir de la ville et du nom du projet (précédés du pays hors France).",
+					'Calculé à partir de la ville et du nom du projet (précédés du pays hors France).',
 			},
 			hooks: {
 				beforeChange: [computeReportNameHook],
 			},
 		},
 		{
-			name: "slug",
-			type: "text",
-			label: "Slug",
+			name: 'slug',
+			type: 'text',
+			label: 'Slug',
 			virtual: true,
 			admin: {
 				readOnly: true,
@@ -58,124 +58,124 @@ export const Reports: CollectionConfig = {
 					({ siblingData }) => {
 						siblingData.slug = siblingData.name
 							.toLowerCase()
-							.replace(/[^a-z0-9]+/g, "-")
-							.replace(/(^-|-$)/g, "");
+							.replace(/[^a-z0-9]+/g, '-')
+							.replace(/(^-|-$)/g, '');
 					},
 				],
 			},
 		},
 		{
-			name: "description",
-			type: "textarea",
-			label: "Description",
+			name: 'description',
+			type: 'textarea',
+			label: 'Description',
 			required: true,
 		},
 		{
-			name: "projectName",
-			type: "text",
-			label: "Nom du projet",
+			name: 'projectName',
+			type: 'text',
+			label: 'Nom du projet',
 		},
 		{
-			name: "locationDetails",
-			type: "group",
-			label: "Localisation",
+			name: 'locationDetails',
+			type: 'group',
+			label: 'Localisation',
 			fields: [
 				{
-					type: "row",
+					type: 'row',
 					fields: [
 						{
-							name: "country",
-							type: "text",
-							label: "Pays",
+							name: 'country',
+							type: 'text',
+							label: 'Pays',
 						},
 						{
-							name: "city",
-							type: "text",
-							label: "Ville",
+							name: 'city',
+							type: 'text',
+							label: 'Ville',
 						},
 						{
-							name: "postalCode",
-							type: "text",
-							label: "Code postal",
+							name: 'postalCode',
+							type: 'text',
+							label: 'Code postal',
 						},
 					],
 				},
 				{
-					name: "address",
-					type: "text",
-					label: "Adresse",
+					name: 'address',
+					type: 'text',
+					label: 'Adresse',
 				},
 				{
-					type: "row",
+					type: 'row',
 					fields: [
 						{
-							name: "departmentCode",
-							type: "text",
-							label: "Code département",
+							name: 'departmentCode',
+							type: 'text',
+							label: 'Code département',
 						},
 						{
-							name: "department",
-							type: "text",
-							label: "Département",
+							name: 'department',
+							type: 'text',
+							label: 'Département',
 						},
 						{
-							name: "region",
-							type: "text",
-							label: "Région",
+							name: 'region',
+							type: 'text',
+							label: 'Région',
 						},
 					],
 				},
 				{
-					name: "cityStratum",
-					type: "select",
-					label: "Strate de la ville",
+					name: 'cityStratum',
+					type: 'select',
+					label: 'Strate de la ville',
 					options: [...CITY_STRATUM_OPTIONS],
 				},
 			],
 		},
 		{
-			name: "relatedPictures",
-			type: "join",
-			label: "Photos associées",
-			collection: "pictures",
-			on: "report",
+			name: 'relatedPictures',
+			type: 'join',
+			label: 'Photos associées',
+			collection: 'pictures',
+			on: 'report',
 			orderable: true,
 			defaultLimit: 0,
 			admin: {
-				defaultColumns: ["filename"],
+				defaultColumns: ['filename'],
 			},
 			hasMany: true,
 		},
 		{
-			name: "category",
-			type: "relationship",
-			relationTo: "categories",
-			label: "Catégorie",
+			name: 'category',
+			type: 'relationship',
+			relationTo: 'categories',
+			label: 'Catégorie',
 			required: true,
 			admin: {
-				position: "sidebar",
+				position: 'sidebar',
 			},
 		},
 		{
-			name: "date",
-			type: "date",
-			label: "Date du rapport",
+			name: 'date',
+			type: 'date',
+			label: 'Date du rapport',
 			required: true,
 			admin: {
-				position: "sidebar",
+				position: 'sidebar',
 			},
 		},
 		{
-			name: "season",
-			type: "select",
-			label: "Saison",
+			name: 'season',
+			type: 'select',
+			label: 'Saison',
 			options: [
-				{ label: "Printemps", value: "spring" },
-				{ label: "Été", value: "summer" },
-				{ label: "Automne", value: "autumn" },
-				{ label: "Hiver", value: "winter" },
+				{ label: 'Printemps', value: 'spring' },
+				{ label: 'Été', value: 'summer' },
+				{ label: 'Automne', value: 'autumn' },
+				{ label: 'Hiver', value: 'winter' },
 			],
-			admin: { readOnly: true, position: "sidebar" },
+			admin: { readOnly: true, position: 'sidebar' },
 			hooks: {
 				beforeChange: [
 					({ siblingData }) => {
@@ -186,58 +186,58 @@ export const Reports: CollectionConfig = {
 			},
 		},
 		{
-			name: "wordpressPostId",
-			type: "number",
-			label: "Code WordPress",
+			name: 'wordpressPostId',
+			type: 'number',
+			label: 'Code WordPress',
 			admin: {
-				position: "sidebar",
+				position: 'sidebar',
 				readOnly: true,
 			},
 		},
 		{
-			name: "projectDetails",
-			type: "group",
-			label: "Détails du projet",
+			name: 'projectDetails',
+			type: 'group',
+			label: 'Détails du projet',
 			fields: [
 				{
-					type: "row",
+					type: 'row',
 					fields: [
 						{
-							name: "projectOwner",
-							type: "text",
+							name: 'projectOwner',
+							type: 'text',
 							label: "Maître d'ouvrage",
 						},
 						{
-							name: "projectManagement",
-							type: "text",
+							name: 'projectManagement',
+							type: 'text',
 							label: "Maître d'oeuvre",
 						},
 					],
 				},
 				{
-					type: "row",
+					type: 'row',
 					fields: [
 						{
-							name: "deliveryYear",
-							type: "number",
-							label: "Année de livraison",
+							name: 'deliveryYear',
+							type: 'number',
+							label: 'Année de livraison',
 						},
 						{
-							name: "projectCost",
-							type: "text",
-							label: "Coût",
+							name: 'projectCost',
+							type: 'text',
+							label: 'Coût',
 						},
 						{
-							name: "projectArea",
-							type: "text",
-							label: "Superficie",
+							name: 'projectArea',
+							type: 'text',
+							label: 'Superficie',
 						},
 					],
 				},
 				{
-					name: "photoAuthor",
-					type: "text",
-					label: "Auteur des photographies",
+					name: 'photoAuthor',
+					type: 'text',
+					label: 'Auteur des photographies',
 				},
 			],
 		},

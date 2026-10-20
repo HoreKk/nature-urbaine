@@ -1,1 +1,1 @@
-export { convertLexicalToHTML } from "@payloadcms/richtext-lexical/html";
+export { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html';

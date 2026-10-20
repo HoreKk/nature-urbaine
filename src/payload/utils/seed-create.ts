@@ -1,4 +1,4 @@
-import type { CollectionSlug, Payload } from "payload";
+import type { CollectionSlug, Payload } from 'payload';
 
 const created = new Map<string, Promise<{ id: number | string }>>();
 

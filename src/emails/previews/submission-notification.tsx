@@ -1,11 +1,11 @@
-import { SubmissionNotificationEmail } from "../templates/submission/SubmissionNotificationEmail";
+import { SubmissionNotificationEmail } from '../templates/submission/SubmissionNotificationEmail';
 
 export default function SubmissionNotificationPreview() {
 	return (
 		<SubmissionNotificationEmail
 			name="Reamenagement de la place Jourdan"
 			description={
-				"Transformation des sols et plantation de strates basses.\nValidation en concertation locale."
+				'Transformation des sols et plantation de strates basses.\nValidation en concertation locale.'
 			}
 			category="Espaces publics"
 			deliveryYear={2024}

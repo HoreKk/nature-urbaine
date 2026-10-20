@@ -3,7 +3,7 @@
 	"useTabs": true,
 	"tabWidth": 2,
 	"printWidth": 80,
-	"singleQuote": false,
+	"singleQuote": true,
 	"jsxSingleQuote": false,
 	"quoteProps": "as-needed",
 	"trailingComma": "all",
@@ -31,14 +31,5 @@
 		"src/components/ui/**",
 		"src/payload/migrations/**",
 		"src/payload/payload-types.ts"
-	],
-	"overrides": [
-		{
-			"files": ["src/**", "*.ts"],
-			"excludeFiles": ["src/payload/**", "src/emails/**"],
-			"options": {
-				"singleQuote": true
-			}
-		}
 	]
 }

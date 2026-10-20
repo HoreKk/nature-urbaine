@@ -2,10 +2,10 @@
  * Local bucket only: `[FIXTURE_COUNT=60] pnpm storage:fixtures:large-report` (default 240).
  * Uploads through Payload so variants match production; reruns replace that size's fixture.
  */
-import { getPayload } from "payload";
-import sharp from "sharp";
-import config from "../read-config";
-import { readS3Env } from "../storage";
+import { getPayload } from 'payload';
+import sharp from 'sharp';
+import config from '../read-config';
+import { readS3Env } from '../storage';
 
 const count = Number(process.env.FIXTURE_COUNT ?? 240);
 // One report per size, so a 5-photo run leaves the 240-photo one alone.
@@ -14,12 +14,12 @@ const concurrency = 4;
 
 const env = readS3Env();
 if (!env || !process.env.DATABASE_URL) {
-	console.error("[large-report] DATABASE_URL and S3_* env vars must be set.");
+	console.error('[large-report] DATABASE_URL and S3_* env vars must be set.');
 	process.exit(2);
 }
 if (
 	process.env.RAILWAY_ENVIRONMENT_NAME ||
-	!["localhost", "127.0.0.1", "::1"].includes(new URL(env.endpoint).hostname)
+	!['localhost', '127.0.0.1', '::1'].includes(new URL(env.endpoint).hostname)
 ) {
 	console.error(
 		`[large-report] Refusing to run against ${env.endpoint}: local buckets only.`,
@@ -36,7 +36,7 @@ async function photo(index: number) {
 	const portrait = index % 5 === 4;
 	const [width, height] = portrait ? [3000, 4000] : [4000, 3000];
 	const hue = hues[index % hues.length]!;
-	const label = `${String(index + 1).padStart(3, "0")} / ${count}`;
+	const label = `${String(index + 1).padStart(3, '0')} / ${count}`;
 	const overlay = Buffer.from(`
 		<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
 			<defs>
@@ -55,8 +55,8 @@ async function photo(index: number) {
 			width,
 			height,
 			channels: 3,
-			background: "#808080",
-			noise: { type: "gaussian", mean: 128, sigma: 40 },
+			background: '#808080',
+			noise: { type: 'gaussian', mean: 128, sigma: 40 },
 		},
 	})
 		.composite([{ input: overlay }])
@@ -66,7 +66,7 @@ async function photo(index: number) {
 
 // Deleting through Payload removes the files too.
 const previous = await payload.find({
-	collection: "reports",
+	collection: 'reports',
 	overrideAccess: true,
 	where: { name: { equals: NAME } },
 	draft: true,
@@ -75,12 +75,12 @@ const previous = await payload.find({
 });
 for (const report of previous.docs) {
 	await payload.delete({
-		collection: "pictures",
+		collection: 'pictures',
 		overrideAccess: true,
 		where: { report: { equals: report.id } },
 	});
 	await payload.delete({
-		collection: "reports",
+		collection: 'reports',
 		overrideAccess: true,
 		id: report.id,
 	});
@@ -89,20 +89,20 @@ for (const report of previous.docs) {
 const category =
 	(
 		await payload.find({
-			collection: "categories",
+			collection: 'categories',
 			overrideAccess: true,
 			limit: 1,
 			depth: 0,
 		})
 	).docs[0] ??
 	(await payload.create({
-		collection: "categories",
+		collection: 'categories',
 		overrideAccess: true,
-		data: { name: "Galeries de test" },
+		data: { name: 'Galeries de test' },
 	}));
 
 const report = await payload.create({
-	collection: "reports",
+	collection: 'reports',
 	overrideAccess: true,
 	draft: false,
 	data: {
@@ -110,8 +110,8 @@ const report = await payload.create({
 		description: `Reportage de test : ${count} photos de 4000×3000 pixels, comme les plus gros reportages en production.`,
 		category: category.id,
 		date: new Date().toISOString(),
-		locationDetails: { city: "Paris" },
-		_status: "published",
+		locationDetails: { city: 'Paris' },
+		_status: 'published',
 	},
 });
 
@@ -127,7 +127,7 @@ await Promise.all(
 		) {
 			const data = await photo(index);
 			await payload.create({
-				collection: "pictures",
+				collection: 'pictures',
 				overrideAccess: true,
 				data: {
 					alt: `Photo ${index + 1} du reportage de test`,
@@ -135,8 +135,8 @@ await Promise.all(
 				},
 				file: {
 					data,
-					mimetype: "image/jpeg",
-					name: `fixture-galerie-${String(index + 1).padStart(3, "0")}.jpg`,
+					mimetype: 'image/jpeg',
+					name: `fixture-galerie-${String(index + 1).padStart(3, '0')}.jpg`,
 					size: data.length,
 				},
 			});

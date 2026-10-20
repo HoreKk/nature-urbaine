@@ -1,24 +1,24 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { postgresAdapter } from "@payloadcms/db-postgres";
-import { nodemailerAdapter } from "@payloadcms/email-nodemailer";
-import { lexicalEditor } from "@payloadcms/richtext-lexical";
-import { sharpTransformer } from "@payloadcms/transformer-sharp";
-import { fr } from "@payloadcms/translations/languages/fr";
-import { buildConfig } from "payload";
-import sharp from "sharp";
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { postgresAdapter } from '@payloadcms/db-postgres';
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer';
+import { lexicalEditor } from '@payloadcms/richtext-lexical';
+import { sharpTransformer } from '@payloadcms/transformer-sharp';
+import { fr } from '@payloadcms/translations/languages/fr';
+import { buildConfig } from 'payload';
+import sharp from 'sharp';
 
-import { Categories } from "./collections/Category";
-import { Interviews } from "./collections/Interview";
-import { Media } from "./collections/Media";
-import { Pictures } from "./collections/Picture";
-import { Reports } from "./collections/Report";
-import { Submissions } from "./collections/Submission";
-import { Tags } from "./collections/Tag";
-import { TagCategories } from "./collections/TagCategory";
-import { Users } from "./collections/Users";
-import { pictureVariants } from "./image-variants";
-import { storageAdapter, storageCoverageGuard } from "./storage";
+import { Categories } from './collections/Category';
+import { Interviews } from './collections/Interview';
+import { Media } from './collections/Media';
+import { Pictures } from './collections/Picture';
+import { Reports } from './collections/Report';
+import { Submissions } from './collections/Submission';
+import { Tags } from './collections/Tag';
+import { TagCategories } from './collections/TagCategory';
+import { Users } from './collections/Users';
+import { pictureVariants } from './image-variants';
+import { storageAdapter, storageCoverageGuard } from './storage';
 
 // One process serves site, admin and uploads: libvips' cache and per-core threads
 // add hundreds of MB of RSS per ~50 MB decode. Uploads are rare; keep them lean.
@@ -30,7 +30,7 @@ const payloadDir = path.dirname(filename);
 
 function parseBoolean(value: string | undefined, fallback: boolean): boolean {
 	if (!value) return fallback;
-	return ["1", "true", "yes", "on"].includes(value.toLowerCase());
+	return ['1', 'true', 'yes', 'on'].includes(value.toLowerCase());
 }
 
 function buildEmailAdapter() {
@@ -42,8 +42,8 @@ function buildEmailAdapter() {
 
 	return nodemailerAdapter({
 		defaultFromAddress:
-			process.env.CONTACT_EMAIL_FROM ?? "no-reply@nature-urbaine.fr",
-		defaultFromName: process.env.CONTACT_EMAIL_FROM_NAME ?? "Nature Urbaine",
+			process.env.CONTACT_EMAIL_FROM ?? 'no-reply@nature-urbaine.fr',
+		defaultFromName: process.env.CONTACT_EMAIL_FROM_NAME ?? 'Nature Urbaine',
 		// Payload awaits the verify at boot; an unreachable SMTP host (Railway blocks
 		// SMTP below Pro) stalled boot 2 min. A real send still fails, after 10 s.
 		skipVerify: true,
@@ -74,16 +74,16 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 			user: Users.slug,
 			importMap: {
 				// Component paths like `/payload/admin/PictureNav` resolve from `src/`.
-				baseDir: path.resolve(payloadDir, ".."),
+				baseDir: path.resolve(payloadDir, '..'),
 			},
 		},
 		i18n: {
-			fallbackLanguage: "fr",
+			fallbackLanguage: 'fr',
 			supportedLanguages: { fr },
 		},
 		// TanStack Start mode serves the admin at the fixed `/admin` route.
 		routes: {
-			admin: "/admin",
+			admin: '/admin',
 		},
 		// v4 lowered the default from 2 to 1; the website's queries rely on 2.
 		defaultDepth: 2,
@@ -100,17 +100,17 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 			Users,
 		],
 		editor: lexicalEditor(),
-		secret: process.env.PAYLOAD_SECRET || "",
+		secret: process.env.PAYLOAD_SECRET || '',
 		email: buildEmailAdapter(),
 		typescript: {
-			outputFile: path.resolve(payloadDir, "./payload-types.ts"),
+			outputFile: path.resolve(payloadDir, './payload-types.ts'),
 		},
 		db: postgresAdapter({
 			...(push === undefined ? {} : { push }),
 			pool: {
-				connectionString: process.env.DATABASE_URL || "",
+				connectionString: process.env.DATABASE_URL || '',
 			},
-			migrationDir: path.resolve(payloadDir, "./migrations"),
+			migrationDir: path.resolve(payloadDir, './migrations'),
 		}),
 		upload: {
 			transformers: [
@@ -131,7 +131,7 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 		// Origins whose admin cookie Payload accepts. Leaving this empty would
 		// accept it from any origin, so it stays even with a single app.
 		csrf: [
-			"http://localhost:3000",
+			'http://localhost:3000',
 			...(process.env.RAILWAY_PUBLIC_DOMAIN
 				? [`https://${process.env.RAILWAY_PUBLIC_DOMAIN}`]
 				: []),

@@ -1,8 +1,8 @@
-import XLSX from "xlsx";
+import XLSX from 'xlsx';
 
 export function cleanString(value: string | number | undefined | null): string {
-	if (value === undefined || value === null) return "";
-	return value.toString().replace(/-/g, " ").replace(/\s+/g, " ").trim();
+	if (value === undefined || value === null) return '';
+	return value.toString().replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 export function readExcelSheet(
@@ -15,7 +15,7 @@ export function readExcelSheet(
 
 		const targetSheet = sheetName || workbook.SheetNames[0];
 		if (!targetSheet)
-			throw new Error("Aucune feuille disponible dans le fichier Excel");
+			throw new Error('Aucune feuille disponible dans le fichier Excel');
 		const sheet = workbook.Sheets[targetSheet];
 
 		if (!sheet) {
@@ -40,7 +40,7 @@ export function readExcelSheet(
 		return processedData;
 	} catch (error) {
 		console.error(
-			"Erreur lors de la lecture du fichier:",
+			'Erreur lors de la lecture du fichier:',
 			error instanceof Error ? error.message : error,
 		);
 		return [];

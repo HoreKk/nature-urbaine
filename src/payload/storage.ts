@@ -1,9 +1,9 @@
-import { s3Storage } from "@payloadcms/storage-s3";
-import type { Plugin, StorageAdapter } from "payload";
+import { s3Storage } from '@payloadcms/storage-s3';
+import type { Plugin, StorageAdapter } from 'payload';
 
 // Each collection is stored under a prefix equal to its slug; the website's
 // `media-urls.ts` and `scripts/check-storage.ts` rely on this layout.
-export const storageCollections = ["media", "pictures"] as const;
+export const storageCollections = ['media', 'pictures'] as const;
 
 export function readS3Env() {
 	const bucket = process.env.S3_BUCKET;
@@ -14,7 +14,7 @@ export function readS3Env() {
 	return {
 		bucket,
 		endpoint,
-		region: process.env.S3_REGION || "auto",
+		region: process.env.S3_REGION || 'auto',
 		accessKeyId,
 		secretAccessKey,
 	};
@@ -27,11 +27,11 @@ export function readS3Env() {
 function assertStorageConfigured(configured: boolean) {
 	if (configured) return;
 	if (!process.env.RAILWAY_ENVIRONMENT_NAME) return;
-	if (process.env.ALLOW_LOCAL_UPLOADS === "true") return;
+	if (process.env.ALLOW_LOCAL_UPLOADS === 'true') return;
 	throw new Error(
 		`[storage] S3_BUCKET, S3_ENDPOINT, S3_ACCESS_KEY and S3_SECRET_KEY must be set on Railway (environment "${process.env.RAILWAY_ENVIRONMENT_NAME}"). ` +
-			"Refusing to start: uploads would be written to the container disk and lost on redeploy. " +
-			"Set ALLOW_LOCAL_UPLOADS=true only if that is intended.",
+			'Refusing to start: uploads would be written to the container disk and lost on redeploy. ' +
+			'Set ALLOW_LOCAL_UPLOADS=true only if that is intended.',
 	);
 }
 
@@ -42,8 +42,8 @@ function assertUploadsCovered(slugs: string[]) {
 	);
 	if (uncovered.length === 0) return;
 	throw new Error(
-		`[storage] Upload collection(s) ${uncovered.join(", ")} are not in storageCollections (packages/database/src/storage.ts). ` +
-			"Their files would be written to the container disk and lost on redeploy.",
+		`[storage] Upload collection(s) ${uncovered.join(', ')} are not in storageCollections (packages/database/src/storage.ts). ` +
+			'Their files would be written to the container disk and lost on redeploy.',
 	);
 }
 
@@ -63,13 +63,13 @@ export function storageAdapter(): StorageAdapter {
 				{ prefix: slug, signedDownloads: true },
 			]),
 		),
-		bucket: env?.bucket ?? "",
+		bucket: env?.bucket ?? '',
 		config: {
 			endpoint: env?.endpoint,
-			region: env?.region ?? "auto",
+			region: env?.region ?? 'auto',
 			credentials: {
-				accessKeyId: env?.accessKeyId ?? "",
-				secretAccessKey: env?.secretAccessKey ?? "",
+				accessKeyId: env?.accessKeyId ?? '',
+				secretAccessKey: env?.secretAccessKey ?? '',
 			},
 			forcePathStyle: true,
 		},

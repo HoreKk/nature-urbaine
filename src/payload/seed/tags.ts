@@ -1,7 +1,7 @@
-import type { Payload } from "payload";
-import { createOnce } from "../utils/seed-create";
-import { tagCategorySeedKey, tagSeedKey } from "../utils/seed-key";
-import { cleanString, readExcelSheet } from "../utils/tools";
+import type { Payload } from 'payload';
+import { createOnce } from '../utils/seed-create';
+import { tagCategorySeedKey, tagSeedKey } from '../utils/seed-key';
+import { cleanString, readExcelSheet } from '../utils/tools';
 
 type ExcelTags = {
 	category: string;
@@ -11,9 +11,9 @@ type ExcelTags = {
 
 export default async function seedTags(payload: Payload) {
 	const data = readExcelSheet(
-		"./src/payload/seed/historic-data.xlsx",
-		"mots_clefs",
-		["category", "parent", "tag"],
+		'./src/payload/seed/historic-data.xlsx',
+		'mots_clefs',
+		['category', 'parent', 'tag'],
 	) as ExcelTags[];
 
 	const expandedData: ExcelTags[] = [];
@@ -25,8 +25,8 @@ export default async function seedTags(payload: Payload) {
 			continue;
 		}
 
-		const parents = item.parent.split(",").map((p) => cleanString(p));
-		const tags = item.tag.split(",").map((t) => cleanString(t));
+		const parents = item.parent.split(',').map((p) => cleanString(p));
+		const tags = item.tag.split(',').map((t) => cleanString(t));
 
 		for (const parent of parents) {
 			for (const tag of tags) {
@@ -45,19 +45,19 @@ export default async function seedTags(payload: Payload) {
 		const parentName = cleanString(item.parent);
 
 		const tagCategory = await createOnce(payload, {
-			collection: "tag-categories",
+			collection: 'tag-categories',
 			key: tagCategorySeedKey(tagCategoryName),
 			data: { name: tagCategoryName },
 		});
 
 		const parentTag = await createOnce(payload, {
-			collection: "tags",
+			collection: 'tags',
 			key: tagSeedKey(parentName),
 			data: { name: parentName, tagCategory: tagCategory.id },
 		});
 
 		await createOnce(payload, {
-			collection: "tags",
+			collection: 'tags',
 			key: tagSeedKey(tagName, parentName),
 			data: {
 				name: tagName,
@@ -67,5 +67,5 @@ export default async function seedTags(payload: Payload) {
 		});
 	}
 
-	console.log("✅ Seed des étiquettes.");
+	console.log('✅ Seed des étiquettes.');
 }

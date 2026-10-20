@@ -1,5 +1,5 @@
-import { Section, Text } from "react-email";
-import { MainEmailLayout } from "../../layouts/MainEmailLayout";
+import { Section, Text } from 'react-email';
+import { MainEmailLayout } from '../../layouts/MainEmailLayout';
 
 export type ContactEmailInput = {
 	firstName: string;
@@ -12,11 +12,11 @@ export type ContactEmailInput = {
 };
 
 const SECTOR_LABELS: Record<string, string> = {
-	paysagiste: "Paysagiste",
+	paysagiste: 'Paysagiste',
 	MOA: "Maîtrise d'ouvrage (MOA)",
 	MOE: "Maîtrise d'œuvre (MOE)",
-	urbaniste: "Urbaniste",
-	autre: "Autre",
+	urbaniste: 'Urbaniste',
+	autre: 'Autre',
 };
 
 function getSectorLabel(value: string): string {
@@ -24,7 +24,7 @@ function getSectorLabel(value: string): string {
 }
 
 function MessageWithBreaks({ value }: { value: string }) {
-	const lines = value.split("\n");
+	const lines = value.split('\n');
 
 	return (
 		<>
@@ -79,41 +79,41 @@ export function ContactNotificationEmail(props: ContactEmailInput) {
 
 const styles = {
 	block: {
-		marginBottom: "16px",
+		marginBottom: '16px',
 	},
 	label: {
-		color: "#6f665b",
-		fontFamily: "JetBrains Mono, monospace",
-		fontSize: "11px",
-		letterSpacing: "0.08em",
-		margin: "0 0 4px",
-		textTransform: "uppercase" as const,
+		color: '#6f665b',
+		fontFamily: 'JetBrains Mono, monospace',
+		fontSize: '11px',
+		letterSpacing: '0.08em',
+		margin: '0 0 4px',
+		textTransform: 'uppercase' as const,
 	},
 	value: {
-		color: "#1b1d1a",
-		fontSize: "14px",
-		lineHeight: "1.65",
+		color: '#1b1d1a',
+		fontSize: '14px',
+		lineHeight: '1.65',
 		margin: 0,
 	},
 	metaBlock: {
-		backgroundColor: "#f3eee7",
-		border: "1px solid #ddd3c7",
-		borderRadius: "6px",
-		marginTop: "24px",
-		padding: "12px",
+		backgroundColor: '#f3eee7',
+		border: '1px solid #ddd3c7',
+		borderRadius: '6px',
+		marginTop: '24px',
+		padding: '12px',
 	},
 	metaLabel: {
-		color: "#6f665b",
-		fontFamily: "JetBrains Mono, monospace",
-		fontSize: "11px",
-		letterSpacing: "0.08em",
-		margin: "0 0 6px",
-		textTransform: "uppercase" as const,
+		color: '#6f665b',
+		fontFamily: 'JetBrains Mono, monospace',
+		fontSize: '11px',
+		letterSpacing: '0.08em',
+		margin: '0 0 6px',
+		textTransform: 'uppercase' as const,
 	},
 	metaValue: {
-		color: "#3a3d37",
-		fontSize: "12px",
-		lineHeight: "1.6",
+		color: '#3a3d37',
+		fontSize: '12px',
+		lineHeight: '1.6',
 		margin: 0,
 	},
 };

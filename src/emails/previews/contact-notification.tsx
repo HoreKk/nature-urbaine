@@ -1,4 +1,4 @@
-import { ContactNotificationEmail } from "../templates/contact/ContactNotificationEmail";
+import { ContactNotificationEmail } from '../templates/contact/ContactNotificationEmail';
 
 export default function ContactNotificationPreview() {
 	return (
