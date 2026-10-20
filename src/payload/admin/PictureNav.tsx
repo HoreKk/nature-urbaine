@@ -1,96 +1,74 @@
-"use client";
-
-import {
-	Button,
-	ChevronIcon,
-	useConfig,
-	useDocumentInfo,
-	useRouter,
-} from "@payloadcms/ui";
-import { useEffect, useState } from "react";
+import { Button, ChevronIcon } from "@payloadcms/ui";
+import type { BeforeDocumentControlsServerProps } from "payload";
+import { formatAdminURL } from "payload/shared";
 
 type DocId = number | string;
 
-const toId = (value: unknown): DocId | null => {
-	if (value == null) return null;
-	if (typeof value === "object") {
-		const id = (value as { id?: DocId }).id;
-		return id ?? null;
-	}
-	return value as DocId;
-};
+const idOf = (value: unknown): DocId | undefined =>
+	typeof value === "object" && value !== null
+		? (value as { id?: DocId }).id
+		: (value as DocId | undefined);
 
-export const PictureNav = () => {
-	const router = useRouter();
-	const { id, data } = useDocumentInfo();
-	const { config } = useConfig();
-	const apiRoute = config.routes.api || "/api";
-	const adminRoute = config.routes.admin || "/";
+const NavButton = ({
+	href,
+	label,
+	direction,
+}: {
+	href: string | undefined;
+	label: string;
+	direction: "left" | "right";
+}) => (
+	// `Button` ignores `disabled` on `el="link"`, so the ends render a plain button.
+	<Button
+		buttonStyle="secondary"
+		size="medium"
+		{...(href ? { el: "link", url: href } : { el: "button", disabled: true })}
+		tooltip={label}
+		aria-label={label}
+	>
+		<ChevronIcon direction={direction} />
+	</Button>
+);
 
-	const reportRef = data?.report;
+/** Previous / next photo of the same report, in the report's photo order. */
+export const PictureNav = async ({
+	id,
+	payload,
+	user,
+}: BeforeDocumentControlsServerProps) => {
+	if (id == null) return null;
 
-	const [siblings, setSiblings] = useState<{
-		of: DocId;
-		prev: DocId | null;
-		next: DocId | null;
-	} | null>(null);
-	// Neighbours loaded for another photo are never shown, even while the new ones load.
-	const current =
-		siblings && id != null && String(siblings.of) === String(id)
-			? siblings
-			: null;
-	const prev = current?.prev ?? null;
-	const next = current?.next ?? null;
+	const picture = await payload.findByID({
+		collection: "pictures",
+		id,
+		depth: 0,
+		select: { report: true },
+		overrideAccess: false,
+		user,
+	});
+	const reportId = idOf(picture.report);
+	if (reportId == null) return null;
 
-	useEffect(() => {
-		if (!id) return;
-		let cancelled = false;
+	const report = await payload.findByID({
+		collection: "reports",
+		id: reportId,
+		depth: 0,
+		select: { relatedPictures: true },
+		// The `relatedPictures` join order is the report's photo sequence.
+		joins: { relatedPictures: { limit: 0 } },
+		overrideAccess: false,
+		user,
+	});
 
-		const load = async () => {
-			let reportId = toId(reportRef);
-			if (reportId == null) {
-				const res = await fetch(`${apiRoute}/pictures/${id}?depth=0`, {
-					credentials: "include",
+	const ids = (report.relatedPictures?.docs ?? []).map(idOf);
+	const index = ids.findIndex((docId) => String(docId) === String(id));
+	const hrefOf = (docId: DocId | undefined) =>
+		docId == null
+			? undefined
+			: formatAdminURL({
+					adminRoute: payload.config.routes.admin,
+					path: `/collections/pictures/${docId}`,
 				});
-				reportId = toId((await res.json())?.report);
-			}
-			if (reportId == null) return;
-
-			// The `relatedPictures` join order is the report's photo sequence.
-			const res = await fetch(
-				`${apiRoute}/reports/${reportId}?depth=0&joins[relatedPictures][limit]=1000`,
-				{ credentials: "include" },
-			);
-			const report = await res.json();
-			const docs: unknown[] = report?.relatedPictures?.docs ?? [];
-			const ids = docs
-				.map(toId)
-				.filter((value): value is DocId => value != null);
-			const index = ids.findIndex((docId) => String(docId) === String(id));
-			if (index === -1 || cancelled) return;
-
-			setSiblings({
-				of: id,
-				prev: index > 0 ? (ids[index - 1] ?? null) : null,
-				next: index < ids.length - 1 ? (ids[index + 1] ?? null) : null,
-			});
-		};
-
-		load().catch((err) => {
-			console.error("PictureNav: failed to load sibling photos", err);
-		});
-		return () => {
-			cancelled = true;
-		};
-	}, [id, apiRoute, reportRef]);
-
-	if (!id) return null;
-
-	const base = adminRoute === "/" ? "" : adminRoute;
-	const goTo = (pictureId: DocId | null) => {
-		if (pictureId == null) return;
-		router.push(`${base}/collections/pictures/${pictureId}`);
-	};
 
 	return (
 		<div
@@ -100,28 +78,16 @@ export const PictureNav = () => {
 				marginRight: "var(--base)",
 			}}
 		>
-			<Button
-				buttonStyle="secondary"
-				size="medium"
-				el="button"
-				disabled={prev == null}
-				onClick={() => goTo(prev)}
-				tooltip="Photo précédente"
-				aria-label="Photo précédente"
-			>
-				<ChevronIcon direction="left" />
-			</Button>
-			<Button
-				buttonStyle="secondary"
-				size="medium"
-				el="button"
-				disabled={next == null}
-				onClick={() => goTo(next)}
-				tooltip="Photo suivante"
-				aria-label="Photo suivante"
-			>
-				<ChevronIcon direction="right" />
-			</Button>
+			<NavButton
+				href={index > 0 ? hrefOf(ids[index - 1]) : undefined}
+				label="Photo précédente"
+				direction="left"
+			/>
+			<NavButton
+				href={index !== -1 ? hrefOf(ids[index + 1]) : undefined}
+				label="Photo suivante"
+				direction="right"
+			/>
 		</div>
 	);
 };
