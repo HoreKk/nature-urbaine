@@ -48,7 +48,7 @@ const withVariants = {
 };
 
 describe('fullSource', () => {
-	it('falls back to the original alone before the backfill', () => {
+	it('falls back to the original alone when a row has no variants', () => {
 		const source = fullSource(picture);
 		expect(source.src).toBe(picture.url);
 		expect(source.srcSet).toBeUndefined();

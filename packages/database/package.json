@@ -22,8 +22,7 @@
 		"storage:check": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/check-storage.ts",
 		"storage:fixtures": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/storage-fixtures.ts",
 		"storage:fixtures:verify": "FIXTURES_VERIFY=1 PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/storage-fixtures.ts",
-		"storage:fixtures:large-report": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/large-report-fixture.ts",
-		"storage:variants:backfill": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/backfill-variants.ts"
+		"storage:fixtures:large-report": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/large-report-fixture.ts"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1153.0",

@@ -45,6 +45,7 @@ The migration trigger below fired. Report pages with 200+ Pictures loaded the ~4
   - It tags each object with its picture id, so a rerun reuses only its own files.
   - It never overwrites or deletes an object, and only fills empty `variants_*` columns.
 - The backfill runs once, by hand, after the deploy, not in the pre-deploy command: ~19.3k Pictures take hours, and one unreadable file must not block a release. Until it finishes, pages fall back to the originals.
+- Done 2026-10-21: every production Picture has its variants, and the script was deleted. Adding a variant later means writing a new backfill.
 - `withMediaUrls` already signs every `variants.*` entry, so signing needed no change.
 - Carousels and lightboxes also mount only the current slide ±1, so memory no longer grows with the number of photos viewed.
 

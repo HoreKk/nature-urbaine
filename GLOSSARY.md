@@ -119,8 +119,6 @@ Upload-enabled (`mimeTypes: ['image/*']`), with three variants:
 - a `thumbnail` 400×300 centre crop, for admin previews, cards and grids;
 - `medium` (1024 px wide) and `large` (2048 px wide), uncropped WebP files for the report banner, carousel and lightbox.
 
-Rows uploaded before `medium`/`large` existed get them from `pnpm storage:variants:backfill` (ADR-0003).
-
 - `alt` (required).
 - `report` (→ `reports`, required) — owning reportage.
 - `relatedTags` (→ `tags`, `hasMany`) — the keyword tags attached to **this individual photo**, per the spec ("Toutes les images doivent pouvoir être tagguées").
