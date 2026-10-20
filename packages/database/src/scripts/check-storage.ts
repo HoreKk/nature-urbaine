@@ -85,22 +85,18 @@ for (const collection of storageCollections) {
 			[collection],
 		)
 	).rows.map((row) => row.column_name);
-	const column = (name: string) =>
-		columns.includes(name) ? `"${name}"` : "null";
-	// Image sizes: `sizes_<name>_*` in Payload 3, `variants_<name>_*` in 4, where
-	// each variant also stores its own `prefix`/`_objectkey`.
+	// Each variant stores its own `prefix`/`_objectkey` next to its filename.
 	const variants = columns.flatMap((name) => {
-		const match = /^(sizes|variants)_(.+)_filename$/.exec(name);
-		return match ? [`${match[1]}_${match[2]}`] : [];
+		const match = /^(variants_.+)_filename$/.exec(name);
+		return match ? [match[1]] : [];
 	});
 	const variantSelect = variants
 		.map(
-			(base) =>
-				`, "${base}_filename", ${column(`${base}_prefix`)} as "${base}_prefix", ${column(`${base}__objectkey`)} as "${base}__objectkey"`,
+			(base) => `, "${base}_filename", "${base}_prefix", "${base}__objectkey"`,
 		)
 		.join("");
 	const { rows } = await client.query<Record<string, string | null>>(
-		`select id, filename, prefix, ${column("_objectkey")} as object_key${variantSelect} from "${collection}"`,
+		`select id, filename, prefix, "_objectkey" as object_key${variantSelect} from "${collection}"`,
 	);
 
 	const jobs: Job[] = [];

@@ -20,8 +20,6 @@
 		"seed:prod": "NODE_ENV=production payload run ./src/seed/index.ts",
 		"seed:update": "PAYLOAD_CONFIG_PATH=./src/default-config.ts payload run ./src/seed/update.ts",
 		"storage:check": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/check-storage.ts",
-		"storage:fixtures": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/storage-fixtures.ts",
-		"storage:fixtures:verify": "FIXTURES_VERIFY=1 PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/storage-fixtures.ts",
 		"storage:fixtures:large-report": "PAYLOAD_CONFIG_PATH=./src/read-config.ts payload run ./src/scripts/large-report-fixture.ts"
 	},
 	"dependencies": {

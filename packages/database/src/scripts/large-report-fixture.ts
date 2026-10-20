@@ -7,7 +7,6 @@ import sharp from "sharp";
 import config from "../read-config";
 import { readS3Env } from "../storage";
 
-// No `[fixture]` prefix: `storage:fixtures` deletes those rows with raw SQL.
 const count = Number(process.env.FIXTURE_COUNT ?? 240);
 // One report per size, so a 5-photo run leaves the 240-photo one alone.
 const NAME = `Reportage de test · ${count} photos`;
