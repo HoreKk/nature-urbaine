@@ -67,3 +67,17 @@ When either is hit, migrate to a materialised closure table (option (ii) in _Con
 - `getPicturesByTagRecursive` does up to 4 round trips at three strata. This is acceptable at MVP scale but is the load-bearing call on the most-visited search surface — instrument it from day one (logged duration + descendant count) so the migration triggers above are observable.
 - Closure-table migration, when it happens, is a strictly local change to `getPicturesByTagRecursive` and an additive schema migration. Call sites do not move.
 - `region` filter on `/reports` is **not** introduced by this ADR. `region` is free-text in `locationDetails`, data quality is unknown, and the existing `city` filter (folded in from the retired `field` route) covers the persona's primary "where" question. A future ADR can revisit if data warrants.
+
+## Updates
+
+### 2026-10-21 — taxonomy stats read `pictures_rels` in SQL
+
+`getTagTaxonomyStats` (photo and sub-tag counts in the `/tags` tree) used to `find` every Picture with `select: { relatedTags: true }` and fold the result in memory. At prod size (~19.3k Pictures, ~77k `pictures_rels` rows) that took ~740 ms median locally. About 630 ms of it was Payload hydrating 19.3k docs, not SQL, so indexes could not fix it.
+
+It now runs two raw queries through `payload.db.drizzle`: the tags (`id`, `parent_id_id`, `tag_category_id`) and one `array_agg(tags_id)` row per picture from `pictures_rels`. The same pure fold (`src/server/tag-taxonomy-stats.ts`) then walks ancestors with the same cycle guard, and Vitest pins its counting rules. Median dropped to ~34 ms on the same data, with byte-identical output. A fully recursive CTE with `count(distinct)` per ancestor was tried and rejected: ~250–310 ms, because of planner misestimates (JIT) and a hash aggregate spilling to disk.
+
+This is the first read outside the Payload local API, which alternative (iii) above declined. It stays confined to this one aggregate, which has no access rules (tags and pictures are public reads). If the `pictures_rels` or `tags` column names change in a migration, this query must change with them.
+
+### 2026-10-21 — parent tags open their page
+
+Superseding "Only leaf tags navigate" above: branch Tag rows in the tree carry a « Voir les photos » link to `/tags/$id` (issue #7). Clicking the row and pressing Enter on it still expand and collapse. The link stops its own click and keydown events so the tree does not also toggle. TagCategory rows still only expand.
