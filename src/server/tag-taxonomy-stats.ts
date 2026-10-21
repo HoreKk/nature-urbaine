@@ -70,10 +70,8 @@ export function foldTagTaxonomyStats(
 		return chain;
 	};
 
-	// A picture counts once per ancestor however many of its tags fall under
-	// it, like the recursive find on the tag detail page. The last picture index
-	// seen per node dedupes without a Set per picture. Arrays indexed by serial
-	// id beat Maps here: this loop runs ~200k times at prod size.
+	// A picture counts once per ancestor, like the tag page's recursive find: the
+	// last picture index seen per id dedupes it, in arrays since Maps were slower.
 	const tagPictureCount: number[] = [];
 	const categoryPictureCount: number[] = [];
 	const lastTagPicture: number[] = [];

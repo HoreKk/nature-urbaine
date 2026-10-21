@@ -79,7 +79,7 @@ export const getTagCategoriesWithRootCount = createServerFn({ method: 'GET' })
 		})) satisfies TagCategoryWithCount[];
 	});
 
-/** Raw SQL: hydrating ~19k pictures through Payload took ~630 ms of the old ~800 ms (see ADR-0002). */
+/** Drizzle, not `find`: hydrating ~19k Pictures through Payload dominated the old ~790 ms (see ADR-0002). */
 export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
 	.handler(async ({ context }): Promise<TagTaxonomyStats> => {

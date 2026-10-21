@@ -72,7 +72,7 @@ When either is hit, migrate to a materialised closure table (option (ii) in _Con
 
 ### 2026-10-21 — taxonomy stats read `pictures_rels` in SQL
 
-`getTagTaxonomyStats` (photo and sub-tag counts in the `/tags` tree) used to `find` every Picture with `select: { relatedTags: true }` and fold the result in memory. At prod size (~19.3k Pictures, ~77k `pictures_rels` rows) that took ~740 ms median locally. About 630 ms of it was Payload hydrating 19.3k docs, not SQL, so indexes could not fix it.
+`getTagTaxonomyStats` (photo and sub-tag counts in the `/tags` tree) used to `find` every Picture with `select: { relatedTags: true }` and fold the result in memory. At prod size (~19.3k Pictures, ~77k `pictures_rels` rows) that took ~790 ms median locally. Most of it (~630 ms) was Payload hydrating 19.3k docs, not SQL, so indexes could not fix it.
 
 It now runs two typed Drizzle queries through `context.drizzle` (from `baseProcedure`, typed by the generated `src/payload/payload-generated-schema.ts`): the tags, and one `array_agg(tags_id)` row per picture from `pictures_rels`. The same pure fold (`src/server/tag-taxonomy-stats.ts`) then walks ancestors with the same cycle guard, and Vitest pins its counting rules. Median dropped to ~41 ms on the same data, with byte-identical output. A fully recursive CTE with `count(distinct)` per ancestor was tried and rejected: ~250–310 ms, because of planner misestimates (JIT) and a hash aggregate spilling to disk.
 
