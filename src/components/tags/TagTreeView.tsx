@@ -4,14 +4,22 @@ import {
 	Flex,
 	HStack,
 	Icon,
+	Link,
 	Spinner,
 	Text,
 	TreeView,
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { Link as RouterLink, useNavigate } from '@tanstack/react-router';
 import { useMemo, useState, type JSX } from 'react';
-import { LuImages, LuLayers, LuListTree, LuTag, LuTags } from 'react-icons/lu';
+import {
+	LuArrowRight,
+	LuImages,
+	LuLayers,
+	LuListTree,
+	LuTag,
+	LuTags,
+} from 'react-icons/lu';
 import type { Tag } from '@/payload/payload-types';
 import { childTagsQueryOptions } from '@/queries/tags';
 import type {
@@ -107,6 +115,35 @@ function NodeStats({
 				</Text>
 			</HStack>
 		</HStack>
+	);
+}
+
+type TagPicturesLinkProps = {
+	tagId: number;
+	name: string;
+};
+
+/** Row clicks and Enter belong to the tree (expand/collapse), so the link keeps its own events. */
+function TagPicturesLink({ tagId, name }: TagPicturesLinkProps): JSX.Element {
+	return (
+		<Link
+			asChild
+			flexShrink={0}
+			gap={1}
+			p={{ base: 1.5, md: 0 }}
+			textStyle="mono.s"
+			color="primary.fg"
+			aria-label={`Voir les photos de ${name}`}
+			onClick={(event) => event.stopPropagation()}
+			onKeyDown={(event) => event.stopPropagation()}
+		>
+			<RouterLink to="/tags/$id" params={{ id: tagId.toString() }}>
+				<Text as="span" color="inherit" hideBelow="md">
+					Voir les photos
+				</Text>
+				<Icon as={LuArrowRight} boxSize="13px" aria-hidden />
+			</RouterLink>
+		</Link>
 	);
 }
 
@@ -229,6 +266,11 @@ export function TagTreeView({
 									<TreeView.BranchText flex="1" minW={0} truncate>
 										{node.name}
 									</TreeView.BranchText>
+									{node.kind === 'tag' &&
+										node.tagId !== undefined &&
+										nodeStats.pictureCount > 0 && (
+											<TagPicturesLink tagId={node.tagId} name={node.name} />
+										)}
 									<NodeStats {...nodeStats} />
 								</TreeView.BranchControl>
 							) : (
