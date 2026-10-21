@@ -110,6 +110,10 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 				connectionString: process.env.DATABASE_URL || '',
 			},
 			migrationDir: path.resolve(payloadDir, './migrations'),
+			generateSchemaOutputFile: path.resolve(
+				payloadDir,
+				'./payload-generated-schema.ts',
+			),
 		}),
 		upload: {
 			transformers: [

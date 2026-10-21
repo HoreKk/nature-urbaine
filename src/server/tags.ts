@@ -1,8 +1,9 @@
-import { type PostgresAdapter, sql } from '@payloadcms/db-postgres';
+import { and, eq, isNotNull, sql } from '@payloadcms/db-postgres/drizzle';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import type { PaginatedDocs } from 'payload';
 import z from 'zod';
+import { pictures_rels, tags } from '@/payload/payload-generated-schema';
 import type {
 	Picture,
 	Report,
@@ -13,9 +14,7 @@ import { baseProcedure } from './db';
 import { withMediaUrls } from './media-urls';
 import {
 	foldTagTaxonomyStats,
-	type PictureTags,
 	type TagTaxonomyStats,
-	type TaxonomyTag,
 } from './tag-taxonomy-stats';
 
 export type { TagNodeStats, TagTaxonomyStats } from './tag-taxonomy-stats';
@@ -84,21 +83,28 @@ export const getTagCategoriesWithRootCount = createServerFn({ method: 'GET' })
 export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
 	.handler(async ({ context }): Promise<TagTaxonomyStats> => {
-		// Payload types `db` as the generic adapter; config.ts uses postgresAdapter.
-		const { drizzle } = context.db.db as unknown as PostgresAdapter;
-		const [tags, pictures] = await Promise.all([
-			drizzle.execute<TaxonomyTag>(sql`
-				select id, parent_id_id as "parentId", tag_category_id as "categoryId"
-				from tags
-			`),
-			drizzle.execute<PictureTags>(sql`
-				select array_agg(tags_id) as "tagIds"
-				from pictures_rels
-				where path = 'relatedTags' and tags_id is not null
-				group by parent_id
-			`),
+		const [taxonomyTags, pictures] = await Promise.all([
+			context.drizzle
+				.select({
+					id: tags.id,
+					parentId: tags.parentId,
+					categoryId: tags.tagCategory,
+				})
+				.from(tags),
+			context.drizzle
+				.select({
+					tagIds: sql<number[]>`array_agg(${pictures_rels.tagsID})`,
+				})
+				.from(pictures_rels)
+				.where(
+					and(
+						eq(pictures_rels.path, 'relatedTags'),
+						isNotNull(pictures_rels.tagsID),
+					),
+				)
+				.groupBy(pictures_rels.parent),
 		]);
-		return foldTagTaxonomyStats(tags.rows, pictures.rows);
+		return foldTagTaxonomyStats(taxonomyTags, pictures);
 	});
 
 export const getChildTags = createServerFn({ method: 'GET' })

@@ -38,7 +38,8 @@
 		"src/routeTree.gen.ts",
 		"src/components/ui/**",
 		"src/payload/migrations/**",
-		"src/payload/payload-types.ts"
+		"src/payload/payload-types.ts",
+		"src/payload/payload-generated-schema.ts"
 	],
 	"overrides": [
 		{

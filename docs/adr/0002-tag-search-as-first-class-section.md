@@ -74,9 +74,9 @@ When either is hit, migrate to a materialised closure table (option (ii) in _Con
 
 `getTagTaxonomyStats` (photo and sub-tag counts in the `/tags` tree) used to `find` every Picture with `select: { relatedTags: true }` and fold the result in memory. At prod size (~19.3k Pictures, ~77k `pictures_rels` rows) that took ~740 ms median locally. About 630 ms of it was Payload hydrating 19.3k docs, not SQL, so indexes could not fix it.
 
-It now runs two raw queries through `payload.db.drizzle`: the tags (`id`, `parent_id_id`, `tag_category_id`) and one `array_agg(tags_id)` row per picture from `pictures_rels`. The same pure fold (`src/server/tag-taxonomy-stats.ts`) then walks ancestors with the same cycle guard, and Vitest pins its counting rules. Median dropped to ~34 ms on the same data, with byte-identical output. A fully recursive CTE with `count(distinct)` per ancestor was tried and rejected: ~250–310 ms, because of planner misestimates (JIT) and a hash aggregate spilling to disk.
+It now runs two typed Drizzle queries through `context.drizzle` (from `baseProcedure`, typed by the generated `src/payload/payload-generated-schema.ts`): the tags, and one `array_agg(tags_id)` row per picture from `pictures_rels`. The same pure fold (`src/server/tag-taxonomy-stats.ts`) then walks ancestors with the same cycle guard, and Vitest pins its counting rules. Median dropped to ~41 ms on the same data, with byte-identical output. A fully recursive CTE with `count(distinct)` per ancestor was tried and rejected: ~250–310 ms, because of planner misestimates (JIT) and a hash aggregate spilling to disk.
 
-This is the first read outside the Payload local API, which alternative (iii) above declined. It stays confined to this one aggregate, which has no access rules (tags and pictures are public reads). If the `pictures_rels` or `tags` column names change in a migration, this query must change with them.
+This is the first read outside the Payload local API, which alternative (iii) above declined. Drizzle bypasses access control and hooks, so it stays limited to aggregates over public data (tags and pictures are public reads). A schema change that renames these columns now fails typecheck once `pnpm generate:db-schema` is re-run, instead of failing at runtime.
 
 ### 2026-10-21 — parent tags open their page
 

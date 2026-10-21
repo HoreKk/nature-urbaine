@@ -182,6 +182,7 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 | Command                   | Description                                              |
 | ------------------------- | -------------------------------------------------------- |
 | `pnpm generate:types`     | Regenerate `payload-types.ts` from the collection schema |
+| `pnpm generate:db-schema` | Regenerate the Drizzle schema behind `context.drizzle`   |
 | `pnpm generate:importmap` | Regenerate Payload import map                            |
 | `pnpm chakra:typegen`     | Regenerate Chakra UI type tokens                         |
 

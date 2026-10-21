@@ -72,28 +72,27 @@ export function foldTagTaxonomyStats(
 
 	// A picture counts once per ancestor however many of its tags fall under
 	// it, like the recursive find on the tag detail page. The last picture index
-	// seen per node dedupes without a Set per picture.
-	const tagPictureCount = new Map<number, number>();
-	const categoryPictureCount = new Map<number, number>();
-	const lastTagPicture = new Map<number, number>();
-	const lastCategoryPicture = new Map<number, number>();
-	pictures.forEach(({ tagIds }, pictureIndex) => {
-		for (const tagId of tagIds) {
+	// seen per node dedupes without a Set per picture. Arrays indexed by serial
+	// id beat Maps here: this loop runs ~200k times at prod size.
+	const tagPictureCount: number[] = [];
+	const categoryPictureCount: number[] = [];
+	const lastTagPicture: number[] = [];
+	const lastCategoryPicture: number[] = [];
+	for (let pictureIndex = 0; pictureIndex < pictures.length; pictureIndex++) {
+		for (const tagId of pictures[pictureIndex]!.tagIds) {
 			for (const ancestor of ancestorsOf(tagId)) {
-				if (lastTagPicture.get(ancestor) === pictureIndex) continue;
-				lastTagPicture.set(ancestor, pictureIndex);
-				tagPictureCount.set(ancestor, (tagPictureCount.get(ancestor) ?? 0) + 1);
+				if (lastTagPicture[ancestor] === pictureIndex) continue;
+				lastTagPicture[ancestor] = pictureIndex;
+				tagPictureCount[ancestor] = (tagPictureCount[ancestor] ?? 0) + 1;
 			}
 			const category = categoryOf.get(tagId);
 			if (category === undefined) continue;
-			if (lastCategoryPicture.get(category) === pictureIndex) continue;
-			lastCategoryPicture.set(category, pictureIndex);
-			categoryPictureCount.set(
-				category,
-				(categoryPictureCount.get(category) ?? 0) + 1,
-			);
+			if (lastCategoryPicture[category] === pictureIndex) continue;
+			lastCategoryPicture[category] = pictureIndex;
+			categoryPictureCount[category] =
+				(categoryPictureCount[category] ?? 0) + 1;
 		}
-	});
+	}
 
 	const categoryDescendantCount = new Map<number, number>();
 	for (const category of categoryOf.values()) {
@@ -106,14 +105,14 @@ export function foldTagTaxonomyStats(
 	const tagStats: Record<number, TagNodeStats> = {};
 	for (const tag of tags) {
 		tagStats[tag.id] = {
-			pictureCount: tagPictureCount.get(tag.id) ?? 0,
+			pictureCount: tagPictureCount[tag.id] ?? 0,
 			descendantCount: descendantCount.get(tag.id) ?? 0,
 		};
 	}
 	const categoryStats: Record<number, TagNodeStats> = {};
 	for (const [category, count] of categoryDescendantCount) {
 		categoryStats[category] = {
-			pictureCount: categoryPictureCount.get(category) ?? 0,
+			pictureCount: categoryPictureCount[category] ?? 0,
 			descendantCount: count,
 		};
 	}
