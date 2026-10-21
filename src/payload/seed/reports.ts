@@ -1,0 +1,190 @@
+import type { Payload } from 'payload';
+import { CITY_STRATUM_OPTIONS } from '../collections/Report';
+import { computeReportName } from '../utils/hooks';
+import { createOnce, reportKey } from '../utils/seed-once';
+import { cleanString, readExcelSheet } from '../utils/tools';
+
+type ExcelReport = {
+	PAYS: string;
+	PROJET: string;
+	VILLE: string;
+	'CODE POSTAL': string;
+	DPT: number | string;
+	DEPARTEMENT: string;
+	REGION: string;
+	Adresse: string;
+	CATEGORIE: string;
+	'Description projet ': string;
+	'DATE PHOTO': number;
+	'STRATE DE LA VILLE': string;
+	'NB habitant.e.s': string;
+	'AUTEUR.E': string;
+	'code WORD PRESS': number | string;
+	MOA: string;
+	MOE: string;
+	'ANNE LIVRAISON': number | string;
+	COUT: string;
+	SUPERFICIE: string;
+};
+
+const DEFAULT_CATEGORY_NAME = 'ESPACES-PUBLICS';
+
+function normalizeStratum(value: string): string {
+	return value.toString().trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+const CITY_STRATUM_BY_LABEL = new Map(
+	CITY_STRATUM_OPTIONS.map((opt) => [normalizeStratum(opt.label), opt.value]),
+);
+
+function mapCityStratum(value: string | undefined): string | undefined {
+	if (!value) return undefined;
+	return CITY_STRATUM_BY_LABEL.get(normalizeStratum(value));
+}
+
+export default async function seedReports(payload: Payload) {
+	const data = readExcelSheet(
+		'./src/payload/seed/historic-data.xlsx',
+		'reportages lieux',
+	) as ExcelReport[];
+
+	const categories = await payload.find({
+		collection: 'categories',
+		limit: 0,
+		overrideAccess: true,
+	});
+
+	const sortedData = [...data].toSorted((a, b) => {
+		const aFrench = isFrench(a.PAYS) ? 0 : 1;
+		const bFrench = isFrench(b.PAYS) ? 0 : 1;
+		return aFrench - bFrench;
+	});
+
+	for (const report of sortedData) {
+		const country = formatCountry(report.PAYS);
+		const city = cleanString(report.VILLE);
+		const projectName = cleanString(report.PROJET);
+		const name = computeReportName({ country, city, projectName });
+
+		const cleanedCategoryName = cleanString(report.CATEGORIE);
+		const defaultCategoryName = cleanString(DEFAULT_CATEGORY_NAME);
+		const reportCategory =
+			(cleanedCategoryName
+				? (categories.docs.find((cat) => cat.name === cleanedCategoryName) ??
+					categories.docs.find((cat) => cat.name.includes(cleanedCategoryName)))
+				: undefined) ??
+			categories.docs.find((cat) => cat.name === defaultCategoryName);
+
+		if (!reportCategory) {
+			console.warn(
+				`Catégorie introuvable pour le rapport "${report.PROJET}": ${report.CATEGORIE}. Ligne ignorée.`,
+			);
+			continue;
+		}
+
+		const dateStr = report['DATE PHOTO'].toString();
+
+		if (dateStr.length !== 8) {
+			console.warn(`Date invalide pour le rapport (pas 8 caractères): ${name}`);
+			continue;
+		}
+
+		const formattedDate = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
+
+		if (!formattedDate || Number.isNaN(new Date(formattedDate).getTime())) {
+			console.warn(`Date invalide pour le rapport (date invalide): ${name}`);
+			continue;
+		}
+
+		const reportData = {
+			name,
+			projectName,
+			description:
+				report['Description projet '] || 'Aucune description disponible.',
+			locationDetails: {
+				country,
+				city,
+				postalCode: formatPostalCode(report['CODE POSTAL']),
+				address: cleanString(report.Adresse),
+				departmentCode: formatDepartmentCode(report.DPT),
+				department: cleanString(report.DEPARTEMENT),
+				region: cleanString(report.REGION),
+				cityStratum: mapCityStratum(report['STRATE DE LA VILLE']),
+				nbPopulations: parseOptionalNumber(report['NB habitant.e.s']),
+			},
+			category: reportCategory.id,
+			date: formattedDate,
+			projectDetails: {
+				photoAuthor: cleanString(report['AUTEUR.E']),
+				wordpressPostId: parseOptionalNumber(report['code WORD PRESS']),
+				projectOwner: cleanString(report.MOA),
+				projectManagement: cleanString(report.MOE),
+				deliveryYear: parseOptionalNumber(report['ANNE LIVRAISON']),
+				projectCost: cleanString(report.COUT),
+				projectArea: cleanString(report.SUPERFICIE),
+			},
+		};
+
+		const key = reportKey({
+			wordpressPostId: report['code WORD PRESS'],
+			pays: report.PAYS,
+			ville: report.VILLE,
+			projet: report.PROJET,
+			datePhoto: report['DATE PHOTO'],
+		});
+
+		await createOnce(payload, {
+			collection: 'reports',
+			key,
+			draft: false,
+			data: reportData,
+		});
+	}
+
+	console.log('✅ Seed des reportages.');
+}
+
+function parseOptionalNumber(value: number | string | undefined | null) {
+	if (value === undefined || value === null || value === '') return undefined;
+
+	if (typeof value === 'number')
+		return Number.isFinite(value) ? value : undefined;
+
+	const normalized = value.toString().replace(/\s/g, '').replace(',', '.');
+	const parsed = Number.parseFloat(normalized);
+
+	return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function formatCountry(value: string | undefined) {
+	const country = cleanString(value?.replace(/^_+/, ''));
+	if (!country) return '';
+
+	return country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
+}
+
+function isFrench(value: string | undefined) {
+	const country = formatCountry(value);
+	return !country || country === 'France';
+}
+
+function formatPostalCode(value: string | undefined) {
+	if (!value) return '';
+
+	const digits = value.toString().trim();
+
+	return /^\d+$/.test(digits) ? digits.padStart(5, '0') : digits;
+}
+
+function formatDepartmentCode(value: number | string | undefined) {
+	if (value === undefined || value === null || value === '') return '';
+	if (typeof value === 'number') return value.toString().padStart(2, '0');
+
+	const trimmed = value.toString().trim();
+
+	if (/^\d+$/.test(trimmed)) {
+		return trimmed.length >= 3 ? trimmed : trimmed.padStart(2, '0');
+	}
+
+	return trimmed;
+}

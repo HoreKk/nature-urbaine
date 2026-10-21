@@ -15,7 +15,12 @@
 	},
 	"rules": {
 		"react/react-in-jsx-scope": "off",
-		"no-underscore-dangle": ["warn", { "allow": ["_objectKey"] }]
+		"no-underscore-dangle": [
+			"warn",
+			{
+				"allow": ["_objectKey"]
+			}
+		]
 	},
 	"env": {
 		"browser": true,
@@ -28,11 +33,30 @@
 		"**/.next/**",
 		"**/.output/**",
 		"**/.turbo/**",
-		"apps/website/src/app/_payload.tsx",
-		"apps/website/src/app/_payload/**",
-		"apps/website/src/routeTree.gen.ts",
-		"apps/website/src/components/ui/**",
-		"packages/database/src/migrations/**",
-		"packages/database/src/payload-types.ts"
+		"src/app/_payload.tsx",
+		"src/app/_payload/**",
+		"src/routeTree.gen.ts",
+		"src/components/ui/**",
+		"src/payload/migrations/**",
+		"src/payload/payload-types.ts"
+	],
+	"overrides": [
+		{
+			"files": ["src/components/**"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": [
+							{
+								"group": ["@/payload", "@/payload/**", "payload", "payload/**"],
+								"allowTypeImports": true,
+								"message": "Components ship to the browser: only `import type` from Payload code."
+							}
+						]
+					}
+				]
+			}
+		}
 	]
 }

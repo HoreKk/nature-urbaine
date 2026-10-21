@@ -6,15 +6,15 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: nature-urbaine
     ports:
-      - "5434:5432"
+      - '5434:5432'
     volumes:
       - db-data:/var/lib/postgresql/data
 
   maildev:
     image: maildev/maildev:2.2.1
     ports:
-      - "1080:1080"
-      - "1025:1025"
+      - '1080:1080'
+      - '1025:1025'
 
   # S3-compatible object store, so local uploads take the same path as the
   # Railway bucket (presigned URLs, `_objectKey` folders, storage:check).
@@ -26,8 +26,8 @@ services:
       RUSTFS_ACCESS_KEY: rustfs
       RUSTFS_SECRET_KEY: rustfs-dev-secret
     ports:
-      - "9100:9000"
-      - "9101:9001"
+      - '9100:9000'
+      - '9101:9001'
     volumes:
       - objectstore-data:/data
 

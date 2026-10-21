@@ -1,0 +1,102 @@
+import { notFound } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
+import type { PaginatedDocs } from 'payload';
+import { z } from 'zod';
+import type { Interview, Media } from '@/payload/payload-types';
+import { convertLexicalToHTML } from '@/payload/utils/lexical';
+import { baseProcedure } from './db';
+import { withMediaUrls } from './media-urls';
+
+// List items don't need the richText payload — only the scalar fields.
+export type SafeInterview = Omit<
+	Interview,
+	'projectDetails' | 'thumbnail' | 'intervieweePicture'
+> & {
+	projectDetails?: never;
+	thumbnail?: Media | null;
+	intervieweePicture?: Media | null;
+};
+
+export type InterviewDetail = Omit<
+	Interview,
+	'projectDetails' | 'thumbnail' | 'intervieweePicture'
+> & {
+	projectDetails: {
+		objectives: string;
+		impacts: string;
+		challenges: string;
+	};
+	thumbnail?: Media | null;
+	intervieweePicture?: Media | null;
+};
+
+export const interviewFilterSchema = z.object({
+	search: z.string().optional(),
+});
+
+export const getInterviews = createServerFn({ method: 'GET' })
+	.validator(
+		z.object({
+			page: z.number().min(1),
+			pageSize: z.number().min(1).max(100),
+			filters: interviewFilterSchema.optional(),
+		}),
+	)
+	.middleware([baseProcedure])
+	.handler(async ({ data, context }) => {
+		const { page = 1, pageSize = 12 } = data;
+
+		let where = {};
+
+		if (data.filters?.search && data.filters.search.length > 0) {
+			const search = data.filters.search;
+			where = {
+				...where,
+				or: [
+					{ name: { contains: search } },
+					{ summary: { contains: search } },
+					{ interviewee: { contains: search } },
+					{ city: { contains: search } },
+				],
+			};
+		}
+
+		const interviews = await context.db.find({
+			collection: 'interviews',
+			limit: pageSize,
+			page,
+			depth: 1,
+			sort: '-publishedAt',
+			where,
+		});
+
+		return withMediaUrls(interviews as unknown as PaginatedDocs<SafeInterview>);
+	});
+
+export const getInterviewById = createServerFn({ method: 'GET' })
+	.validator(z.number().min(1))
+	.middleware([baseProcedure])
+	.handler(async ({ data: id, context }) => {
+		const interview = await context.db.findByID({
+			collection: 'interviews',
+			id,
+			depth: 1,
+		});
+
+		if (!interview) throw notFound();
+
+		const objectives = convertLexicalToHTML({
+			data: interview.projectDetails.objectives,
+		});
+		const impacts = convertLexicalToHTML({
+			data: interview.projectDetails.impacts,
+		});
+		const challenges = convertLexicalToHTML({
+			data: interview.projectDetails.challenges,
+		});
+
+		return withMediaUrls({
+			...interview,
+			projectDetails: { objectives, impacts, challenges },
+		} as unknown as InterviewDetail);
+	});

@@ -8,7 +8,7 @@ accepted — 2026-05-01
 
 ## Context
 
-Going into this decision, `apps/website/src/routes/contact.tsx` was a confused hybrid (eyebrow `"Contact · Contribution"`, fields shaped like a contribution form) and `apps/website/src/routes/contribuer.tsx` was a placeholder. The cahier des charges describes them as two distinct top-level pages with different field sets, audiences, and downstream flows. GLOSSARY.md §12 had this as an open question: should the contribution form persist to a collection or just send email.
+Going into this decision, `src/routes/contact.tsx` was a confused hybrid (eyebrow `"Contact · Contribution"`, fields shaped like a contribution form) and `src/routes/contribuer.tsx` was a placeholder. The cahier des charges describes them as two distinct top-level pages with different field sets, audiences, and downstream flows. GLOSSARY.md §12 had this as an open question: should the contribution form persist to a collection or just send email.
 
 Community contributions are not a side feature — GLOSSARY.md §1 frames the project as a collaborative catalog where "each image and reference is a community contribution." Treating contributions as transactional emails undersells the core flywheel and loses photos to inbox attachments.
 
@@ -26,7 +26,7 @@ sector       (secteur d'activité, required, select: paysagiste | MOA | MOE | ur
 message      (required, multiline)
 ```
 
-No persistence — the form sends an email to the operator via `payload.sendEmail` (Payload Nodemailer adapter backed by SMTP). The contact email is rendered from `@nature-urbaine/emails` (React Email templates + plain-text fallback) and uses env-driven config (`TO_EMAIL`, `EMAIL_FROM`, with fallback to `CONTACT_EMAIL_TO` / `CONTACT_EMAIL_FROM`, plus `CONTACT_EMAIL_FROM_NAME`, `SMTP_*`). In local development, Maildev runs without auth (`localhost:1025`, `SMTP_SECURE=false`); production can use authenticated SMTP (for example Resend SMTP).
+No persistence — the form sends an email to the operator via `payload.sendEmail` (Payload Nodemailer adapter backed by SMTP). The contact email is rendered from `src/emails` (React Email templates + plain-text fallback) and uses env-driven config (`TO_EMAIL`, `EMAIL_FROM`, with fallback to `CONTACT_EMAIL_TO` / `CONTACT_EMAIL_FROM`, plus `CONTACT_EMAIL_FROM_NAME`, `SMTP_*`). In local development, Maildev runs without auth (`localhost:1025`, `SMTP_SECURE=false`); production can use authenticated SMTP (for example Resend SMTP).
 
 ### `/contribuer`
 
@@ -43,7 +43,7 @@ pictures              (Chakra <FileUpload />, 1–5 photos, standard size/mime d
 contributorEmail      (required, validated)
 ```
 
-On successful submission, keep writing to `Submission` and also send an operator notification email rendered from `@nature-urbaine/emails` (same layout/design language as contact template) to the shared recipient config.
+On successful submission, keep writing to `Submission` and also send an operator notification email rendered from `src/emails` (same layout/design language as contact template) to the shared recipient config.
 
 System / admin fields:
 

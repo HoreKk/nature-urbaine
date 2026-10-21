@@ -1,6 +1,7 @@
 {
 	"$schema": "https://schema.railpack.com",
 	"deploy": {
+		"startCommand": "pnpm start",
 		"aptPackages": ["...", "libjemalloc2"],
 		"variables": {
 			"NODE_OPTIONS": "--max-old-space-size=512",

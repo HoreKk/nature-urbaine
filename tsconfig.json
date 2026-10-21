@@ -1,0 +1,34 @@
+{
+	"include": ["src/**/*.ts", "src/**/*.tsx", "*.ts"],
+	"exclude": ["src/payload/migrations"],
+	"compilerOptions": {
+		"target": "ES2022",
+		"jsx": "react-jsx",
+		"module": "ESNext",
+		"lib": ["ES2025", "DOM", "DOM.Iterable"],
+		"types": ["vite/client", "node"],
+
+		/* Bundler mode */
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": false,
+		"noEmit": true,
+		"allowJs": true,
+		"checkJs": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+
+		/* Linting */
+		"skipLibCheck": true,
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedSideEffectImports": true,
+		"paths": {
+			"@/*": ["./src/*"],
+			"@payload-config": ["./src/payload.config.ts"]
+		}
+	}
+}
