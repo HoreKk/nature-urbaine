@@ -62,17 +62,18 @@ export type SupportedTimezones =
   | 'Pacific/Fiji';
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_529FDF20".
+ * via the `definition` "LexicalNodes_4F4C3393".
  */
-export type LexicalNodes_529FDF20 =
+export type LexicalNodes_4F4C3393 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_529FDF20>
+  | SerializedParagraphNode<LexicalNodes_4F4C3393>
   | SerializedHorizontalRuleNode
   | SerializedUploadNode<'media'>
   | SerializedUploadNode<'pictures'>
-  | SerializedQuoteNode<LexicalNodes_529FDF20>
+  | SerializedUploadNode<'interview-pictures'>
+  | SerializedQuoteNode<LexicalNodes_4F4C3393>
   | SerializedRelationshipNode<
       | 'reports'
       | 'interviews'
@@ -86,11 +87,11 @@ export type LexicalNodes_529FDF20 =
       | 'payload-preferences'
       | 'payload-migrations'
     >
-  | SerializedAutoLinkNode<LexicalNodes_529FDF20, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_529FDF20, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_529FDF20>
-  | SerializedListItemNode<LexicalNodes_529FDF20>
-  | SerializedHeadingNode<LexicalNodes_529FDF20>;
+  | SerializedAutoLinkNode<LexicalNodes_4F4C3393, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_4F4C3393, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_4F4C3393>
+  | SerializedListItemNode<LexicalNodes_4F4C3393>
+  | SerializedHeadingNode<LexicalNodes_4F4C3393>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_3DE324E4".
@@ -114,6 +115,7 @@ export interface Config {
     reports: Report;
     interviews: Interview;
     pictures: Picture;
+    'interview-pictures': InterviewPicture;
     categories: Category;
     submissions: Submission;
     tags: Tag;
@@ -128,6 +130,9 @@ export interface Config {
   collectionsJoins: {
     reports: {
       relatedPictures: 'pictures';
+    };
+    interviews: {
+      relatedPictures: 'interview-pictures';
     };
     categories: {
       relatedReports: 'reports';
@@ -144,6 +149,7 @@ export interface Config {
     reports: ReportsSelect<false> | ReportsSelect<true>;
     interviews: InterviewsSelect<false> | InterviewsSelect<true>;
     pictures: PicturesSelect<false> | PicturesSelect<true>;
+    'interview-pictures': InterviewPicturesSelect<false> | InterviewPicturesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     submissions: SubmissionsSelect<false> | SubmissionsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
@@ -223,6 +229,38 @@ export interface Media {
   };
   focalX?: number | null;
   focalY?: number | null;
+  variants?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+      prefix?: string | null;
+      _objectKey?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+      prefix?: string | null;
+      _objectKey?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+      prefix?: string | null;
+      _objectKey?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -411,16 +449,86 @@ export interface Interview {
   projectManagement: string;
   projectCost?: string | null;
   area: string;
+  relatedPictures?: {
+    docs?: (number | InterviewPicture)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   summary: string;
   projectDetails: {
-    objectives: LexicalRichText<LexicalNodes_529FDF20>;
-    impacts: LexicalRichText<LexicalNodes_529FDF20>;
-    challenges: LexicalRichText<LexicalNodes_529FDF20>;
+    objectives: LexicalRichText<LexicalNodes_4F4C3393>;
+    impacts: LexicalRichText<LexicalNodes_4F4C3393>;
+    challenges: LexicalRichText<LexicalNodes_4F4C3393>;
   };
   realisedAt: string;
   publishedAt: string;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "interview-pictures".
+ */
+export interface InterviewPicture {
+  id: number;
+  '_interview-pictures_relatedPictures_order'?: string | null;
+  alt: string;
+  interview: number | Interview;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  original?: {
+    filename?: string | null;
+    url?: string | null;
+    mimeType?: string | null;
+    filesize?: number | null;
+    width?: number | null;
+    height?: number | null;
+    prefix?: string | null;
+    _objectKey?: string | null;
+  };
+  focalX?: number | null;
+  focalY?: number | null;
+  variants?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+      prefix?: string | null;
+      _objectKey?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+      prefix?: string | null;
+      _objectKey?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+      prefix?: string | null;
+      _objectKey?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -517,6 +625,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pictures';
         value: number | Picture;
+      } | null)
+    | ({
+        relationTo: 'interview-pictures';
+        value: number | InterviewPicture;
       } | null)
     | ({
         relationTo: 'categories';
@@ -633,6 +745,46 @@ export interface MediaSelect<T extends boolean = true> {
       };
   focalX?: T;
   focalY?: T;
+  variants?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+              prefix?: T;
+              _objectKey?: T;
+            };
+        medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+              prefix?: T;
+              _objectKey?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+              prefix?: T;
+              _objectKey?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -690,6 +842,7 @@ export interface InterviewsSelect<T extends boolean = true> {
   projectManagement?: T;
   projectCost?: T;
   area?: T;
+  relatedPictures?: T;
   summary?: T;
   projectDetails?:
     | T
@@ -712,6 +865,80 @@ export interface PicturesSelect<T extends boolean = true> {
   alt?: T;
   report?: T;
   relatedTags?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  original?:
+    | T
+    | {
+        filename?: T;
+        url?: T;
+        mimeType?: T;
+        filesize?: T;
+        width?: T;
+        height?: T;
+        prefix?: T;
+        _objectKey?: T;
+      };
+  focalX?: T;
+  focalY?: T;
+  variants?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+              prefix?: T;
+              _objectKey?: T;
+            };
+        medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+              prefix?: T;
+              _objectKey?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+              prefix?: T;
+              _objectKey?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "interview-pictures_select".
+ */
+export interface InterviewPicturesSelect<T extends boolean = true> {
+  '_interview-pictures_relatedPictures_order'?: T;
+  alt?: T;
+  interview?: T;
   prefix?: T;
   _objectKey?: T;
   updatedAt?: T;
@@ -952,6 +1179,7 @@ export interface CollectionQueryWidget {
       | 'reports'
       | 'interviews'
       | 'pictures'
+      | 'interview-pictures'
       | 'categories'
       | 'submissions'
       | 'tags'
@@ -984,6 +1212,7 @@ export interface ActivityWidget {
           | 'reports'
           | 'interviews'
           | 'pictures'
+          | 'interview-pictures'
           | 'categories'
           | 'submissions'
           | 'tags'
@@ -1000,7 +1229,7 @@ export interface ActivityWidget {
  */
 export interface UploadDropzoneWidget {
   data?: {
-    excludedCollections?: ('media' | 'pictures')[] | null;
+    excludedCollections?: ('media' | 'pictures' | 'interview-pictures')[] | null;
   };
   width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
 }

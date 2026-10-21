@@ -16,10 +16,13 @@ export const Interviews: CollectionConfig = {
 	},
 	fields: [
 		{
+			// Read only by `storage:backfill:interview-media`, which copies it into
+			// `relatedPictures`; dropped once that has run on prod.
 			name: 'thumbnail',
 			type: 'upload',
-			label: 'Vignette',
+			label: 'Vignette (obsolète)',
 			relationTo: 'media',
+			admin: { hidden: true },
 		},
 		{
 			name: 'name',
@@ -99,6 +102,19 @@ export const Interviews: CollectionConfig = {
 					required: true,
 				},
 			],
+		},
+		{
+			name: 'relatedPictures',
+			type: 'join',
+			label: 'Photos associées',
+			collection: 'interview-pictures',
+			on: 'interview',
+			orderable: true,
+			defaultLimit: 0,
+			admin: {
+				defaultColumns: ['filename'],
+			},
+			hasMany: true,
 		},
 		{
 			name: 'summary',

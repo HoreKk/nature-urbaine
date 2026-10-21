@@ -10,6 +10,7 @@ import sharp from 'sharp';
 
 import { Categories } from './collections/Category';
 import { Interviews } from './collections/Interview';
+import { InterviewPictures } from './collections/InterviewPicture';
 import { Media } from './collections/Media';
 import { Pictures } from './collections/Picture';
 import { Reports } from './collections/Report';
@@ -24,6 +25,13 @@ import { storageAdapter, storageCoverageGuard } from './storage';
 // add hundreds of MB of RSS per ~50 MB decode. Uploads are rare; keep them lean.
 sharp.cache(false);
 sharp.concurrency(1);
+
+// Same processing for every image upload collection.
+const imageTransform = {
+	crop: true,
+	focalPoint: true,
+	variants: pictureVariants,
+};
 
 const filename = fileURLToPath(import.meta.url);
 const payloadDir = path.dirname(filename);
@@ -92,6 +100,7 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 			Reports,
 			Interviews,
 			Pictures,
+			InterviewPictures,
 			Categories,
 			Submissions,
 			Tags,
@@ -116,12 +125,9 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 				sharpTransformer({
 					sharp,
 					collections: {
-						media: { crop: true, focalPoint: true },
-						pictures: {
-							crop: true,
-							focalPoint: true,
-							variants: pictureVariants,
-						},
+						media: imageTransform,
+						pictures: imageTransform,
+						'interview-pictures': imageTransform,
 					},
 				}),
 			],

@@ -10,10 +10,11 @@ import {
 } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
 import { UIBreadcrumb } from '@/components/standard/Breadcrumb';
+import { toGalleryImages } from '@/components/standard/gallery/gallery-images';
 import MediaGallery from '@/components/standard/gallery/MediaGallery';
 import PictureImg from '@/components/standard/PictureImg';
 import { findReportById } from '@/server/report-catalog';
-import { fullSource, heroSource, thumbnailSource } from '@/utils/picture-src';
+import { heroSource } from '@/utils/picture-src';
 import {
 	formatDepartmentLabel,
 	formatOptionalDate,
@@ -22,9 +23,6 @@ import {
 } from '@/utils/tools';
 
 /** The gallery column: 8 of 12 columns from `md`, inside `container.xl`. */
-const GALLERY_SIZES =
-	'(min-width: 80rem) 52rem, (min-width: 48rem) 66vw, 100vw';
-
 export const Route = createFileRoute('/reports/$id')({
 	component: RouteComponent,
 	loader: async ({ params }) => findReportById({ data: Number(params.id) }),
@@ -166,15 +164,7 @@ function RouteComponent() {
 				<Grid templateColumns="repeat(12, 1fr)" rowGap={{ base: 10, md: 0 }}>
 					<GridItem colSpan={{ base: 12, md: 8 }} mr={{ base: 0, md: 8 }}>
 						<MediaGallery
-							images={(report.relatedPictures.docs ?? [])
-								.filter((picture) => picture.url)
-								.map((picture) => ({
-									id: picture.id,
-									source: fullSource(picture, GALLERY_SIZES),
-									thumbnail: thumbnailSource(picture),
-									alt: picture.alt,
-									caption: picture.alt,
-								}))}
+							images={toGalleryImages(report.relatedPictures.docs ?? [])}
 							emptyLabel="Aucune photo disponible pour ce reportage"
 						/>
 					</GridItem>
