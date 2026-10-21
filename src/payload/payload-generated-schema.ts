@@ -1,4 +1,3 @@
-// @ts-nocheck: the generator always imports sql, which noUnusedLocals rejects.
 
 /* tslint:disable */
 /* eslint-disable */

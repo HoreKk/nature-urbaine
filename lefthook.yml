@@ -11,5 +11,5 @@ pre-commit:
       glob: '*.{js,jsx,mjs,cjs,ts,tsx}'
       exclude:
         - 'src/payload/migrations/**'
-      run: pnpm exec oxlint --fix {staged_files}
+      run: pnpm exec oxlint --fix --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
