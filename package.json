@@ -22,6 +22,7 @@
 		"chakra:typegen:watch": "chakra typegen src/utils/chakra-theme.ts --tsconfig tsconfig.json --watch",
 		"generate:importmap": "payload generate:importmap",
 		"generate:types": "payload generate:types",
+		"generate:db-schema": "payload generate:db-schema",
 		"migrate": "payload migrate",
 		"migrate:create": "payload migrate:create",
 		"migrate:status": "payload migrate:status",

@@ -1,7 +1,9 @@
+import { and, eq, isNotNull, sql } from '@payloadcms/db-postgres/drizzle';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import type { PaginatedDocs } from 'payload';
 import z from 'zod';
+import { pictures_rels, tags } from '@/payload/payload-generated-schema';
 import type {
 	Picture,
 	Report,
@@ -10,6 +12,12 @@ import type {
 } from '@/payload/payload-types';
 import { baseProcedure } from './db';
 import { withMediaUrls } from './media-urls';
+import {
+	foldTagTaxonomyStats,
+	type TagTaxonomyStats,
+} from './tag-taxonomy-stats';
+
+export type { TagNodeStats, TagTaxonomyStats } from './tag-taxonomy-stats';
 
 export type PictureWithReport = Omit<Picture, 'report' | 'relatedTags'> & {
 	report: Report;
@@ -71,142 +79,32 @@ export const getTagCategoriesWithRootCount = createServerFn({ method: 'GET' })
 		})) satisfies TagCategoryWithCount[];
 	});
 
-export type TagNodeStats = {
-	/** Distinct pictures reachable through this node and all its descendants. */
-	pictureCount: number;
-	/** Total number of descendant tags below this node (whole subtree). */
-	descendantCount: number;
-};
-
-export type TagTaxonomyStats = {
-	categories: Record<number, TagNodeStats>;
-	tags: Record<number, TagNodeStats>;
-};
-
-const relationId = (
-	ref: number | { id: number } | null | undefined,
-): number | null => (typeof ref === 'number' ? ref : (ref?.id ?? null));
-
-/**
- * Two bulk reads folded in memory to avoid N+1 queries on every branch expansion;
- * ADR-0002's migration triggers apply once the catalog outgrows in-memory walks.
- */
+/** Drizzle, not `find`: hydrating ~19k Pictures through Payload dominated the old ~790 ms (see ADR-0002). */
 export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
 	.handler(async ({ context }): Promise<TagTaxonomyStats> => {
-		const [tagsResult, picturesResult] = await Promise.all([
-			context.db.find({
-				collection: 'tags',
-				limit: 10000,
-				depth: 0,
-				pagination: false,
-				select: { parentId: true, tagCategory: true },
-			}),
-			context.db.find({
-				collection: 'pictures',
-				limit: 100000,
-				depth: 0,
-				pagination: false,
-				select: { relatedTags: true },
-			}),
+		const [taxonomyTags, pictures] = await Promise.all([
+			context.drizzle
+				.select({
+					id: tags.id,
+					parentId: tags.parentId,
+					categoryId: tags.tagCategory,
+				})
+				.from(tags),
+			context.drizzle
+				.select({
+					tagIds: sql<number[]>`array_agg(${pictures_rels.tagsID})`,
+				})
+				.from(pictures_rels)
+				.where(
+					and(
+						eq(pictures_rels.path, 'relatedTags'),
+						isNotNull(pictures_rels.tagsID),
+					),
+				)
+				.groupBy(pictures_rels.parent),
 		]);
-
-		const tags = tagsResult.docs as Array<
-			Pick<Tag, 'id' | 'parentId' | 'tagCategory'>
-		>;
-
-		const childrenByParent = new Map<number, number[]>();
-		const parentOf = new Map<number, number | null>();
-		const categoryOf = new Map<number, number>();
-		for (const tag of tags) {
-			const parent = relationId(tag.parentId);
-			const category = relationId(tag.tagCategory);
-			parentOf.set(tag.id, parent);
-			if (category !== null) categoryOf.set(tag.id, category);
-			if (parent !== null) {
-				const siblings = childrenByParent.get(parent) ?? [];
-				siblings.push(tag.id);
-				childrenByParent.set(parent, siblings);
-			}
-		}
-
-		// The visiting set guards against cycles in malformed `parentId` chains.
-		const descendantCount = new Map<number, number>();
-		const countDescendants = (id: number, visiting: Set<number>): number => {
-			const cached = descendantCount.get(id);
-			if (cached !== undefined) return cached;
-			if (visiting.has(id)) return 0;
-			visiting.add(id);
-			let total = 0;
-			for (const child of childrenByParent.get(id) ?? []) {
-				total += 1 + countDescendants(child, visiting);
-			}
-			visiting.delete(id);
-			descendantCount.set(id, total);
-			return total;
-		};
-		for (const tag of tags) countDescendants(tag.id, new Set());
-
-		const ancestorsOf = (id: number): number[] => {
-			const chain: number[] = [];
-			const seen = new Set<number>();
-			let current: number | null = id;
-			while (current !== null && !seen.has(current)) {
-				seen.add(current);
-				chain.push(current);
-				current = parentOf.get(current) ?? null;
-			}
-			return chain;
-		};
-
-		// A picture counts once per ancestor however many of its tags match,
-		// like the recursive find on the tag detail page.
-		const tagPictureCount = new Map<number, number>();
-		const categoryPictureCount = new Map<number, number>();
-		for (const picture of picturesResult.docs as Array<{
-			relatedTags?: Array<number | Tag> | null;
-		}>) {
-			const reachedTags = new Set<number>();
-			const reachedCategories = new Set<number>();
-			for (const ref of picture.relatedTags ?? []) {
-				const tagId = relationId(ref);
-				if (tagId === null) continue;
-				for (const ancestor of ancestorsOf(tagId)) reachedTags.add(ancestor);
-				const category = categoryOf.get(tagId);
-				if (category !== undefined) reachedCategories.add(category);
-			}
-			for (const id of reachedTags) {
-				tagPictureCount.set(id, (tagPictureCount.get(id) ?? 0) + 1);
-			}
-			for (const id of reachedCategories) {
-				categoryPictureCount.set(id, (categoryPictureCount.get(id) ?? 0) + 1);
-			}
-		}
-
-		const categoryDescendantCount = new Map<number, number>();
-		for (const category of categoryOf.values()) {
-			categoryDescendantCount.set(
-				category,
-				(categoryDescendantCount.get(category) ?? 0) + 1,
-			);
-		}
-
-		const tagStats: Record<number, TagNodeStats> = {};
-		for (const tag of tags) {
-			tagStats[tag.id] = {
-				pictureCount: tagPictureCount.get(tag.id) ?? 0,
-				descendantCount: descendantCount.get(tag.id) ?? 0,
-			};
-		}
-		const categoryStats: Record<number, TagNodeStats> = {};
-		for (const [category, count] of categoryDescendantCount) {
-			categoryStats[category] = {
-				pictureCount: categoryPictureCount.get(category) ?? 0,
-				descendantCount: count,
-			};
-		}
-
-		return { categories: categoryStats, tags: tagStats };
+		return foldTagTaxonomyStats(taxonomyTags, pictures);
 	});
 
 export const getChildTags = createServerFn({ method: 'GET' })
