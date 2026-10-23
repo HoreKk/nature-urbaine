@@ -30,6 +30,7 @@
 		"migrate:refresh": "payload migrate:refresh",
 		"migrate:reset": "payload migrate:reset",
 		"migrate:fresh": "payload migrate:fresh",
+		"db:push": "NODE_ENV=development PAYLOAD_CONFIG_PATH=./src/payload/default-config.ts payload run ./src/payload/scripts/db-push.ts",
 		"seed:dev": "NODE_ENV=development PAYLOAD_DROP_DATABASE=true PAYLOAD_CONFIG_PATH=./src/payload/default-config.ts payload run ./src/payload/seed/index.ts",
 		"storage:check": "PAYLOAD_CONFIG_PATH=./src/payload/read-config.ts payload run ./src/payload/scripts/check-storage.ts",
 		"storage:fixtures:large-report": "PAYLOAD_CONFIG_PATH=./src/payload/read-config.ts payload run ./src/payload/scripts/large-report-fixture.ts"
