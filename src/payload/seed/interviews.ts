@@ -4,6 +4,7 @@ import {
 } from '@payloadcms/richtext-lexical';
 import { JSDOM } from 'jsdom';
 import type { Payload } from 'payload';
+import { DEFAULT_INTERVIEW_QUESTIONS } from '../collections/interview-questions';
 import payloadConfig from '../default-config';
 import { createOnce, interviewKey } from '../utils/seed-once';
 import { cleanString, readExcelSheet } from '../utils/tools';
@@ -19,17 +20,18 @@ type ExcelInterview = {
 	Résumé: string;
 	"Date de l'interview": number | string;
 	'A la rencontre de': string;
-	'Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?': string;
-	'Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ? ': string;
-	'Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?': string;
+} & Record<(typeof QUESTION_COLUMNS)[number], string>;
+
+type SheetHeaders<Questions extends readonly string[]> = {
+	readonly [I in keyof Questions]: Questions[I] | `${Questions[I]} `;
 };
 
-// The sheet's headers are the questions; the impacts one keeps a trailing space.
+// Each header is its default question; the impacts one keeps a trailing space.
 const QUESTION_COLUMNS = [
 	'Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?',
 	'Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ? ',
 	'Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?',
-] as const satisfies readonly (keyof ExcelInterview)[];
+] as const satisfies SheetHeaders<typeof DEFAULT_INTERVIEW_QUESTIONS>;
 
 export default async function seedInterviews(payload: Payload) {
 	const data = readExcelSheet(

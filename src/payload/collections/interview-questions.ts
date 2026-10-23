@@ -1,4 +1,4 @@
-/** The cahier's three editorial questions, pre-filled on every new Interview. */
+/** From the cahier des charges. */
 export const DEFAULT_INTERVIEW_QUESTIONS = [
 	'Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?',
 	'Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ?',
