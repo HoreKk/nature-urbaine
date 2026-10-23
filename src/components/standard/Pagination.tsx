@@ -6,6 +6,7 @@ import {
 	Pagination,
 	Stack,
 	Text,
+	useBreakpointValue,
 } from '@chakra-ui/react';
 import type { PaginatedDocs } from 'payload';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
@@ -34,53 +35,61 @@ export const PaginationControl = ({
 	onPageChange,
 	limit,
 	compact = false,
-}: UIPaginationProps & { compact?: boolean }) => (
-	<Pagination.Root
-		count={totalDocs}
-		pageSize={limit}
-		page={page || 1}
-		onPageChange={(newPage) => onPageChange(newPage.page)}
-		siblingCount={compact ? 0 : 1}
-		translations={paginationTranslations}
-	>
-		<ButtonGroup variant="ghost" size={compact ? 'xs' : 'sm'}>
-			<Pagination.PrevTrigger asChild>
-				<IconButton>
-					<HiChevronLeft />
-				</IconButton>
-			</Pagination.PrevTrigger>
-			<Box display={compact ? { base: 'none', sm: 'contents' } : 'contents'}>
-				<Pagination.Items
-					render={(paginationItem) => (
-						<IconButton variant={{ base: 'ghost', _selected: 'outline' }}>
-							{paginationItem.value}
-						</IconButton>
-					)}
-				/>
-			</Box>
-			{compact && (
-				<Pagination.Context>
-					{({ page: current, totalPages }) => (
-						<Text
-							display={{ base: 'inline', sm: 'none' }}
-							fontFamily="mono"
-							fontSize="xs"
-							color="fg.muted"
-							px={1}
-						>
-							{current} / {totalPages}
-						</Text>
-					)}
-				</Pagination.Context>
-			)}
-			<Pagination.NextTrigger asChild>
-				<IconButton>
-					<HiChevronRight />
-				</IconButton>
-			</Pagination.NextTrigger>
-		</ButtonGroup>
-	</Pagination.Root>
-);
+}: UIPaginationProps & { compact?: boolean }) => {
+	const siblingCount =
+		useBreakpointValue({ base: compact ? 0 : 1, md: 2, lg: 3 }) ?? 0;
+
+	return (
+		<Pagination.Root
+			count={totalDocs}
+			pageSize={limit}
+			page={page || 1}
+			onPageChange={(newPage) => onPageChange(newPage.page)}
+			siblingCount={siblingCount}
+			translations={paginationTranslations}
+		>
+			<ButtonGroup
+				variant="ghost"
+				size={compact ? { base: 'xs', md: 'sm' } : 'sm'}
+			>
+				<Pagination.PrevTrigger asChild>
+					<IconButton>
+						<HiChevronLeft />
+					</IconButton>
+				</Pagination.PrevTrigger>
+				<Box display={compact ? { base: 'none', sm: 'contents' } : 'contents'}>
+					<Pagination.Items
+						render={(paginationItem) => (
+							<IconButton variant={{ base: 'ghost', _selected: 'outline' }}>
+								{paginationItem.value}
+							</IconButton>
+						)}
+					/>
+				</Box>
+				{compact && (
+					<Pagination.Context>
+						{({ page: current, totalPages }) => (
+							<Text
+								display={{ base: 'inline', sm: 'none' }}
+								fontFamily="mono"
+								fontSize="xs"
+								color="fg.muted"
+								px={1}
+							>
+								{current} / {totalPages}
+							</Text>
+						)}
+					</Pagination.Context>
+				)}
+				<Pagination.NextTrigger asChild>
+					<IconButton>
+						<HiChevronRight />
+					</IconButton>
+				</Pagination.NextTrigger>
+			</ButtonGroup>
+		</Pagination.Root>
+	);
+};
 
 const UIPagination = ({
 	totalDocs,
