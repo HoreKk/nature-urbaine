@@ -107,7 +107,7 @@ The core unit. Drafts enabled (`versions.drafts.validate`). Admin title: `name`.
 All fields required. Admin title: `name`.
 
 - `name`, `interviewee`, `intervieweeRole`, `city`, `department`, `area`, `projectOwner`, `projectManagement`, `summary`.
-- Array `questions` (`minRows: 1`): rows of `question` (text) + `answer` (Lexical rich text), rendered in order on the interview page. Its `defaultValue` pre-fills the cahier's three editorial questions from `DEFAULT_INTERVIEW_QUESTIONS` (`interview-questions.ts`); editors can reword, add, remove or reorder them per Interview. The admin row label shows the question text.
+- Array `questions` (`minRows: 1`): rows of `question` (text) + `answer` (Lexical rich text), rendered in order on the interview page. Its `defaultValue` pre-fills the cahier's three editorial questions from `DEFAULT_INTERVIEW_QUESTIONS` (`interview-questions.ts`); editors can reword, add, remove or reorder them per Interview.
 - Join `relatedPictures` (← `interview-pictures.interview`, `hasMany`, `orderable: true`, `defaultLimit: 0`) — same rules and same name as `Report.relatedPictures`; `getInterviews` overrides with `joins: { relatedPictures: { limit: 1 } }`.
 - Sidebar: `realisedAt`, `publishedAt`.
 

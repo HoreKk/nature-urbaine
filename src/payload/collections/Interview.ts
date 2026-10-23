@@ -114,6 +114,8 @@ export const Interviews: CollectionConfig = {
 			label: 'Résumé',
 			required: true,
 		},
+		// No custom RowLabel: re-rendering it on a row move re-applies the form's
+		// initial state and undoes the move (payloadcms/payload#17622).
 		{
 			name: 'questions',
 			type: 'array',
@@ -124,12 +126,6 @@ export const Interviews: CollectionConfig = {
 			defaultValue: DEFAULT_INTERVIEW_QUESTIONS.map((question) => ({
 				question,
 			})),
-			admin: {
-				components: {
-					RowLabel:
-						'/payload/admin/InterviewQuestionRowLabel#InterviewQuestionRowLabel',
-				},
-			},
 			fields: [
 				{
 					name: 'question',
