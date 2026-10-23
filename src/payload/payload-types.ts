@@ -438,7 +438,6 @@ export interface Category {
  */
 export interface Interview {
   id: number;
-  thumbnail?: (number | null) | Media;
   name: string;
   interviewee: string;
   intervieweeRole: string;
@@ -831,7 +830,6 @@ export interface ReportsSelect<T extends boolean = true> {
  * via the `definition` "interviews_select".
  */
 export interface InterviewsSelect<T extends boolean = true> {
-  thumbnail?: T;
   name?: T;
   interviewee?: T;
   intervieweeRole?: T;

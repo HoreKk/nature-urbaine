@@ -164,19 +164,18 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 
 ### Database
 
-| Command                                 | Description                                                                                                                            |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm migrate`                          | Run pending migrations                                                                                                                 |
-| `pnpm migrate:create`                   | Generate a new migration from schema changes                                                                                           |
-| `pnpm migrate:status`                   | Show migration status                                                                                                                  |
-| `pnpm migrate:down`                     | Roll back last migration                                                                                                               |
-| `pnpm migrate:refresh`                  | Roll back and re-run all migrations                                                                                                    |
-| `pnpm migrate:reset`                    | Reset the database                                                                                                                     |
-| `pnpm migrate:fresh`                    | Drop all tables and re-run from scratch                                                                                                |
-| `pnpm seed:dev`                         | Drop and re-seed development data                                                                                                      |
-| `pnpm storage:check`                    | Read-only: every upload row has its object in the bucket                                                                               |
-| `pnpm storage:backfill:interview-media` | One-off after the Interview gallery deploy: Media variants + legacy thumbnails into `interview-pictures` (`BACKFILL_WRITE=1` to write) |
-| `pnpm storage:fixtures:large-report`    | Dev only: one report with 240 photos of 4000×3000 (`FIXTURE_COUNT`), uploaded through Payload                                          |
+| Command                              | Description                                                                                   |
+| ------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `pnpm migrate`                       | Run pending migrations                                                                        |
+| `pnpm migrate:create`                | Generate a new migration from schema changes                                                  |
+| `pnpm migrate:status`                | Show migration status                                                                         |
+| `pnpm migrate:down`                  | Roll back last migration                                                                      |
+| `pnpm migrate:refresh`               | Roll back and re-run all migrations                                                           |
+| `pnpm migrate:reset`                 | Reset the database                                                                            |
+| `pnpm migrate:fresh`                 | Drop all tables and re-run from scratch                                                       |
+| `pnpm seed:dev`                      | Drop and re-seed development data                                                             |
+| `pnpm storage:check`                 | Read-only: every upload row has its object in the bucket                                      |
+| `pnpm storage:fixtures:large-report` | Dev only: one report with 240 photos of 4000×3000 (`FIXTURE_COUNT`), uploaded through Payload |
 
 ### Code generation
 

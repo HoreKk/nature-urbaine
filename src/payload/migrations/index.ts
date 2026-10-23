@@ -9,6 +9,7 @@ import * as migration_20261017_225329_payload_4_beta from './20261017_225329_pay
 import * as migration_20261018_120257_picture_medium_large_variants from './20261018_120257_picture_medium_large_variants';
 import * as migration_20261020_230241_drop_seed_key from './20261020_230241_drop_seed_key';
 import * as migration_20261022_235407_interview_pictures_media_variants from './20261022_235407_interview_pictures_media_variants';
+import * as migration_20261023_002822_drop_interview_thumbnail from './20261023_002822_drop_interview_thumbnail';
 
 export const migrations = [
   {
@@ -64,6 +65,11 @@ export const migrations = [
   {
     up: migration_20261022_235407_interview_pictures_media_variants.up,
     down: migration_20261022_235407_interview_pictures_media_variants.down,
-    name: '20261022_235407_interview_pictures_media_variants'
+    name: '20261022_235407_interview_pictures_media_variants',
+  },
+  {
+    up: migration_20261023_002822_drop_interview_thumbnail.up,
+    down: migration_20261023_002822_drop_interview_thumbnail.down,
+    name: '20261023_002822_drop_interview_thumbnail'
   },
 ];

@@ -16,15 +16,6 @@ export const Interviews: CollectionConfig = {
 	},
 	fields: [
 		{
-			// Read only by `storage:backfill:interview-media`, which copies it into
-			// `relatedPictures`; dropped once that has run on prod.
-			name: 'thumbnail',
-			type: 'upload',
-			label: 'Vignette (obsolète)',
-			relationTo: 'media',
-			admin: { hidden: true },
-		},
-		{
 			name: 'name',
 			type: 'text',
 			label: 'Nom',

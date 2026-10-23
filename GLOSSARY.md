@@ -111,7 +111,6 @@ All fields required. Admin title: `name`.
   - `impacts` — "Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ?"
   - `challenges` — "Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?"
 - Join `relatedPictures` (← `interview-pictures.interview`, `hasMany`, `orderable: true`, `defaultLimit: 0`) — same rules and same name as `Report.relatedPictures`; `getInterviews` overrides with `joins: { relatedPictures: { limit: 1 } }`.
-- Hidden `thumbnail` (→ `media`): the pre-gallery hero, read only by `storage:backfill:interview-media`, dropped once that has run on prod.
 - Sidebar: `realisedAt`, `publishedAt`.
 
 The cahier specifies a **500-character summary** and **1500-character** answers per question. The CMS does not currently enforce these limits — track as an ADR if added.

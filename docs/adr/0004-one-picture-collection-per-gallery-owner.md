@@ -22,7 +22,7 @@ Production holds ~19.3k Report photos in `pictures`, keyed by `report_id`, and t
 - **One collection per owner.** `pictures` keeps its slug and rows; it is relabelled "Photos de reportage". `interview-pictures` is new. Each has a required owner relationship (`report`, `interview`) and the same upload settings, variants and admin navigation (`PictureNav`, which receives its owner from the factory's server props).
 - **Same join on both owners.** `Report.relatedPictures` and `Interview.relatedPictures` are identical joins (`orderable`, `defaultLimit: 0`), so server functions, the admin and the glossary read the same way for both.
 - **Interview photos are untagged.** Tag search covers Report photos only (ADR-0002); `relatedTags` stays specific to `pictures`.
-- **Legacy thumbnails are copied, not re-pointed.** `storage:backfill:interview-media` creates an `InterviewPicture` from each Interview `thumbnail`, once, after the deploy. `thumbnail` stays as a hidden field until that has run, then a second migration drops it.
+- **Legacy thumbnails were copied, not re-pointed.** A one-off `storage:backfill:interview-media` created an `InterviewPicture` from each Interview `thumbnail` after the deploy, and generated the Media variants (12 thumbnails, 89 Media rows, on 2026-10-23). `thumbnail` was then dropped by a second migration and the script was deleted. The Media rows stay.
 - **Every upload collection is listed once**, in `storage-collections.ts`: the storage prefix, the website's URL signing and `storage:check` all follow that list.
 
 ## Considered alternatives

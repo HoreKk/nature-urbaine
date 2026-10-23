@@ -28,13 +28,13 @@ type InterviewMedia = {
 // List items don't need the richText payload — only the scalar fields.
 export type SafeInterview = Omit<
 	Interview,
-	'projectDetails' | 'thumbnail' | 'intervieweePicture' | 'relatedPictures'
+	'projectDetails' | 'intervieweePicture' | 'relatedPictures'
 > &
 	InterviewMedia & { projectDetails?: never };
 
 export type InterviewDetail = Omit<
 	Interview,
-	'projectDetails' | 'thumbnail' | 'intervieweePicture' | 'relatedPictures'
+	'projectDetails' | 'intervieweePicture' | 'relatedPictures'
 > &
 	InterviewMedia & {
 		projectDetails: {
@@ -83,7 +83,6 @@ export const getInterviews = createServerFn({ method: 'GET' })
 			depth: 1,
 			sort: '-publishedAt',
 			where,
-			select: { thumbnail: false },
 			joins: { relatedPictures: { limit: 1 } },
 			populate: { 'interview-pictures': galleryPicturePopulate },
 		});
@@ -105,7 +104,6 @@ export const getInterviewById = createServerFn({ method: 'GET' })
 			collection: 'interviews',
 			id,
 			depth: 1,
-			select: { thumbnail: false },
 			populate: { 'interview-pictures': galleryPicturePopulate },
 		});
 
