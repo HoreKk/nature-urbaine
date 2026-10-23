@@ -1,19 +1,16 @@
 import { createServerFn } from '@tanstack/react-start';
-import { z } from 'zod';
 import { renderContactEmail } from '@/emails/templates/contact/render-contact-email';
+import { wireContactSchema } from '../contact-contract';
+import { guardFormSubmission } from '../form-guard';
 import { getParisTimestamp, sendTemplatedEmail } from './send-email';
 
-const createContactSchema = z.object({
-	firstName: z.string().min(1, 'Le prenom est requis'),
-	lastName: z.string().min(1, 'Le nom est requis'),
-	email: z.string().email('Adresse email invalide'),
-	sector: z.string().min(1, "Le secteur d'activite est requis"),
-	message: z.string().min(1, 'Le message est requis'),
-});
-
 export const createContact = createServerFn({ method: 'POST' })
-	.validator(createContactSchema)
+	.validator(wireContactSchema)
 	.handler(async ({ data }) => {
+		if (!guardFormSubmission('contact', data)) {
+			return { ok: true as const };
+		}
+
 		try {
 			const rendered = await renderContactEmail({
 				firstName: data.firstName,

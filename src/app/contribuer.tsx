@@ -13,6 +13,7 @@ import type z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
 import { useAppForm } from '@/hooks/form-context';
 import { getAllCategories } from '@/server/categories';
+import { submitErrorMessage } from '@/server/form-guard-contract';
 import {
 	clientSubmissionSchema,
 	SUBMISSION_DESCRIPTION_MAX_LENGTH,
@@ -54,6 +55,7 @@ function RouteComponent() {
 	const { categories } = Route.useLoaderData();
 	const [submitSuccess, setSubmitSuccess] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
+	const [mountedAt] = useState(() => Date.now());
 
 	const categoryOptions = categories.map((cat) => ({
 		label: cat.name,
@@ -82,13 +84,14 @@ function RouteComponent() {
 						category: Number(value.category),
 						deliveryYear: Number(value.deliveryYear),
 						pictures,
+						fillMs: Date.now() - mountedAt,
 					},
 				});
 
 				formApi.reset();
 				setSubmitSuccess(true);
-			} catch {
-				setSubmitError('Une erreur est survenue. Veuillez réessayer.');
+			} catch (error) {
+				setSubmitError(submitErrorMessage(error));
 			}
 		},
 	});
@@ -182,23 +185,8 @@ function RouteComponent() {
 								/>
 							)}
 						</form.AppField>
-						{/* Honeypot — must remain empty */}
 						<form.AppField name="honeypot">
-							{(field) => (
-								<Box
-									aria-hidden="true"
-									position="absolute"
-									left="-9999px"
-									tabIndex={-1}
-								>
-									<input
-										type="text"
-										autoComplete="off"
-										value={field.state.value ?? ''}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-								</Box>
-							)}
+							{(field) => <field.HoneypotField />}
 						</form.AppField>
 						{submitError && (
 							<Alert.Root status="error">

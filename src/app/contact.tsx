@@ -9,29 +9,27 @@ import {
 } from '@chakra-ui/react';
 import { createFileRoute, Link as RouterLink } from '@tanstack/react-router';
 import { useState } from 'react';
-import z from 'zod';
+import type z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
 import { useAppForm } from '@/hooks/form-context';
+import {
+	CONTACT_MESSAGE_MAX_LENGTH,
+	clientContactSchema,
+} from '@/server/contact-contract';
 import { createContact } from '@/server/emails/contact';
+import { submitErrorMessage } from '@/server/form-guard-contract';
 
 export const Route = createFileRoute('/contact')({
 	component: RouteComponent,
 });
 
-const contactSchema = z.object({
-	firstName: z.string().min(1, 'Le prénom est requis'),
-	lastName: z.string().min(1, 'Le nom est requis'),
-	email: z.email('Adresse email invalide'),
-	sector: z.string().min(1, "Le secteur d'activité est requis"),
-	message: z.string().min(1, 'Le message est requis'),
-});
-
-const defaultValues: z.input<typeof contactSchema> = {
+const defaultValues: z.input<typeof clientContactSchema> = {
 	firstName: '',
 	lastName: '',
 	email: '',
 	sector: '',
 	message: '',
+	honeypot: '',
 };
 
 const SECTOR_OPTIONS = [
@@ -45,19 +43,22 @@ const SECTOR_OPTIONS = [
 function RouteComponent() {
 	const [submitSuccess, setSubmitSuccess] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
+	const [mountedAt] = useState(() => Date.now());
 
 	const form = useAppForm({
 		defaultValues,
-		validators: { onSubmit: contactSchema },
+		validators: { onSubmit: clientContactSchema },
 		onSubmit: async ({ value, formApi }) => {
 			setSubmitError(null);
 			setSubmitSuccess(false);
 			try {
-				await createContact({ data: value });
+				await createContact({
+					data: { ...value, fillMs: Date.now() - mountedAt },
+				});
 				formApi.reset();
 				setSubmitSuccess(true);
-			} catch {
-				setSubmitError('Une erreur est survenue. Veuillez reessayer.');
+			} catch (error) {
+				setSubmitError(submitErrorMessage(error));
 			}
 		},
 	});
@@ -123,9 +124,13 @@ function RouteComponent() {
 								<field.TextareaField
 									label="Message"
 									placeholder="Votre message…"
+									maxLength={CONTACT_MESSAGE_MAX_LENGTH}
 									required
 								/>
 							)}
+						</form.AppField>
+						<form.AppField name="honeypot">
+							{(field) => <field.HoneypotField />}
 						</form.AppField>
 						<form.Subscribe selector={(state) => state.isSubmitting}>
 							{(isSubmitting) => (

@@ -1,7 +1,11 @@
 import { createServerFn } from '@tanstack/react-start';
 import { baseProcedure } from './db';
 import { sendSubmissionEmail } from './emails/submission';
-import { wireSubmissionSchema } from './submission-contract';
+import { guardFormSubmission } from './form-guard';
+import {
+	SUBMISSION_MAX_PICTURE_SIZE_BYTES,
+	wireSubmissionSchema,
+} from './submission-contract';
 
 export const createSubmission = createServerFn({ method: 'POST' })
 	.validator(wireSubmissionSchema)
@@ -9,7 +13,7 @@ export const createSubmission = createServerFn({ method: 'POST' })
 	.handler(async ({ data, context }) => {
 		const { db } = context;
 
-		if (data.honeypot) {
+		if (!guardFormSubmission('submission', data)) {
 			return { id: 0 };
 		}
 
@@ -18,6 +22,10 @@ export const createSubmission = createServerFn({ method: 'POST' })
 		const uploadedPictures = await Promise.all(
 			data.pictures.map(async (picture, index) => {
 				const buffer = Buffer.from(picture.base64, 'base64');
+				// The declared size comes from the browser; measure the real bytes.
+				if (buffer.length > SUBMISSION_MAX_PICTURE_SIZE_BYTES) {
+					throw new Error('PICTURE_TOO_LARGE');
+				}
 
 				const { id } = await db.create({
 					overrideAccess: true,
@@ -26,7 +34,7 @@ export const createSubmission = createServerFn({ method: 'POST' })
 					file: {
 						name: picture.name,
 						mimetype: picture.type,
-						size: picture.size,
+						size: buffer.length,
 						data: buffer,
 					},
 				});
