@@ -41,11 +41,11 @@
 | Subtle primary tint card             | `primary.muted` / `primary.subtle` |
 | Strong neutral CTA fill (black-ish)  | `secondary.solid`                  |
 
-> **Note on accent:** the codebase uses a **warm terracotta** (`primary.*`, ~`#B25D27`) as the single accent — the handoff's "leaf green" was replaced. Use `primary.*` everywhere the handoff says "leaf".
+> **Note on accent:** the codebase uses the **brand royal blue** (`primary.*`, `primary.solid` = `#0A28A8`, the business-card blue) as the single accent; the handoff's "leaf green" and the earlier terracotta were replaced. Use `primary.*` everywhere the handoff says "leaf". Hover (`primary.emphasized`) is the darker step 700, so it keeps AA contrast.
 
 ### Category colors
 
-The 12 reportage categories share `chroma 0.10`, varying hue only. They are **not in the Chakra theme yet**; when you need them, define them as a const map (OKLCH values from `design_handoff/DESIGN_SYSTEM.md` §1) and apply via inline `style={{ background: catColor[id] }}`. Never invent a 13th hue.
+Each reportage category's color is a hex value managed in the back office (`color` field on the `categories` collection, edited with a color picker). Read it from the category document and apply it inline (`bgColor={category.color}`); never hardcode a category palette in a component. The 12 defaults live in `src/payload/seed/categories.ts`. Never invent a 13th hue, and keep each one distinct from the blue accent.
 
 ---
 
@@ -92,11 +92,11 @@ The recipes in [`textStyles.ts`](src/utils/recipes/textStyles.ts) cover every ed
 
 ### Button (recipe in [`recipes/button.ts`](src/utils/recipes/button.ts))
 
-| Variant   | When to use                                         |
-| --------- | --------------------------------------------------- |
-| `solid`   | Primary action — primary terracotta pill (default). |
-| `outline` | Secondary action — outlined pill.                   |
-| `ghost`   | Tertiary — neutral hover only.                      |
+| Variant   | When to use                                   |
+| --------- | --------------------------------------------- |
+| `solid`   | Primary action — primary blue pill (default). |
+| `outline` | Secondary action — outlined pill.             |
+| `ghost`   | Tertiary — neutral hover only.                |
 
 For the **accent / leaf** CTA from the handoff (e.g. "Contribuer", "Envoyer la proposition"), use `solid` — the recipe already applies `primary.solid` by default.
 
@@ -159,7 +159,7 @@ Easing: `cubic-bezier(0.25, 1, 0.5, 1)` for hover lifts, plain `ease` elsewhere.
 - Hardcoded hex colors anywhere in JSX. Use semantic tokens.
 - `fontSize="2xl"` for headings instead of `textStyle="heading.lg"`.
 - Sans-serif H1s. **Headings are serif** (Newsreader) by token default — don't override `fontFamily`.
-- Bright saturated accents, gradients, or "tech" purples. The accent is one warm terracotta (`primary.*`); everything else is warm neutrals.
+- Bright saturated accents, gradients, or "tech" purples. The accent is one royal blue (`primary.*`); everything else is warm neutrals.
 - Animated page entrances, scroll reveals, or parallax. Banned.
 - Drop shadows on flat editorial surfaces (eyebrows, kickers, body cards). Shadow only on floating UI (map controls, dropdowns, hovered cards).
 - Adding a new accent color "for variety". The visual system is monochrome warm + one accent + 12 fixed category hues. Nothing else.

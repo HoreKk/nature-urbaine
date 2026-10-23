@@ -13,7 +13,7 @@ export const reportToProjectCardProps = (report: AugmentedReport) => ({
 		? thumbnailSource(report.frontPicture)
 		: undefined,
 	imageAlt: report.frontPicture?.alt || report.name,
-	badge: report.category.name,
+	badge: { label: report.category.name, color: report.category.color },
 	footerIcon: RiCameraLensLine,
 	footerLabel: 'Reportage',
 	readMoreLabel: 'Lire plus',

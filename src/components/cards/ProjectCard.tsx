@@ -22,7 +22,7 @@ type ProjectCardProps = {
 	date: string | Date;
 	image?: ImageSource;
 	imageAlt?: string;
-	badge?: string;
+	badge?: { label: string; color: string };
 	location?: string;
 	footerIcon: IconType;
 	footerLabel: string;
@@ -94,12 +94,14 @@ const ProjectCard = ({
 						pointerEvents="none"
 					/>
 					{badge && (
-						<Box
+						<Flex
 							position="absolute"
 							bottom={3}
 							left={3}
-							bgColor="primary.solid"
-							color="fg.inverted"
+							align="center"
+							gap={1.5}
+							bgColor="bg"
+							color="fg"
 							fontSize="2xs"
 							fontWeight="bold"
 							px={2.5}
@@ -109,8 +111,15 @@ const ProjectCard = ({
 							textTransform="uppercase"
 							lineHeight={1}
 						>
-							{badge}
-						</Box>
+							<Box
+								flexShrink={0}
+								w="8px"
+								h="8px"
+								borderRadius="full"
+								bgColor={badge.color}
+							/>
+							{badge.label}
+						</Flex>
 					)}
 					{portrait && (
 						<Flex
@@ -184,7 +193,7 @@ const ProjectCard = ({
 						{description}
 					</Text>
 				</Card.Body>
-				<Card.Footer bgColor="primary.muted" py={3}>
+				<Card.Footer bgColor="primary.subtle" py={3}>
 					<Flex justifyContent="space-between" width="full" alignItems="center">
 						<Flex gap={1.5} alignItems="center" color="primary.fg">
 							<Icon as={footerIcon} boxSize={3.5} />

@@ -423,6 +423,10 @@ export interface TagCategory {
 export interface Category {
   id: number;
   name: string;
+  /**
+   * Pastille de la catégorie sur le site. Choisir une teinte distincte des autres catégories et du bleu de la marque.
+   */
+  color: string;
   description?: string | null;
   relatedReports?: {
     docs?: (number | Report)[];
@@ -1009,6 +1013,7 @@ export interface InterviewPicturesSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
+  color?: T;
   description?: T;
   relatedReports?: T;
   updatedAt?: T;

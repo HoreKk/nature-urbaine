@@ -10,6 +10,7 @@ import * as migration_20261018_120257_picture_medium_large_variants from './2026
 import * as migration_20261020_230241_drop_seed_key from './20261020_230241_drop_seed_key';
 import * as migration_20261022_235407_interview_pictures_media_variants from './20261022_235407_interview_pictures_media_variants';
 import * as migration_20261023_002822_drop_interview_thumbnail from './20261023_002822_drop_interview_thumbnail';
+import * as migration_20261023_112335_category_color from './20261023_112335_category_color';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20261023_002822_drop_interview_thumbnail.up,
     down: migration_20261023_002822_drop_interview_thumbnail.down,
-    name: '20261023_002822_drop_interview_thumbnail'
+    name: '20261023_002822_drop_interview_thumbnail',
+  },
+  {
+    up: migration_20261023_112335_category_color.up,
+    down: migration_20261023_112335_category_color.down,
+    name: '20261023_112335_category_color'
   },
 ];
