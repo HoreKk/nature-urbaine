@@ -43,8 +43,32 @@ export const media = pgTable('media', {
   original__objectKey: varchar('original__objectkey'),
   focalX: numeric('focal_x', {mode: 'number'}),
   focalY: numeric('focal_y', {mode: 'number'}),
+  variants_thumbnail_url: varchar('variants_thumbnail_url'),
+  variants_thumbnail_width: numeric('variants_thumbnail_width', {mode: 'number'}),
+  variants_thumbnail_height: numeric('variants_thumbnail_height', {mode: 'number'}),
+  variants_thumbnail_mimeType: varchar('variants_thumbnail_mime_type'),
+  variants_thumbnail_filesize: numeric('variants_thumbnail_filesize', {mode: 'number'}),
+  variants_thumbnail_filename: varchar('variants_thumbnail_filename'),
+  variants_thumbnail_prefix: varchar('variants_thumbnail_prefix'),
+  variants_thumbnail__objectKey: varchar('variants_thumbnail__objectkey'),
+  variants_medium_url: varchar('variants_medium_url'),
+  variants_medium_width: numeric('variants_medium_width', {mode: 'number'}),
+  variants_medium_height: numeric('variants_medium_height', {mode: 'number'}),
+  variants_medium_mimeType: varchar('variants_medium_mime_type'),
+  variants_medium_filesize: numeric('variants_medium_filesize', {mode: 'number'}),
+  variants_medium_filename: varchar('variants_medium_filename'),
+  variants_medium_prefix: varchar('variants_medium_prefix'),
+  variants_medium__objectKey: varchar('variants_medium__objectkey'),
+  variants_large_url: varchar('variants_large_url'),
+  variants_large_width: numeric('variants_large_width', {mode: 'number'}),
+  variants_large_height: numeric('variants_large_height', {mode: 'number'}),
+  variants_large_mimeType: varchar('variants_large_mime_type'),
+  variants_large_filesize: numeric('variants_large_filesize', {mode: 'number'}),
+  variants_large_filename: varchar('variants_large_filename'),
+  variants_large_prefix: varchar('variants_large_prefix'),
+  variants_large__objectKey: varchar('variants_large__objectkey'),
 }, (columns) => [
-    index('media_updated_at_idx').on(columns.updatedAt), index('media_created_at_idx').on(columns.createdAt), uniqueIndex('media_filename_idx').on(columns.filename), index('media_original_original_filename_idx').on(columns.original_filename),
+    index('media_updated_at_idx').on(columns.updatedAt), index('media_created_at_idx').on(columns.createdAt), uniqueIndex('media_filename_idx').on(columns.filename), index('media_original_original_filename_idx').on(columns.original_filename), index('media_variants_thumbnail_variants_thumbnail_filename_idx').on(columns.variants_thumbnail_filename), index('media_variants_medium_variants_medium_filename_idx').on(columns.variants_medium_filename), index('media_variants_large_variants_large_filename_idx').on(columns.variants_large_filename),
 ]
 )
 
@@ -125,9 +149,6 @@ export const _reports_v = pgTable('_reports_v', {
 
 export const interviews = pgTable('interviews', {
   id: serial('id').primaryKey(),
-  thumbnail: integer('thumbnail_id').references(() => media.id, {
-      onDelete: 'set null'
-  }),
   name: varchar('name').notNull(),
   interviewee: varchar('interviewee').notNull(),
   intervieweeRole: varchar('interviewee_role').notNull(),
@@ -149,7 +170,7 @@ export const interviews = pgTable('interviews', {
   updatedAt: timestamp('updated_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
   createdAt: timestamp('created_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
 }, (columns) => [
-    index('interviews_thumbnail_idx').on(columns.thumbnail), index('interviews_interviewee_picture_idx').on(columns.intervieweePicture), index('interviews_updated_at_idx').on(columns.updatedAt), index('interviews_created_at_idx').on(columns.createdAt),
+    index('interviews_interviewee_picture_idx').on(columns.intervieweePicture), index('interviews_updated_at_idx').on(columns.updatedAt), index('interviews_created_at_idx').on(columns.createdAt),
 ]
 )
 
@@ -228,6 +249,64 @@ export const pictures_rels = pgTable('pictures_rels', {
       foreignColumns: [tags.id],
       name: 'pictures_rels_tags_fk'
     }).onDelete('cascade'),
+]
+)
+
+
+export const interview_pictures = pgTable('interview_pictures', {
+  id: serial('id').primaryKey(),
+  '_interview-pictures_relatedPictures_order': varchar('_interview_pictures_relatedpictures_order'),
+  alt: varchar('alt').notNull(),
+  interview: integer('interview_id').notNull().references(() => interviews.id, {
+      onDelete: 'set null'
+  }),
+  prefix: varchar('prefix').default("interview-pictures"),
+  _objectKey: varchar('_objectkey'),
+  updatedAt: timestamp('updated_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
+  createdAt: timestamp('created_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
+  url: varchar('url'),
+  thumbnailURL: varchar('thumbnail_u_r_l'),
+  filename: varchar('filename'),
+  mimeType: varchar('mime_type'),
+  filesize: numeric('filesize', {mode: 'number'}),
+  width: numeric('width', {mode: 'number'}),
+  height: numeric('height', {mode: 'number'}),
+  original_filename: varchar('original_filename'),
+  original_url: varchar('original_url'),
+  original_mimeType: varchar('original_mime_type'),
+  original_filesize: numeric('original_filesize', {mode: 'number'}),
+  original_width: numeric('original_width', {mode: 'number'}),
+  original_height: numeric('original_height', {mode: 'number'}),
+  original_prefix: varchar('original_prefix'),
+  original__objectKey: varchar('original__objectkey'),
+  focalX: numeric('focal_x', {mode: 'number'}),
+  focalY: numeric('focal_y', {mode: 'number'}),
+  variants_thumbnail_url: varchar('variants_thumbnail_url'),
+  variants_thumbnail_width: numeric('variants_thumbnail_width', {mode: 'number'}),
+  variants_thumbnail_height: numeric('variants_thumbnail_height', {mode: 'number'}),
+  variants_thumbnail_mimeType: varchar('variants_thumbnail_mime_type'),
+  variants_thumbnail_filesize: numeric('variants_thumbnail_filesize', {mode: 'number'}),
+  variants_thumbnail_filename: varchar('variants_thumbnail_filename'),
+  variants_thumbnail_prefix: varchar('variants_thumbnail_prefix'),
+  variants_thumbnail__objectKey: varchar('variants_thumbnail__objectkey'),
+  variants_medium_url: varchar('variants_medium_url'),
+  variants_medium_width: numeric('variants_medium_width', {mode: 'number'}),
+  variants_medium_height: numeric('variants_medium_height', {mode: 'number'}),
+  variants_medium_mimeType: varchar('variants_medium_mime_type'),
+  variants_medium_filesize: numeric('variants_medium_filesize', {mode: 'number'}),
+  variants_medium_filename: varchar('variants_medium_filename'),
+  variants_medium_prefix: varchar('variants_medium_prefix'),
+  variants_medium__objectKey: varchar('variants_medium__objectkey'),
+  variants_large_url: varchar('variants_large_url'),
+  variants_large_width: numeric('variants_large_width', {mode: 'number'}),
+  variants_large_height: numeric('variants_large_height', {mode: 'number'}),
+  variants_large_mimeType: varchar('variants_large_mime_type'),
+  variants_large_filesize: numeric('variants_large_filesize', {mode: 'number'}),
+  variants_large_filename: varchar('variants_large_filename'),
+  variants_large_prefix: varchar('variants_large_prefix'),
+  variants_large__objectKey: varchar('variants_large__objectkey'),
+}, (columns) => [
+    index('interview_pictures__interview_pictures_relatedpictures_o_idx').on(columns['_interview-pictures_relatedPictures_order']), index('interview_pictures_interview_idx').on(columns.interview), index('interview_pictures_updated_at_idx').on(columns.updatedAt), index('interview_pictures_created_at_idx').on(columns.createdAt), uniqueIndex('interview_pictures_filename_idx').on(columns.filename), index('interview_pictures_original_original_filename_idx').on(columns.original_filename), index('interview_pictures_variants_thumbnail_variants_thumbnail_idx').on(columns.variants_thumbnail_filename), index('interview_pictures_variants_medium_variants_medium_filen_idx').on(columns.variants_medium_filename), index('interview_pictures_variants_large_variants_large_filenam_idx').on(columns.variants_large_filename),
 ]
 )
 
@@ -387,13 +466,14 @@ export const payload_locked_documents_rels = pgTable('payload_locked_documents_r
   reportsID: integer('reports_id'),
   interviewsID: integer('interviews_id'),
   picturesID: integer('pictures_id'),
+  'interview-picturesID': integer('interview_pictures_id'),
   categoriesID: integer('categories_id'),
   submissionsID: integer('submissions_id'),
   tagsID: integer('tags_id'),
   'tag-categoriesID': integer('tag_categories_id'),
   usersID: integer('users_id'),
 }, (columns) => [
-    index('payload_locked_documents_rels_order_idx').on(columns.order), index('payload_locked_documents_rels_parent_idx').on(columns.parent), index('payload_locked_documents_rels_path_idx').on(columns.path), index('payload_locked_documents_rels_media_id_idx').on(columns.mediaID), index('payload_locked_documents_rels_reports_id_idx').on(columns.reportsID), index('payload_locked_documents_rels_interviews_id_idx').on(columns.interviewsID), index('payload_locked_documents_rels_pictures_id_idx').on(columns.picturesID), index('payload_locked_documents_rels_categories_id_idx').on(columns.categoriesID), index('payload_locked_documents_rels_submissions_id_idx').on(columns.submissionsID), index('payload_locked_documents_rels_tags_id_idx').on(columns.tagsID), index('payload_locked_documents_rels_tag_categories_id_idx').on(columns['tag-categoriesID']), index('payload_locked_documents_rels_users_id_idx').on(columns.usersID), foreignKey({
+    index('payload_locked_documents_rels_order_idx').on(columns.order), index('payload_locked_documents_rels_parent_idx').on(columns.parent), index('payload_locked_documents_rels_path_idx').on(columns.path), index('payload_locked_documents_rels_media_id_idx').on(columns.mediaID), index('payload_locked_documents_rels_reports_id_idx').on(columns.reportsID), index('payload_locked_documents_rels_interviews_id_idx').on(columns.interviewsID), index('payload_locked_documents_rels_pictures_id_idx').on(columns.picturesID), index('payload_locked_documents_rels_interview_pictures_id_idx').on(columns['interview-picturesID']), index('payload_locked_documents_rels_categories_id_idx').on(columns.categoriesID), index('payload_locked_documents_rels_submissions_id_idx').on(columns.submissionsID), index('payload_locked_documents_rels_tags_id_idx').on(columns.tagsID), index('payload_locked_documents_rels_tag_categories_id_idx').on(columns['tag-categoriesID']), index('payload_locked_documents_rels_users_id_idx').on(columns.usersID), foreignKey({
       columns: [columns['parent']],
       foreignColumns: [payload_locked_documents.id],
       name: 'payload_locked_documents_rels_parent_fk'
@@ -413,6 +493,10 @@ export const payload_locked_documents_rels = pgTable('payload_locked_documents_r
       columns: [columns['picturesID']],
       foreignColumns: [pictures.id],
       name: 'payload_locked_documents_rels_pictures_fk'
+    }).onDelete('cascade'), foreignKey({
+      columns: [columns['interview-picturesID']],
+      foreignColumns: [interview_pictures.id],
+      name: 'payload_locked_documents_rels_interview_pictures_fk'
     }).onDelete('cascade'), foreignKey({
       columns: [columns['categoriesID']],
       foreignColumns: [categories.id],
@@ -540,13 +624,7 @@ export const relations__reports_v = relations(_reports_v, ({ one }) => ({
     }),
       }))
 export const relations_interviews = relations(interviews, ({ one }) => ({
-  thumbnail: one(media, {
-    
-    fields: [interviews.thumbnail],
-    references: [media.id],
-    relationName: 'thumbnail',
-    }),
-    intervieweePicture: one(media, {
+  intervieweePicture: one(media, {
     
     fields: [interviews.intervieweePicture],
     references: [media.id],
@@ -576,6 +654,14 @@ export const relations_pictures = relations(pictures, ({ one, many }) => ({
     }),
     _rels: many(pictures_rels, {
             relationName: '_rels',
+    }),
+      }))
+export const relations_interview_pictures = relations(interview_pictures, ({ one }) => ({
+  interview: one(interviews, {
+    
+    fields: [interview_pictures.interview],
+    references: [interviews.id],
+    relationName: 'interview',
     }),
       }))
 export const relations_categories = relations(categories, () => ({
@@ -676,6 +762,12 @@ export const relations_payload_locked_documents_rels = relations(payload_locked_
     references: [pictures.id],
     relationName: 'pictures',
     }),
+    'interview-picturesID': one(interview_pictures, {
+    
+    fields: [payload_locked_documents_rels['interview-picturesID']],
+    references: [interview_pictures.id],
+    relationName: 'interview-pictures',
+    }),
     categoriesID: one(categories, {
     
     fields: [payload_locked_documents_rels.categoriesID],
@@ -769,6 +861,7 @@ type DatabaseSchema = {
   interviews: typeof interviews
   pictures: typeof pictures
   pictures_rels: typeof pictures_rels
+  interview_pictures: typeof interview_pictures
   categories: typeof categories
   submissions: typeof submissions
   submissions_rels: typeof submissions_rels
@@ -790,6 +883,7 @@ type DatabaseSchema = {
   relations_interviews: typeof relations_interviews
   relations_pictures_rels: typeof relations_pictures_rels
   relations_pictures: typeof relations_pictures
+  relations_interview_pictures: typeof relations_interview_pictures
   relations_categories: typeof relations_categories
   relations_submissions_rels: typeof relations_submissions_rels
   relations_submissions: typeof relations_submissions
