@@ -26,7 +26,7 @@ sector       (secteur d'activité, required, select: paysagiste | MOA | MOE | ur
 message      (required, multiline)
 ```
 
-No persistence — the form sends an email to the operator via `payload.sendEmail` (Payload Nodemailer adapter backed by SMTP). The contact email is rendered from `src/emails` (React Email templates + plain-text fallback) and uses env-driven config (`TO_EMAIL`, `EMAIL_FROM`, with fallback to `CONTACT_EMAIL_TO` / `CONTACT_EMAIL_FROM`, plus `CONTACT_EMAIL_FROM_NAME`, `SMTP_*`). In local development, Maildev runs without auth (`localhost:1025`, `SMTP_SECURE=false`); production can use authenticated SMTP (for example Resend SMTP).
+No persistence — the form sends an email to the operator via `payload.sendEmail` (Payload email adapter: Resend API or SMTP). The contact email is rendered from `src/emails` (React Email templates + plain-text fallback) and uses env-driven config (`TO_EMAIL`, `EMAIL_FROM`, `EMAIL_FROM_NAME`, then `RESEND_API_KEY` or `SMTP_*`). In local development, Maildev runs without auth (`localhost:1025`, `SMTP_SECURE=false`); production sends through the Resend API adapter, since Railway blocks SMTP below Pro.
 
 ### `/contribuer`
 

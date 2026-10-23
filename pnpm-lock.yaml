@@ -35,6 +35,9 @@ importers:
       '@payloadcms/email-nodemailer':
         specifier: 4.0.0-beta.3
         version: 4.0.0-beta.3(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))
+      '@payloadcms/email-resend':
+        specifier: 4.0.0-beta.3
+        version: 4.0.0-beta.3(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))
       '@payloadcms/richtext-lexical':
         specifier: 4.0.0-beta.3
         version: 4.0.0-beta.3(@faceless-ui/modal@3.0.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@faceless-ui/scroll-info@2.0.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(monaco-editor@0.57.0)(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3)(yjs@13.6.33)
@@ -1965,6 +1968,12 @@ packages:
 
   '@payloadcms/email-nodemailer@4.0.0-beta.3':
     resolution: {integrity: sha512-nuMJPEEvykjOA0oJ5e0rs8RAdx79rZB+8v0W5ud9hawVxdwioD9IUV2MStEeKPG2emkOek8NZ62vz5Bnrfktig==}
+    engines: {node: '>=24.15.0'}
+    peerDependencies:
+      payload: 4.0.0-beta.3
+
+  '@payloadcms/email-resend@4.0.0-beta.3':
+    resolution: {integrity: sha512-yGegTlQR41GnRHTeedgd6ocjUegUVe7y4T3WNsWxnDIDoh5zEAJ2Nsa4AbLACyyj+oyajks6rhxVk44U5vMW+w==}
     engines: {node: '>=24.15.0'}
     peerDependencies:
       payload: 4.0.0-beta.3
@@ -6793,6 +6802,10 @@ snapshots:
   '@payloadcms/email-nodemailer@4.0.0-beta.3(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))':
     dependencies:
       nodemailer: 10.1.7
+      payload: 4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3)
+
+  '@payloadcms/email-resend@4.0.0-beta.3(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))':
+    dependencies:
       payload: 4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3)
 
   '@payloadcms/graphql@4.0.0-beta.3(graphql@16.14.2)(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))(typescript@6.0.3)':

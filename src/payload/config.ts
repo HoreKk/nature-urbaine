@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer';
+import { resendAdapter } from '@payloadcms/email-resend';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { sharpTransformer } from '@payloadcms/transformer-sharp';
 import { fr } from '@payloadcms/translations/languages/fr';
@@ -42,6 +43,19 @@ function parseBoolean(value: string | undefined, fallback: boolean): boolean {
 }
 
 function buildEmailAdapter() {
+	const defaultFromAddress =
+		process.env.EMAIL_FROM ?? 'no-reply@nature-urbaine.com';
+	const defaultFromName = process.env.EMAIL_FROM_NAME ?? 'Nature Urbaine';
+
+	// Railway blocks SMTP below Pro, so production sends over Resend's HTTPS API.
+	if (process.env.RESEND_API_KEY) {
+		return resendAdapter({
+			apiKey: process.env.RESEND_API_KEY,
+			defaultFromAddress,
+			defaultFromName,
+		});
+	}
+
 	if (!process.env.SMTP_HOST || !process.env.SMTP_PORT) return undefined;
 
 	const smtpUser = process.env.SMTP_USER;
@@ -49,9 +63,8 @@ function buildEmailAdapter() {
 	const hasAuth = Boolean(smtpUser && smtpPass);
 
 	return nodemailerAdapter({
-		defaultFromAddress:
-			process.env.CONTACT_EMAIL_FROM ?? 'no-reply@nature-urbaine.fr',
-		defaultFromName: process.env.CONTACT_EMAIL_FROM_NAME ?? 'Nature Urbaine',
+		defaultFromAddress,
+		defaultFromName,
 		// Payload awaits the verify at boot; an unreachable SMTP host (Railway blocks
 		// SMTP below Pro) stalled boot 2 min. A real send still fails, after 10 s.
 		skipVerify: true,

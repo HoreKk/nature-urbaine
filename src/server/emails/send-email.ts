@@ -27,7 +27,6 @@ export async function sendTemplatedEmail(
 	const payload = await getPayload({ config: payloadConfig });
 
 	await payload.sendEmail({
-		from: emailConfig.from,
 		to: emailConfig.to,
 		replyTo,
 		subject: rendered.subject,

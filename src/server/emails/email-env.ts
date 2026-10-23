@@ -2,23 +2,16 @@ import { z } from 'zod';
 
 const emailConfigSchema = z.object({
 	to: z.array(z.string().email()).min(1),
-	from: z.string().email(),
 });
 
+// The sender (EMAIL_FROM, EMAIL_FROM_NAME) lives on the Payload email adapter.
 export function readEmailConfig() {
-	const recipients = (
-		process.env.TO_EMAIL ??
-		process.env.CONTACT_EMAIL_TO ??
-		''
-	)
+	const recipients = (process.env.TO_EMAIL ?? '')
 		.split(',')
 		.map((value) => value.trim())
 		.filter(Boolean);
 
-	const parsed = emailConfigSchema.safeParse({
-		to: recipients,
-		from: process.env.EMAIL_FROM ?? process.env.CONTACT_EMAIL_FROM,
-	});
+	const parsed = emailConfigSchema.safeParse({ to: recipients });
 
 	if (!parsed.success) {
 		throw new Error('EMAIL_CONFIG_INVALID');
