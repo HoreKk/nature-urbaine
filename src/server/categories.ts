@@ -33,6 +33,7 @@ export const getLibraryStats = createServerFn({ method: 'GET' })
 		const categoryCounts = categories.docs.map((category) => ({
 			id: category.id,
 			name: category.name,
+			color: category.color,
 			reportsCount: category.relatedReports?.totalDocs ?? 0,
 		}));
 

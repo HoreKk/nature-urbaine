@@ -13,6 +13,7 @@ import Wordmark from '../standard/Wordmark';
 type CategoryCount = {
 	id: number;
 	name: string;
+	color: string;
 	reportsCount: number;
 };
 
@@ -24,21 +25,6 @@ type LibraryStatsProps = {
 	};
 	categories: CategoryCount[];
 };
-
-const CATEGORY_PALETTE = [
-	'oklch(60% 0.10 130)',
-	'oklch(60% 0.10 220)',
-	'oklch(62% 0.10 75)',
-	'oklch(55% 0.08 290)',
-	'oklch(58% 0.10 30)',
-	'oklch(55% 0.10 175)',
-	'oklch(50% 0.08 320)',
-	'oklch(60% 0.10 50)',
-	'oklch(58% 0.10 145)',
-	'oklch(50% 0.08 90)',
-	'oklch(55% 0.10 250)',
-	'oklch(50% 0.04 60)',
-];
 
 const formatNumber = (n: number) => new Intl.NumberFormat('fr-FR').format(n);
 
@@ -108,7 +94,7 @@ const LibraryStats = ({ totals, categories }: LibraryStatsProps) => {
 					columnGap={{ base: 6, md: 8 }}
 					rowGap={0}
 				>
-					{categories.map((cat, i) => (
+					{categories.map((cat) => (
 						<Link key={cat.id} to="/reports" search={{ category: [cat.id] }}>
 							<Flex
 								align="center"
@@ -124,7 +110,7 @@ const LibraryStats = ({ totals, categories }: LibraryStatsProps) => {
 										w="8px"
 										h="8px"
 										borderRadius="full"
-										bgColor={CATEGORY_PALETTE[i % CATEGORY_PALETTE.length]}
+										bgColor={cat.color}
 									/>
 									<Text textStyle="title.s" truncate>
 										{cat.name}

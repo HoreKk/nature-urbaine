@@ -98,7 +98,7 @@ const category =
 	(await payload.create({
 		collection: 'categories',
 		overrideAccess: true,
-		data: { name: 'Galeries de test' },
+		data: { name: 'Galeries de test', color: '#6B6E66' },
 	}));
 
 const report = await payload.create({
