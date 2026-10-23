@@ -46,7 +46,7 @@ const features: Feature[] = [
 	{
 		num: '04',
 		kicker: 'Filtrer',
-		title: 'Recherche par mot clé',
+		title: 'Recherche par mot-clés',
 		desc: 'Retrouvez facilement des images de référence grâce à un système de tags associés à chaque image.',
 		to: '/tags',
 	},
