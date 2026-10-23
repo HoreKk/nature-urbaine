@@ -11,6 +11,7 @@ import * as migration_20261020_230241_drop_seed_key from './20261020_230241_drop
 import * as migration_20261022_235407_interview_pictures_media_variants from './20261022_235407_interview_pictures_media_variants';
 import * as migration_20261023_002822_drop_interview_thumbnail from './20261023_002822_drop_interview_thumbnail';
 import * as migration_20261023_112335_category_color from './20261023_112335_category_color';
+import * as migration_20261023_135310_editable_interview_questions from './20261023_135310_editable_interview_questions';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20261023_112335_category_color.up,
     down: migration_20261023_112335_category_color.down,
-    name: '20261023_112335_category_color'
+    name: '20261023_112335_category_color',
+  },
+  {
+    up: migration_20261023_135310_editable_interview_questions.up,
+    down: migration_20261023_135310_editable_interview_questions.down,
+    name: '20261023_135310_editable_interview_questions'
   },
 ];

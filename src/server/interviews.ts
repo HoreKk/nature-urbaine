@@ -28,20 +28,16 @@ type InterviewMedia = {
 // List items don't need the richText payload — only the scalar fields.
 export type SafeInterview = Omit<
 	Interview,
-	'projectDetails' | 'intervieweePicture' | 'relatedPictures'
+	'questions' | 'intervieweePicture' | 'relatedPictures'
 > &
-	InterviewMedia & { projectDetails?: never };
+	InterviewMedia & { questions?: never };
 
 export type InterviewDetail = Omit<
 	Interview,
-	'projectDetails' | 'intervieweePicture' | 'relatedPictures'
+	'questions' | 'intervieweePicture' | 'relatedPictures'
 > &
 	InterviewMedia & {
-		projectDetails: {
-			objectives: string;
-			impacts: string;
-			challenges: string;
-		};
+		questions: { id?: string | null; question: string; answer: string }[];
 		relatedPictures: { docs?: InterviewGalleryPicture[] };
 	};
 
@@ -109,19 +105,14 @@ export const getInterviewById = createServerFn({ method: 'GET' })
 
 		if (!interview) throw notFound();
 
-		const objectives = convertLexicalToHTML({
-			data: interview.projectDetails.objectives,
-		});
-		const impacts = convertLexicalToHTML({
-			data: interview.projectDetails.impacts,
-		});
-		const challenges = convertLexicalToHTML({
-			data: interview.projectDetails.challenges,
-		});
+		const questions = interview.questions.map((row) => ({
+			...row,
+			answer: convertLexicalToHTML({ data: row.answer }),
+		}));
 
 		return withMediaUrls({
 			...interview,
-			projectDetails: { objectives, impacts, challenges },
+			questions,
 			frontPicture: frontPictureOf(interview.relatedPictures),
 		} as unknown as InterviewDetail);
 	});

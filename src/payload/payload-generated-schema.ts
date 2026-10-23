@@ -147,6 +147,22 @@ export const _reports_v = pgTable('_reports_v', {
 )
 
 
+export const interviews_questions = pgTable('interviews_questions', {
+  _order: integer('_order').notNull(),
+  _parentID: integer('_parent_id').notNull(),
+  id: varchar('id').primaryKey(),
+  question: varchar('question').notNull(),
+  answer: jsonb('answer').notNull(),
+}, (columns) => [
+    index('interviews_questions_order_idx').on(columns._order), index('interviews_questions_parent_id_idx').on(columns._parentID), foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [interviews.id],
+      name: 'interviews_questions_parent_id_fk'
+    }).onDelete('cascade'),
+]
+)
+
+
 export const interviews = pgTable('interviews', {
   id: serial('id').primaryKey(),
   name: varchar('name').notNull(),
@@ -162,9 +178,6 @@ export const interviews = pgTable('interviews', {
   projectCost: varchar('project_cost'),
   area: varchar('area').notNull(),
   summary: varchar('summary').notNull(),
-  projectDetails_objectives: jsonb('project_details_objectives').notNull(),
-  projectDetails_impacts: jsonb('project_details_impacts').notNull(),
-  projectDetails_challenges: jsonb('project_details_challenges').notNull(),
   realisedAt: timestamp('realised_at', {mode: 'string',withTimezone: true,precision: 3}).notNull(),
   publishedAt: timestamp('published_at', {mode: 'string',withTimezone: true,precision: 3}).notNull(),
   updatedAt: timestamp('updated_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
@@ -314,6 +327,7 @@ export const interview_pictures = pgTable('interview_pictures', {
 export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
   name: varchar('name').notNull(),
+  color: varchar('color').notNull().default("#6B6E66"),
   description: varchar('description'),
   updatedAt: timestamp('updated_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
   createdAt: timestamp('created_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
@@ -623,12 +637,23 @@ export const relations__reports_v = relations(_reports_v, ({ one }) => ({
     relationName: 'version_category',
     }),
       }))
-export const relations_interviews = relations(interviews, ({ one }) => ({
+export const relations_interviews_questions = relations(interviews_questions, ({ one }) => ({
+  _parentID: one(interviews, {
+    
+    fields: [interviews_questions._parentID],
+    references: [interviews.id],
+    relationName: 'questions',
+    }),
+      }))
+export const relations_interviews = relations(interviews, ({ one, many }) => ({
   intervieweePicture: one(media, {
     
     fields: [interviews.intervieweePicture],
     references: [media.id],
     relationName: 'intervieweePicture',
+    }),
+    questions: many(interviews_questions, {
+            relationName: 'questions',
     }),
       }))
 export const relations_pictures_rels = relations(pictures_rels, ({ one }) => ({
@@ -858,6 +883,7 @@ type DatabaseSchema = {
   media: typeof media
   reports: typeof reports
   _reports_v: typeof _reports_v
+  interviews_questions: typeof interviews_questions
   interviews: typeof interviews
   pictures: typeof pictures
   pictures_rels: typeof pictures_rels
@@ -880,6 +906,7 @@ type DatabaseSchema = {
   relations_media: typeof relations_media
   relations_reports: typeof relations_reports
   relations__reports_v: typeof relations__reports_v
+  relations_interviews_questions: typeof relations_interviews_questions
   relations_interviews: typeof relations_interviews
   relations_pictures_rels: typeof relations_pictures_rels
   relations_pictures: typeof relations_pictures

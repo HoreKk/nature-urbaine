@@ -458,11 +458,11 @@ export interface Interview {
     totalDocs?: number;
   };
   summary: string;
-  projectDetails: {
-    objectives: LexicalRichText<LexicalNodes_4F4C3393>;
-    impacts: LexicalRichText<LexicalNodes_4F4C3393>;
-    challenges: LexicalRichText<LexicalNodes_4F4C3393>;
-  };
+  questions: {
+    question: string;
+    answer: LexicalRichText<LexicalNodes_4F4C3393>;
+    id?: string | null;
+  }[];
   realisedAt: string;
   publishedAt: string;
   updatedAt: string;
@@ -846,12 +846,12 @@ export interface InterviewsSelect<T extends boolean = true> {
   area?: T;
   relatedPictures?: T;
   summary?: T;
-  projectDetails?:
+  questions?:
     | T
     | {
-        objectives?: T;
-        impacts?: T;
-        challenges?: T;
+        question?: T;
+        answer?: T;
+        id?: T;
       };
   realisedAt?: T;
   publishedAt?: T;

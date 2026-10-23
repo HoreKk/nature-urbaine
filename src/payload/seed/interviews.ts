@@ -24,6 +24,13 @@ type ExcelInterview = {
 	'Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?': string;
 };
 
+// The sheet's headers are the questions; the impacts one keeps a trailing space.
+const QUESTION_COLUMNS = [
+	'Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?',
+	'Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ? ',
+	'Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?',
+] as const satisfies readonly (keyof ExcelInterview)[];
+
 export default async function seedInterviews(payload: Payload) {
 	const data = readExcelSheet(
 		'./src/payload/seed/historic-data.xlsx',
@@ -67,29 +74,14 @@ export default async function seedInterviews(payload: Payload) {
 				projectCost: cleanString(interview.Coût) || undefined,
 				publishedAt: publishedAt ?? new Date().toISOString(),
 				realisedAt: realisedAt ?? new Date().toISOString(),
-				projectDetails: {
-					objectives: convertHTMLToLexical({
+				questions: QUESTION_COLUMNS.map((column) => ({
+					question: column.trim(),
+					answer: convertHTMLToLexical({
 						editorConfig,
-						html: interview[
-							'Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?'
-						].trim(),
+						html: interview[column].trim(),
 						JSDOM,
 					}),
-					impacts: convertHTMLToLexical({
-						editorConfig,
-						html: interview[
-							'Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ? '
-						].trim(),
-						JSDOM,
-					}),
-					challenges: convertHTMLToLexical({
-						editorConfig,
-						html: interview[
-							'Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?'
-						].trim(),
-						JSDOM,
-					}),
-				},
+				})),
 			},
 		});
 	}

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { DEFAULT_INTERVIEW_QUESTIONS } from './interview-questions';
 
 export const Interviews: CollectionConfig = {
 	slug: 'interviews',
@@ -114,29 +115,32 @@ export const Interviews: CollectionConfig = {
 			required: true,
 		},
 		{
-			type: 'group',
-			name: 'projectDetails',
-			label: 'Contenu',
+			name: 'questions',
+			type: 'array',
+			label: 'Questions / réponses',
+			labels: { singular: 'Question', plural: 'Questions' },
+			minRows: 1,
+			required: true,
+			defaultValue: DEFAULT_INTERVIEW_QUESTIONS.map((question) => ({
+				question,
+			})),
+			admin: {
+				components: {
+					RowLabel:
+						'/payload/admin/InterviewQuestionRowLabel#InterviewQuestionRowLabel',
+				},
+			},
 			fields: [
 				{
-					name: 'objectives',
-					type: 'richText',
-					label:
-						'Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?',
+					name: 'question',
+					type: 'text',
+					label: 'Question',
 					required: true,
 				},
 				{
-					name: 'impacts',
+					name: 'answer',
 					type: 'richText',
-					label:
-						'Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ? ',
-					required: true,
-				},
-				{
-					name: 'challenges',
-					type: 'richText',
-					label:
-						'Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?',
+					label: 'Réponse',
 					required: true,
 				},
 			],
