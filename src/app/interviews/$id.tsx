@@ -18,6 +18,8 @@ import {
 	RiUserLine,
 } from 'react-icons/ri';
 import { UIBreadcrumb } from '@/components/standard/Breadcrumb';
+import { toGalleryImages } from '@/components/standard/gallery/gallery-images';
+import MediaGallery from '@/components/standard/gallery/MediaGallery';
 import PictureImg from '@/components/standard/PictureImg';
 import { Prose } from '@/components/ui/prose';
 import type { InterviewDetail } from '@/server/interviews';
@@ -79,7 +81,10 @@ function QuestionBlock({ question, html }: QuestionBlockProps) {
 function RouteComponent() {
 	const interview = Route.useLoaderData() as InterviewDetail;
 
-	const thumbnail = interview.thumbnail?.url ? interview.thumbnail : null;
+	const frontPicture = interview.frontPicture?.url
+		? interview.frontPicture
+		: null;
+	const galleryImages = toGalleryImages(interview.relatedPictures.docs ?? []);
 	const portraitUrl = interview.intervieweePicture?.url
 		? thumbnailSource(interview.intervieweePicture).src
 		: null;
@@ -95,10 +100,10 @@ function RouteComponent() {
 			/>
 
 			<Box position="relative">
-				{thumbnail ? (
+				{frontPicture ? (
 					<PictureImg
-						source={heroSource(thumbnail)}
-						alt={thumbnail.alt || interview.name}
+						source={heroSource(frontPicture)}
+						alt={frontPicture.alt || interview.name}
 						height={{ base: 240, md: 380 }}
 						width="full"
 						priority
@@ -247,6 +252,12 @@ function RouteComponent() {
 								question="Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?"
 								html={interview.projectDetails.challenges}
 							/>
+							{galleryImages.length > 0 ? (
+								<>
+									<Separator />
+									<MediaGallery images={galleryImages} />
+								</>
+							) : null}
 						</Flex>
 					</GridItem>
 

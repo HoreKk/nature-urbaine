@@ -1,6 +1,7 @@
 import { Button, ChevronIcon } from '@payloadcms/ui';
 import type { BeforeDocumentControlsServerProps } from 'payload';
 import { formatAdminURL } from 'payload/shared';
+import type { PictureNavTarget } from '../collections/picture-collection';
 
 type DocId = number | string;
 
@@ -30,43 +31,48 @@ const NavButton = ({
 	</Button>
 );
 
+type PictureNavProps = BeforeDocumentControlsServerProps & PictureNavTarget;
+
+/** ‹ › through the owner's photos, in the order of its `relatedPictures` join. */
 export const PictureNav = async ({
 	id,
 	payload,
 	user,
-}: BeforeDocumentControlsServerProps) => {
+	collection,
+	ownerField,
+	ownerCollection,
+}: PictureNavProps) => {
 	if (id == null) return null;
 
-	const picture = await payload.findByID({
-		collection: 'pictures',
+	// `collection` is dynamic, so Payload types the row as any collection's document.
+	const picture = (await payload.findByID({
+		collection,
 		id,
 		depth: 0,
-		select: { report: true },
 		overrideAccess: false,
 		user,
-	});
-	const reportId = idOf(picture.report);
-	if (reportId == null) return null;
+	})) as unknown as Record<string, unknown>;
+	const ownerId = idOf(picture[ownerField]);
+	if (ownerId == null) return null;
 
-	const report = await payload.findByID({
-		collection: 'reports',
-		id: reportId,
+	const owner = await payload.findByID({
+		collection: ownerCollection,
+		id: ownerId,
 		depth: 0,
 		select: { relatedPictures: true },
-		// The `relatedPictures` join order is the report's photo sequence.
 		joins: { relatedPictures: { limit: 0 } },
 		overrideAccess: false,
 		user,
 	});
 
-	const ids = (report.relatedPictures?.docs ?? []).map(idOf);
+	const ids = (owner.relatedPictures?.docs ?? []).map(idOf);
 	const index = ids.findIndex((docId) => String(docId) === String(id));
 	const hrefOf = (docId: DocId | undefined) =>
 		docId == null
 			? undefined
 			: formatAdminURL({
 					adminRoute: payload.config.routes.admin,
-					path: `/collections/pictures/${docId}`,
+					path: `/collections/${collection}/${docId}`,
 				});
 
 	return (

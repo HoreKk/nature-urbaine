@@ -196,7 +196,7 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 
 ### Picture variants
 
-Every `pictures` upload gets three variants (`src/payload/image-variants.ts`): a 400×300 `thumbnail` crop for cards and grids, and uncropped `medium` (1024 px wide) and `large` (2048 px wide) WebP files. The report banner, carousel and lightbox only use `medium`/`large` through `srcSet`; they fall back to the original only for a row without variants.
+Every upload (`pictures`, `interview-pictures`, `media`) gets three variants (`src/payload/image-variants.ts`): a 400×300 `thumbnail` crop for cards and grids, and uncropped `medium` (1024 px wide) and `large` (2048 px wide) WebP files. The report and interview banners, carousels and lightboxes only use `medium`/`large` through `srcSet`; they fall back to the original only for a row without variants.
 
 To reproduce a large report locally, `pnpm storage:fixtures:large-report` (with the RustFS `S3_*` variables set) creates « Reportage de test · 240 photos » (`FIXTURE_COUNT=5` for « … · 5 photos »).
 

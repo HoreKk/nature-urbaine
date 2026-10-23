@@ -16,12 +16,6 @@ export const Interviews: CollectionConfig = {
 	},
 	fields: [
 		{
-			name: 'thumbnail',
-			type: 'upload',
-			label: 'Vignette',
-			relationTo: 'media',
-		},
-		{
 			name: 'name',
 			type: 'text',
 			label: 'Nom',
@@ -99,6 +93,19 @@ export const Interviews: CollectionConfig = {
 					required: true,
 				},
 			],
+		},
+		{
+			name: 'relatedPictures',
+			type: 'join',
+			label: 'Photos associées',
+			collection: 'interview-pictures',
+			on: 'interview',
+			orderable: true,
+			defaultLimit: 0,
+			admin: {
+				defaultColumns: ['filename'],
+			},
+			hasMany: true,
 		},
 		{
 			name: 'summary',

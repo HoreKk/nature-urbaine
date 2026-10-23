@@ -1,9 +1,7 @@
 import { s3Storage } from '@payloadcms/storage-s3';
 import type { Plugin, StorageAdapter } from 'payload';
 
-// Each collection is stored under a prefix equal to its slug; the website's
-// `media-urls.ts` and `scripts/check-storage.ts` rely on this layout.
-export const storageCollections = ['media', 'pictures'] as const;
+import { storageCollections } from './storage-collections';
 
 export function readS3Env() {
 	const bucket = process.env.S3_BUCKET;

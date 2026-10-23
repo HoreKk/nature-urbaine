@@ -4,7 +4,8 @@
  */
 import { HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import pg from 'pg';
-import { readS3Env, storageCollections } from '../storage';
+import { readS3Env } from '../storage';
+import { storageCollections } from '../storage-collections';
 
 type Job = {
 	collection: string;
@@ -57,6 +58,9 @@ const folderOf = (
 	objectKey: string | null,
 ) => [prefix, objectKey].filter(Boolean).join('/') || collection;
 
+// Payload's Postgres adapter snake-cases a slug for its table name.
+const tableOf = (slug: string) => slug.replace(/-/g, '_');
+
 const problems: Problem[] = [];
 let checked = 0;
 let legacyEmptyPrefix = 0;
@@ -82,7 +86,7 @@ for (const collection of storageCollections) {
 	const columns = (
 		await client.query<{ column_name: string }>(
 			"select column_name from information_schema.columns where table_schema = 'public' and table_name = $1",
-			[collection],
+			[tableOf(collection)],
 		)
 	).rows.map((row) => row.column_name);
 	// Each variant stores its own `prefix`/`_objectkey` next to its filename.
@@ -96,7 +100,7 @@ for (const collection of storageCollections) {
 		)
 		.join('');
 	const { rows } = await client.query<Record<string, string | null>>(
-		`select id, filename, prefix, "_objectkey" as object_key${variantSelect} from "${collection}"`,
+		`select id, filename, prefix, "_objectkey" as object_key${variantSelect} from "${tableOf(collection)}"`,
 	);
 
 	const jobs: Job[] = [];

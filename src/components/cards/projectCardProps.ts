@@ -33,10 +33,10 @@ export const interviewToProjectCardProps = (interview: SafeInterview) => ({
 	title: interview.name,
 	description: interview.summary,
 	date: interview.publishedAt,
-	image: interview.thumbnail?.url
-		? thumbnailSource(interview.thumbnail)
+	image: interview.frontPicture?.url
+		? thumbnailSource(interview.frontPicture)
 		: undefined,
-	imageAlt: interview.thumbnail?.alt || interview.name,
+	imageAlt: interview.frontPicture?.alt || interview.name,
 	location: interview.department
 		? `${interview.city} — ${interview.department}`
 		: interview.city,

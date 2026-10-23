@@ -5,6 +5,7 @@ import { z } from 'zod';
 import type { Category, Picture, Report } from '@/payload/payload-types';
 import { baseProcedure } from './db';
 import { withMediaUrls } from './media-urls';
+import { frontPictureOf, galleryPicturePopulate } from './picture-join';
 
 export const REPORT_CATALOG_PAGE_SIZE = 50;
 
@@ -30,12 +31,9 @@ export interface AugmentedReport extends Omit<
 }
 
 function withFrontPicture<
-	T extends { relatedPictures?: { docs?: Picture[] | (number | Picture)[] } },
+	T extends { relatedPictures?: { docs?: (number | Picture)[] } },
 >(report: T): T & { frontPicture: Picture | null } {
-	const first = report.relatedPictures?.docs?.[0];
-	const frontPicture =
-		first && typeof first === 'object' ? (first as Picture) : null;
-	return { ...report, frontPicture };
+	return { ...report, frontPicture: frontPictureOf(report.relatedPictures) };
 }
 
 function buildWhere(filter: ReportCatalogFilter) {
@@ -94,25 +92,11 @@ export const findReportById = createServerFn({ method: 'GET' })
 	.validator(z.number().min(1))
 	.middleware([baseProcedure])
 	.handler(async ({ data: id, context }) => {
-		// Reports can hold 200+ pictures: populate only what the gallery renders,
-		// skipping their tags and unused signed URLs (`original`, `thumbnailURL`).
 		const report = await context.db.findByID({
 			collection: 'reports',
 			id,
 			depth: 1,
-			populate: {
-				pictures: {
-					alt: true,
-					url: true,
-					filename: true,
-					mimeType: true,
-					width: true,
-					height: true,
-					prefix: true,
-					_objectKey: true,
-					variants: true,
-				},
-			},
+			populate: { pictures: galleryPicturePopulate },
 		});
 
 		if (!report) throw notFound();

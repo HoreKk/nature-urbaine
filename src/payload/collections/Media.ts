@@ -16,7 +16,10 @@ export const Media: CollectionConfig = {
 			required: true,
 		},
 	],
-	upload: true,
+	upload: {
+		adminThumbnail: 'thumbnail',
+		// Same variants as `pictures`, from `image-variants.ts`.
+	},
 	versions: false,
 	authorship: false,
 };

@@ -1,13 +1,15 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { storageCollections } from '@/payload/storage-collections';
 
 // Railway buckets are private and the CMS answers with an uncacheable presigned 302 per
 // request, so the website signs URLs itself, pinned to the UTC day so browsers can cache them.
 
 // Accepts absolute URLs in case Payload's `serverURL` is ever set; Payload 4
 // appends `?prefix=<prefix>` to every storage URL.
-const UPLOAD_PATH =
-	/^(?:https?:\/\/[^/]+)?\/api\/(pictures|media)\/file\/([^?#]+)(?:\?[^#]*)?$/;
+const UPLOAD_PATH = new RegExp(
+	`^(?:https?:\\/\\/[^/]+)?\\/api\\/(${storageCollections.join('|')})\\/file\\/([^?#]+)(?:\\?[^#]*)?$`,
+);
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
 // Payload results are acyclic JSON a handful of levels deep; the cap only
