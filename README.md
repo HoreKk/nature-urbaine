@@ -173,9 +173,12 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 | `pnpm migrate:refresh`               | Roll back and re-run all migrations                                                           |
 | `pnpm migrate:reset`                 | Reset the database                                                                            |
 | `pnpm migrate:fresh`                 | Drop all tables and re-run from scratch                                                       |
+| `pnpm db:push`                       | Local only: sync the dev schema with the config, asking before any data loss                  |
 | `pnpm seed:dev`                      | Drop and re-seed development data                                                             |
 | `pnpm storage:check`                 | Read-only: every upload row has its object in the bucket                                      |
 | `pnpm storage:fixtures:large-report` | Dev only: one report with 240 photos of 4000×3000 (`FIXTURE_COUNT`), uploaded through Payload |
+
+`pnpm dev` never syncs the schema: Drizzle's data-loss prompt would hang the Vite dev server, so the app's config runs with `push: false`. After changing a collection, run `pnpm db:push` in a terminal. It shows Drizzle's warnings (dropped columns or tables, new required columns) and applies them only if you answer `y`. It refuses a non-local `DATABASE_URL`. Production schema changes still go through `pnpm migrate:create`.
 
 ### Code generation
 

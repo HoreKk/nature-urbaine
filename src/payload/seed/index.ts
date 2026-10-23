@@ -1,21 +1,14 @@
 import { getPayload } from 'payload';
 import config from '../default-config';
+import { assertLocalDatabase } from '../utils/local-database';
 import seedCategories from './categories';
 import seedInterviews from './interviews';
 import seedReports from './reports';
 import seedTags from './tags';
 
-// `db` is the Postgres service name when the seed runs inside docker compose.
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', 'db']);
-
 const seed = async () => {
 	// `seed:dev` drops the database: never let it reach a remote one.
-	const host = URL.parse(process.env.DATABASE_URL ?? '')?.hostname;
-	if (!host || !LOCAL_HOSTS.has(host)) {
-		throw new Error(
-			`seed:dev refuses a non-local DATABASE_URL (host "${host ?? 'none'}").`,
-		);
-	}
+	assertLocalDatabase('seed:dev');
 
 	const payload = await getPayload({ config });
 

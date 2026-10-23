@@ -11,6 +11,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
+import { Fragment } from 'react';
 import {
 	RiBuildingLine,
 	RiCalendarLine,
@@ -234,24 +235,12 @@ function RouteComponent() {
 						</Box>
 
 						<Flex flexDir="column" gap={10}>
-							<QuestionBlock
-								question="Quels sont les objectifs principaux de cet aménagement en termes de qualité de vie ?"
-								html={interview.projectDetails.objectives}
-							/>
-
-							<Separator />
-
-							<QuestionBlock
-								question="Quels impacts écologiques cet aménagement vise-t-il à minimiser ou améliorer ?"
-								html={interview.projectDetails.impacts}
-							/>
-
-							<Separator />
-
-							<QuestionBlock
-								question="Quels défis avez-vous rencontrés et comment les avez-vous surmontés ?"
-								html={interview.projectDetails.challenges}
-							/>
+							{interview.questions.map(({ id, question, answer }, index) => (
+								<Fragment key={id ?? index}>
+									{index > 0 ? <Separator /> : null}
+									<QuestionBlock question={question} html={answer} />
+								</Fragment>
+							))}
 							{galleryImages.length > 0 ? (
 								<>
 									<Separator />
