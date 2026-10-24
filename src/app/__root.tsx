@@ -9,6 +9,7 @@ import {
 import Footer from '@/components/sections/Footer';
 import Navbar from '@/components/sections/Navbar';
 import { Provider as ChakraProvider } from '@/components/ui/provider';
+import { umamiBeforeSend } from '@/utils/umami';
 import '@fontsource-variable/newsreader/index.css';
 import '@fontsource/instrument-sans/400.css';
 import '@fontsource/instrument-sans/500.css';
@@ -52,6 +53,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 const umamiUrl = import.meta.env.VITE_UMAMI_URL?.replace(/\/+$/, '');
 const umamiWebsiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID;
+const umamiDomains = import.meta.env.VITE_UMAMI_DOMAINS;
+
+const isUmamiConfigured = Boolean(umamiUrl && umamiWebsiteId && umamiDomains);
+
+// The tracker reads this on every send, and the first page it loads on is
+// never an admin one, so setting it from the bundle is early enough.
+if (typeof window !== 'undefined') window.umamiBeforeSend = umamiBeforeSend;
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
@@ -59,11 +67,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 				{/* Here rather than in `head()`: the admin shell renders `head()` too, and admin visits must stay out of the stats. */}
-				{umamiUrl && umamiWebsiteId ? (
+				{isUmamiConfigured ? (
 					<script
 						defer
 						src={`${umamiUrl}/script.js`}
 						data-website-id={umamiWebsiteId}
+						data-domains={umamiDomains}
+						data-before-send="umamiBeforeSend"
 					/>
 				) : null}
 			</head>
