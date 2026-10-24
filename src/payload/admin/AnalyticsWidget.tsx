@@ -93,11 +93,11 @@ const KpiTile = ({ label, value, current, previous, lowerIsBetter }: Kpi) => {
 				: 'down';
 
 	return (
-		<div className="analytics-widget__kpi">
-			<span className="analytics-widget__kpi-label">{label}</span>
-			<span className="analytics-widget__kpi-value">{value}</span>
+		<div className="stats-widget__kpi">
+			<span className="stats-widget__kpi-label">{label}</span>
+			<span className="stats-widget__kpi-value">{value}</span>
 			<span
-				className={`analytics-widget__kpi-change analytics-widget__kpi-change--${trend}`}
+				className={`stats-widget__kpi-change stats-widget__kpi-change--${trend}`}
 			>
 				{change === null
 					? 'Pas de comparaison'
@@ -113,12 +113,12 @@ const DailyChart = ({ days }: { days: UmamiSummary['dailyVisitors'] }) => {
 	const last = days.at(-1);
 
 	return (
-		<div className="analytics-widget__chart">
-			<span className="analytics-widget__section-title">Visites par jour</span>
-			<ul className="analytics-widget__bars">
+		<div className="stats-widget__chart">
+			<span className="stats-widget__section-title">Visites par jour</span>
+			<ul className="stats-widget__bars">
 				{days.map((day) => (
 					<li
-						className="analytics-widget__bar"
+						className="stats-widget__bar"
 						key={day.x}
 						title={`${formatDay(day.x)} : ${visitsLabel(day.y)}`}
 						aria-label={`${formatDay(day.x)} : ${visitsLabel(day.y)}`}
@@ -128,7 +128,7 @@ const DailyChart = ({ days }: { days: UmamiSummary['dailyVisitors'] }) => {
 				))}
 			</ul>
 			{first && last ? (
-				<div className="analytics-widget__chart-axis">
+				<div className="stats-widget__chart-axis">
 					<span>{formatDay(first.x)}</span>
 					<span>{formatDay(last.x)}</span>
 				</div>
@@ -146,18 +146,18 @@ const TopList = ({
 	items: UmamiMetric[];
 	emptyLabel: string;
 }) => (
-	<div className="analytics-widget__list">
-		<span className="analytics-widget__section-title">{title}</span>
+	<div className="stats-widget__list">
+		<span className="stats-widget__section-title">{title}</span>
 		{items.length === 0 ? (
-			<p className="analytics-widget__muted">Aucune donnée sur la période.</p>
+			<p className="stats-widget__muted">Aucune donnée sur la période.</p>
 		) : (
 			<ol>
 				{items.map((item) => (
 					<li key={item.x ?? emptyLabel}>
-						<span className="analytics-widget__list-label">
+						<span className="stats-widget__list-label">
 							{item.x || emptyLabel}
 						</span>
-						<span className="analytics-widget__list-value">
+						<span className="stats-widget__list-value">
 							{numberFormat.format(item.y)}
 						</span>
 					</li>
@@ -176,9 +176,9 @@ export const AnalyticsWidget = async ({
 
 	if (!config) {
 		return (
-			<div className="card analytics-widget">
-				<h3 className="analytics-widget__title">Audience du site</h3>
-				<p className="analytics-widget__muted">
+			<div className="card stats-widget">
+				<h3 className="stats-widget__title">Audience du site</h3>
+				<p className="stats-widget__muted">
 					Les statistiques s’afficheront une fois Umami configuré
 					(VITE_UMAMI_URL, VITE_UMAMI_WEBSITE_ID et UMAMI_API_KEY).
 				</p>
@@ -197,11 +197,11 @@ export const AnalyticsWidget = async ({
 	}
 
 	return (
-		<div className="card analytics-widget">
-			<div className="analytics-widget__header">
+		<div className="card stats-widget">
+			<div className="stats-widget__header">
 				<div>
-					<h3 className="analytics-widget__title">Audience du site</h3>
-					<span className="analytics-widget__muted">
+					<h3 className="stats-widget__title">Audience du site</h3>
+					<span className="stats-widget__muted">
 						{days} derniers jours
 						{summary
 							? ` · ${numberFormat.format(summary.activeVisitors)} visiteur${summary.activeVisitors > 1 ? 's' : ''} en ce moment`
@@ -209,7 +209,7 @@ export const AnalyticsWidget = async ({
 					</span>
 				</div>
 				<a
-					className="analytics-widget__link"
+					className="stats-widget__link"
 					href={`${config.url}/websites/${config.websiteId}`}
 					target="_blank"
 					rel="noreferrer"
@@ -219,13 +219,13 @@ export const AnalyticsWidget = async ({
 			</div>
 			{summary ? (
 				<>
-					<div className="analytics-widget__kpis">
+					<div className="stats-widget__kpis">
 						{buildKpis(summary.totals, summary.previous).map((kpi) => (
 							<KpiTile key={kpi.label} {...kpi} />
 						))}
 					</div>
 					<DailyChart days={summary.dailyVisitors} />
-					<div className="analytics-widget__lists">
+					<div className="stats-widget__lists">
 						<TopList
 							title="Pages les plus vues"
 							items={summary.topPages}
@@ -239,7 +239,7 @@ export const AnalyticsWidget = async ({
 					</div>
 				</>
 			) : (
-				<p className="analytics-widget__muted">
+				<p className="stats-widget__muted">
 					Les statistiques sont momentanément indisponibles. Réessayez dans
 					quelques minutes.
 				</p>

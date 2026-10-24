@@ -176,6 +176,7 @@ export interface Config {
   };
   locale: null;
   widgets: {
+    contributions: ContributionsWidget;
     analytics: AnalyticsWidget;
     welcome: WelcomeWidget;
     collections: CollectionsWidget;
@@ -1307,6 +1308,16 @@ export interface FormsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contributions_widget".
+ */
+export interface ContributionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'medium' | 'large' | 'x-large' | 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

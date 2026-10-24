@@ -102,6 +102,12 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 			dashboard: {
 				widgets: [
 					{
+						slug: 'contributions',
+						label: 'Contributions',
+						Component: '/payload/admin/ContributionsWidget#ContributionsWidget',
+						minWidth: 'medium',
+					},
+					{
 						slug: 'analytics',
 						label: 'Audience du site',
 						Component: '/payload/admin/AnalyticsWidget#AnalyticsWidget',
@@ -121,10 +127,11 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 						minWidth: 'medium',
 					},
 				],
-				// Audience (once Umami is configured) and collection links only:
-				// no pinned / recently viewed tabs.
+				// The contributions queue, audience (once Umami is configured) and
+				// collection links: no pinned / recently viewed tabs.
 				defaultLayout: () => [
 					{ widgetSlug: 'welcome', width: 'full' },
+					{ widgetSlug: 'contributions', width: 'full' },
 					...(getUmamiConfig()
 						? [{ widgetSlug: 'analytics' as const, width: 'full' as const }]
 						: []),

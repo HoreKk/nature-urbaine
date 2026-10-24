@@ -29,6 +29,7 @@ import { ColorPickerField as ColorPickerField_08f8389e365f40e78c1bd430c2575306 }
 import { LLMInstructionsDescription as LLMInstructionsDescription_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { FixedToolbarFeatureClient as FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { LLMInstructionsCell as LLMInstructionsCell_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { ContributionsWidget as ContributionsWidget_1b2a6f24f2f3687e5159547f99b19c6e } from '../../payload/admin/ContributionsWidget'
 import { AnalyticsWidget as AnalyticsWidget_772af109b4981b7491f2e7a08f1c3f15 } from '../../payload/admin/AnalyticsWidget'
 import { WelcomeWidget as WelcomeWidget_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
@@ -73,6 +74,7 @@ export const importMap = {
   "@payloadcms/ui#LLMInstructionsDescription": LLMInstructionsDescription_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/richtext-lexical/client#FixedToolbarFeatureClient": FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/ui/rsc#LLMInstructionsCell": LLMInstructionsCell_ab83ff7e88da8d3530831f296ec4756a,
+  "/payload/admin/ContributionsWidget#ContributionsWidget": ContributionsWidget_1b2a6f24f2f3687e5159547f99b19c6e,
   "/payload/admin/AnalyticsWidget#AnalyticsWidget": AnalyticsWidget_772af109b4981b7491f2e7a08f1c3f15,
   "@payloadcms/ui/rsc#WelcomeWidget": WelcomeWidget_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a,
