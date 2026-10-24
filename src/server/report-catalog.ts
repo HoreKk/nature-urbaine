@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start';
 import type { PaginatedDocs } from 'payload';
 import { z } from 'zod';
 import type { Category, Picture, Report } from '@/payload/payload-types';
+import { pickRandom } from '@/utils/tools';
 import { baseProcedure } from './db';
 import { withMediaUrls } from './media-urls';
 import { frontPictureOf, galleryPicturePopulate } from './picture-join';
@@ -86,6 +87,43 @@ export const findReportCatalog = createServerFn({ method: 'GET' })
 			...reports,
 			docs: reports.docs.map((r) => withFrontPicture(r as AugmentedReport)),
 		} as PaginatedDocs<AugmentedReport>);
+	});
+
+export const findRandomReports = createServerFn({ method: 'GET' })
+	.validator(
+		z.object({
+			count: z.number().min(1).max(12),
+			excludeIds: z.array(z.number()).optional(),
+		}),
+	)
+	.middleware([baseProcedure])
+	.handler(async ({ data, context }) => {
+		const { count, excludeIds = [] } = data;
+
+		// Payload has no random sort: draw from the ids, then load only those.
+		const candidates = await context.db.find({
+			collection: 'reports',
+			pagination: false,
+			depth: 0,
+			select: { name: true },
+			where: excludeIds.length > 0 ? { id: { not_in: excludeIds } } : {},
+		});
+		const ids = pickRandom(
+			candidates.docs.map((report) => report.id),
+			count,
+		);
+
+		const reports = await context.db.find({
+			collection: 'reports',
+			limit: count,
+			depth: 2,
+			where: { id: { in: ids } },
+			joins: { relatedPictures: { limit: 1 } },
+		});
+
+		return withMediaUrls(
+			reports.docs.map((r) => withFrontPicture(r as AugmentedReport)),
+		);
 	});
 
 export const findReportById = createServerFn({ method: 'GET' })

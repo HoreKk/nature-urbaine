@@ -8,6 +8,7 @@ import type {
 	Media,
 } from '@/payload/payload-types';
 import { convertLexicalToHTML } from '@/payload/utils/lexical';
+import { pickRandom } from '@/utils/tools';
 import { baseProcedure } from './db';
 import { withMediaUrls } from './media-urls';
 import { frontPictureOf, galleryPicturePopulate } from './picture-join';
@@ -90,6 +91,39 @@ export const getInterviews = createServerFn({ method: 'GET' })
 				frontPicture: frontPictureOf(interview.relatedPictures),
 			})),
 		} as unknown as PaginatedDocs<SafeInterview>);
+	});
+
+export const getRandomInterviews = createServerFn({ method: 'GET' })
+	.validator(z.object({ count: z.number().min(1).max(12) }))
+	.middleware([baseProcedure])
+	.handler(async ({ data, context }) => {
+		// Payload has no random sort: draw from the ids, then load only those.
+		const candidates = await context.db.find({
+			collection: 'interviews',
+			pagination: false,
+			depth: 0,
+			select: { name: true },
+		});
+		const ids = pickRandom(
+			candidates.docs.map((interview) => interview.id),
+			data.count,
+		);
+
+		const interviews = await context.db.find({
+			collection: 'interviews',
+			limit: data.count,
+			depth: 1,
+			where: { id: { in: ids } },
+			joins: { relatedPictures: { limit: 1 } },
+			populate: { 'interview-pictures': galleryPicturePopulate },
+		});
+
+		return withMediaUrls(
+			interviews.docs.map((interview) => ({
+				...interview,
+				frontPicture: frontPictureOf(interview.relatedPictures),
+			})) as unknown as SafeInterview[],
+		);
 	});
 
 export const getInterviewById = createServerFn({ method: 'GET' })

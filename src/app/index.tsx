@@ -5,9 +5,11 @@ import {
 	Grid,
 	Heading,
 	Icon,
+	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, type LinkProps } from '@tanstack/react-router';
+import type { ReactNode } from 'react';
 import { RiArrowRightLine } from 'react-icons/ri';
 import ProjectCard from '@/components/cards/ProjectCard';
 import {
@@ -18,36 +20,36 @@ import ContributeCta from '@/components/sections/ContributeCta';
 import Features from '@/components/sections/Features';
 import LibraryStats from '@/components/sections/LibraryStats';
 import { getLibraryStats } from '@/server/categories';
-import { getInterviews } from '@/server/interviews';
-import { findReportCatalog } from '@/server/report-catalog';
+import { getRandomInterviews } from '@/server/interviews';
+import { findRandomReports, findReportCatalog } from '@/server/report-catalog';
 import { cardGridColumns } from '@/utils/grid';
 
 export const Route = createFileRoute('/')({
-	loader: async () => ({
-		reports: await findReportCatalog({ data: { page: 1, pageSize: 3 } }),
-		interviews: await getInterviews({ data: { page: 1, pageSize: 3 } }),
-		stats: await getLibraryStats(),
-	}),
+	loader: async () => {
+		const [latestReports, randomInterviews, stats] = await Promise.all([
+			findReportCatalog({ data: { page: 1, pageSize: 3 } }),
+			getRandomInterviews({ data: { count: 3 } }),
+			getLibraryStats(),
+		]);
+		const randomReports = await findRandomReports({
+			data: {
+				count: 3,
+				excludeIds: latestReports.docs.map((report) => report.id),
+			},
+		});
+		return {
+			latestReports: latestReports.docs,
+			randomReports,
+			randomInterviews,
+			stats,
+		};
+	},
 	component: App,
 });
 
 function App() {
-	const { reports, interviews, stats } = Route.useLoaderData();
-
-	const latestProjects = [
-		...reports.docs.map((report) => ({
-			key: `report-${report.id}`,
-			date: report.date,
-			props: reportToProjectCardProps(report),
-		})),
-		...interviews.docs.map((interview) => ({
-			key: `interview-${interview.id}`,
-			date: interview.publishedAt,
-			props: interviewToProjectCardProps(interview),
-		})),
-	]
-		.toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-		.slice(0, 3);
+	const { latestReports, randomReports, randomInterviews, stats } =
+		Route.useLoaderData();
 
 	return (
 		<>
@@ -70,30 +72,84 @@ function App() {
 			</Box>
 			<Features />
 			<Container maxW="container.xl" py={16}>
-				<Box>
-					<Flex justify="space-between" align="center">
-						<Flex direction="column" align="flex-start">
-							<Heading>Dernières publications</Heading>
-							<Text color="fg.muted">
-								Reportages et interviews, par date de publication
-							</Text>
-						</Flex>
-						<Link to="/reports">
-							<Flex align="center" gap={1} color="primary.fg">
-								<Text>Voir toutes les publications</Text>
-								<Icon as={RiArrowRightLine} />
-							</Flex>
-						</Link>
-					</Flex>
-					<Grid templateColumns={cardGridColumns} gap={8} mt={4}>
-						{latestProjects.map(({ key, props }) => (
-							<ProjectCard key={key} {...props} />
+				<Stack gap={16}>
+					<CardSection
+						title="Derniers reportages"
+						description="Les trois reportages les plus récents"
+						linkTo="/reports"
+						linkLabel="Voir tous les reportages"
+					>
+						{latestReports.map((report) => (
+							<ProjectCard
+								key={report.id}
+								{...reportToProjectCardProps(report)}
+							/>
 						))}
-					</Grid>
-				</Box>
+					</CardSection>
+					<CardSection
+						title="Reportages à découvrir"
+						description="Une sélection au hasard dans le catalogue"
+						linkTo="/reports"
+						linkLabel="Explorer le catalogue"
+					>
+						{randomReports.map((report) => (
+							<ProjectCard
+								key={report.id}
+								{...reportToProjectCardProps(report)}
+							/>
+						))}
+					</CardSection>
+					<CardSection
+						title="Interviews"
+						description="Des paroles de professionnels, choisies au hasard"
+						linkTo="/interviews"
+						linkLabel="Voir toutes les interviews"
+					>
+						{randomInterviews.map((interview) => (
+							<ProjectCard
+								key={interview.id}
+								{...interviewToProjectCardProps(interview)}
+							/>
+						))}
+					</CardSection>
+				</Stack>
 			</Container>
 			<LibraryStats totals={stats.totals} categories={stats.categories} />
 			<ContributeCta />
 		</>
+	);
+}
+
+function CardSection({
+	title,
+	description,
+	linkTo,
+	linkLabel,
+	children,
+}: {
+	title: string;
+	description: string;
+	linkTo: LinkProps['to'];
+	linkLabel: string;
+	children: ReactNode;
+}) {
+	return (
+		<Box as="section">
+			<Flex justify="space-between" align="center">
+				<Flex direction="column" align="flex-start">
+					<Heading>{title}</Heading>
+					<Text color="fg.muted">{description}</Text>
+				</Flex>
+				<Link to={linkTo}>
+					<Flex align="center" gap={1} color="primary.fg">
+						<Text>{linkLabel}</Text>
+						<Icon as={RiArrowRightLine} />
+					</Flex>
+				</Link>
+			</Flex>
+			<Grid templateColumns={cardGridColumns} gap={8} mt={4}>
+				{children}
+			</Grid>
+		</Box>
 	);
 }
