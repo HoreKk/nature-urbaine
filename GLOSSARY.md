@@ -59,7 +59,7 @@ nature-urbaine/
 - **Emails (`src/emails/`)** — React Email templates and typed render helpers (`renderContactEmail`) used by server functions. Local preview runs via `pnpm dev:emails` on port `4000`.
 - **Tooling** — `pnpm@10`, `oxlint`, `oxfmt`, `lefthook`. Migrations and seeding are `package.json` scripts (`pnpm migrate`, `pnpm seed:dev`, etc.).
 
-The website talks to the database via **TanStack Start server functions** (`src/server/*.ts`) that call Payload's local API in-process, always with `overrideAccess: true` (Payload 4 defaults it to `false`, and most collections have no public `read`). The REST API at `/api` serves the admin and upload files.
+The website talks to the database via **TanStack Start server functions** (`src/server/*.ts`) that call Payload's local API in-process **as an anonymous visitor**: no `overrideAccess`, so each collection's `read` access decides what the website and the REST API show alike (`src/payload/access.ts`: unpublished Reports and their Pictures are visible to logged-in users only; the other catalog collections are public). The REST API at `/api` serves the admin and upload files.
 
 ## 3. Glossary
 
@@ -96,7 +96,7 @@ Defined in `src/payload/collections/`. Field names below are the actual code ide
 
 ### Report — `Report.ts` (slug `reports`)
 
-The core unit. Drafts enabled (`versions.drafts.validate`). Admin title: `name`.
+The core unit. Drafts enabled (`versions.drafts.validate`); visitors read published Reports only, and a Report's Pictures only once it is published. Admin title: `name`.
 
 - Required: `name`, `description`, `category` (→ `categories`), `date`.
 - Virtual / read-only: `slug` (computed from `name`), `season` (computed from `date`).
@@ -221,7 +221,7 @@ Do not add new routes under `/reports/entity` or `/reports/field`. Resource page
 
 ## 7. Server functions (the website's data layer)
 
-Lives in `src/server/`. All built with `createServerFn` from `@tanstack/react-start`, gated by a `baseProcedure` middleware that boots a Payload local instance (`server/db.ts`). The Payload local API is the default way the website reads data — no HTTP roundtrip to the CMS. For reads the local API can't do cheaply (whole-catalog aggregates), `context.drizzle` runs typed Drizzle queries against the tables in `src/payload/payload-generated-schema.ts` (regenerate with `pnpm generate:db-schema` after a schema change). Drizzle skips Payload access control and hooks, so keep it to public data.
+Lives in `src/server/`. All built with `createServerFn` from `@tanstack/react-start`, gated by a `baseProcedure` middleware that boots a Payload local instance (`server/db.ts`). The Payload local API is the default way the website reads data — no HTTP roundtrip to the CMS. For reads the local API can't do cheaply (whole-catalog aggregates), `context.drizzle` runs typed Drizzle queries against the tables in `src/payload/payload-generated-schema.ts` (regenerate with `pnpm generate:db-schema` after a schema change). Drizzle skips Payload access control and hooks, so each query applies the read rules itself (e.g. joining `reports` on `_status = 'published'` before counting Picture tags).
 
 | File                     | Exports                                                                                                           | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

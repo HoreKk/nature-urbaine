@@ -3,7 +3,12 @@ import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import type { PaginatedDocs } from 'payload';
 import z from 'zod';
-import { pictures_rels, tags } from '@/payload/payload-generated-schema';
+import {
+	pictures,
+	pictures_rels,
+	reports,
+	tags,
+} from '@/payload/payload-generated-schema';
 import type {
 	Picture,
 	Report,
@@ -83,7 +88,7 @@ export const getTagCategoriesWithRootCount = createServerFn({ method: 'GET' })
 export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 	.middleware([baseProcedure])
 	.handler(async ({ context }): Promise<TagTaxonomyStats> => {
-		const [taxonomyTags, pictures] = await Promise.all([
+		const [taxonomyTags, taggedPictures] = await Promise.all([
 			context.drizzle
 				.select({
 					id: tags.id,
@@ -96,15 +101,19 @@ export const getTagTaxonomyStats = createServerFn({ method: 'GET' })
 					tagIds: sql<number[]>`array_agg(${pictures_rels.tagsID})`,
 				})
 				.from(pictures_rels)
+				// Drizzle skips read access: keep drafts' photos out of the counts here.
+				.innerJoin(pictures, eq(pictures.id, pictures_rels.parent))
+				.innerJoin(reports, eq(reports.id, pictures.report))
 				.where(
 					and(
 						eq(pictures_rels.path, 'relatedTags'),
 						isNotNull(pictures_rels.tagsID),
+						eq(reports._status, 'published'),
 					),
 				)
 				.groupBy(pictures_rels.parent),
 		]);
-		return foldTagTaxonomyStats(taxonomyTags, pictures);
+		return foldTagTaxonomyStats(taxonomyTags, taggedPictures);
 	});
 
 export const getChildTags = createServerFn({ method: 'GET' })

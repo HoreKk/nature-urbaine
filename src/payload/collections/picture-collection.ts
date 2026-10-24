@@ -1,4 +1,4 @@
-import type { CollectionConfig, CollectionSlug, Field } from 'payload';
+import type { Access, CollectionConfig, CollectionSlug, Field } from 'payload';
 
 /** Collections whose `relatedPictures` join orders a photo collection. */
 export type GalleryOwnerSlug = 'reports' | 'interviews';
@@ -19,6 +19,8 @@ type PictureCollectionOptions = {
 		collection: GalleryOwnerSlug;
 		label: string;
 	};
+	/** Defaults to public: an owner with drafts must hide its unpublished photos. */
+	read?: Access;
 	/** Fields specific to this collection, placed after the owner. */
 	fields?: Field[];
 };
@@ -32,12 +34,13 @@ export const pictureCollection = ({
 	slug,
 	labels,
 	owner,
+	read = () => true,
 	fields = [],
 }: PictureCollectionOptions): CollectionConfig => ({
 	slug,
 	labels,
 	access: {
-		read: () => true,
+		read,
 	},
 	admin: {
 		components: {

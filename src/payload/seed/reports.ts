@@ -112,6 +112,8 @@ export default async function seedReports(payload: Payload) {
 				cityStratum: mapCityStratum(report['STRATE DE LA VILLE']),
 				nbPopulations: parseOptionalNumber(report['NB habitant.e.s']),
 			},
+			// `draft: false` alone leaves `_status` at its 'draft' default.
+			_status: 'published' as const,
 			category: reportCategory.id,
 			date: formattedDate,
 			projectDetails: {

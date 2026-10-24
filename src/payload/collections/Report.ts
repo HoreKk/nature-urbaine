@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { readPublishedReports } from '../access';
 import { computeReportNameHook, getSeasonFromDate } from '../utils/hooks';
 
 export const CITY_STRATUM_OPTIONS = [
@@ -13,10 +14,9 @@ export const CITY_STRATUM_OPTIONS = [
 
 export const Reports: CollectionConfig = {
 	slug: 'reports',
-	// Public catalog data: the website reads it without a user (Payload 4
-	// enforces access on the Local API by default).
+	// The website reads without a user, so this rule is what keeps drafts off it.
 	access: {
-		read: () => true,
+		read: readPublishedReports,
 	},
 	labels: {
 		singular: 'Reportage',

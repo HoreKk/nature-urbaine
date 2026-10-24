@@ -1,3 +1,4 @@
+import { readPublishedReportPictures } from '../access';
 import { pictureCollection } from './picture-collection';
 
 // The slug predates Interview photos; renaming it would move ~19k rows and objects.
@@ -12,6 +13,7 @@ export const Pictures = pictureCollection({
 		collection: 'reports',
 		label: 'Reportage associé',
 	},
+	read: readPublishedReportPictures,
 	fields: [
 		{
 			name: 'relatedTags',

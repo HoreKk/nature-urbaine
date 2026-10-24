@@ -150,6 +150,8 @@ export const findReportById = createServerFn({ method: 'GET' })
 			id,
 			depth: 1,
 			populate: { pictures: galleryPicturePopulate },
+			// A draft is filtered out by read access: answer 404, not a thrown NotFound.
+			disableErrors: true,
 		});
 
 		if (!report) throw notFound();
