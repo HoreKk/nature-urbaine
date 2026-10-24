@@ -18,6 +18,7 @@ function useCatalogHarness(initialUrl: Values) {
 	const { isPending } = useUrlSyncedFilters({
 		formValues: form,
 		urlValues: url,
+		debouncedKeys: ['search'],
 		setFormValues: setForm,
 		onCommit: (values) => {
 			commits.push(values);
@@ -132,5 +133,41 @@ describe('useUrlSyncedFilters', () => {
 		]);
 		expect(result.current.url.search).toBe('parcs et');
 		expect(result.current.form.search).toBe('parcs et');
+	});
+
+	it('commits a pick at once and stays pending until the URL catches up', () => {
+		const { result } = renderHook(() => useCatalogHarness(empty));
+
+		act(() => result.current.setForm({ ...empty, category: ['9'] }));
+
+		expect(result.current.commits).toEqual([{ ...empty, category: ['9'] }]);
+		expect(result.current.isPending).toBe(true);
+
+		settle();
+		expect(result.current.isPending).toBe(true);
+
+		act(() => result.current.flushNavigation());
+		expect(result.current.isPending).toBe(false);
+		expect(result.current.commits).toHaveLength(1);
+	});
+
+	it('does not revert a pick once the debounce settles behind it', () => {
+		const { result } = renderHook(() => useCatalogHarness(empty));
+
+		act(() => result.current.setForm({ search: 'parc', category: [] }));
+		act(() => result.current.setForm({ search: 'parc', category: ['9'] }));
+		act(() => result.current.flushNavigation());
+
+		expect(result.current.url).toEqual({ search: '', category: ['9'] });
+
+		settle();
+		act(() => result.current.flushNavigation());
+		settle();
+
+		expect(result.current.commits).toEqual([
+			{ search: '', category: ['9'] },
+			{ search: 'parc', category: ['9'] },
+		]);
+		expect(result.current.url).toEqual({ search: 'parc', category: ['9'] });
 	});
 });

@@ -22,6 +22,7 @@ type CatalogLayoutProps = {
 	title: ReactNode;
 	description?: ReactNode;
 	filters: ReactNode;
+	filterColumns?: 2 | 3;
 	totalDocs: number;
 	limit: number;
 	page: number;
@@ -40,6 +41,7 @@ function CatalogLayout({
 	title,
 	description,
 	filters,
+	filterColumns = 2,
 	totalDocs,
 	limit,
 	page,
@@ -71,7 +73,11 @@ function CatalogLayout({
 				<Grid
 					as="form"
 					onSubmit={preventSubmit}
-					templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+					templateColumns={{
+						base: '1fr',
+						md: 'repeat(2, 1fr)',
+						lg: `repeat(${filterColumns}, 1fr)`,
+					}}
 					gap={4}
 					alignItems="start"
 				>

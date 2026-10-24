@@ -32,9 +32,15 @@ export function SelectField({
 				value={field.state.value ? [field.state.value] : []}
 				onValueChange={(details) => field.handleChange(details.value[0] ?? '')}
 			>
-				<Select.Trigger bg="bg">
-					<Select.ValueText placeholder={placeholder} />
-				</Select.Trigger>
+				<Select.Control>
+					<Select.Trigger bg="bg">
+						<Select.ValueText placeholder={placeholder} />
+					</Select.Trigger>
+					<Select.IndicatorGroup>
+						{!required && <Select.ClearTrigger />}
+						<Select.Indicator />
+					</Select.IndicatorGroup>
+				</Select.Control>
 				<Portal>
 					<Select.Positioner>
 						<Select.Content>

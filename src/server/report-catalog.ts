@@ -10,10 +10,25 @@ import { frontPictureOf, galleryPicturePopulate } from './picture-join';
 
 export const REPORT_CATALOG_PAGE_SIZE = 50;
 
+export const REPORT_CATALOG_SORTS = [
+	'recent',
+	'chronological',
+	'city',
+] as const;
+
+export type ReportCatalogSort = (typeof REPORT_CATALOG_SORTS)[number];
+
+const sortFields: Record<ReportCatalogSort, string[]> = {
+	recent: ['-createdAt', '-date'],
+	chronological: ['date'],
+	city: ['locationDetails.city', 'name'],
+};
+
 export const reportCatalogFilterSchema = z.object({
 	category: z.array(z.coerce.number<number>()).optional(),
 	search: z.string().optional(),
 	city: z.string().optional(),
+	sort: z.enum(REPORT_CATALOG_SORTS).optional(),
 });
 
 export type ReportCatalogFilter = z.infer<typeof reportCatalogFilterSchema>;
@@ -78,7 +93,7 @@ export const findReportCatalog = createServerFn({ method: 'GET' })
 			limit: pageSize,
 			page,
 			depth: 2,
-			sort: '-date',
+			sort: filter?.sort ? sortFields[filter.sort] : '-date',
 			where: filter ? buildWhere(filter) : {},
 			joins: { relatedPictures: { limit: 1 } },
 		});

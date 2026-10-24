@@ -17,6 +17,8 @@ type UseUrlSyncedFiltersOptions<T extends FilterValues> = {
 	urlValues: T;
 	setFormValues: (values: T) => void;
 	onCommit: (values: T) => void;
+	/** Free-text keys, committed after `delay`. Every other key commits at once. */
+	debouncedKeys: (keyof T)[];
 	delay?: number;
 };
 
@@ -29,23 +31,47 @@ export function useUrlSyncedFilters<T extends FilterValues>({
 	urlValues,
 	setFormValues,
 	onCommit,
+	debouncedKeys,
 	delay = 400,
 }: UseUrlSyncedFiltersOptions<T>) {
 	const debouncedValues = useDebounce(formValues, delay);
-	const debouncedKey = JSON.stringify(debouncedValues);
+	// Picks (select, categories) commit as soon as they change. Free text keeps the
+	// URL's value until its debounce settles, even when a pick commits alongside it.
+	const commitValues = { ...formValues };
+	for (const key of debouncedKeys) {
+		const settled = isSameValue(debouncedValues[key], formValues[key]);
+		commitValues[key] = settled ? formValues[key] : urlValues[key];
+	}
+	const commitKey = JSON.stringify(commitValues);
 	const urlKey = JSON.stringify(urlValues);
 
-	const latest = useRef({ urlValues, formValues, setFormValues, onCommit });
-	latest.current = { urlValues, formValues, setFormValues, onCommit };
+	const latest = useRef({
+		urlValues,
+		commitValues,
+		formValues,
+		setFormValues,
+		onCommit,
+	});
+	latest.current = {
+		urlValues,
+		commitValues,
+		formValues,
+		setFormValues,
+		onCommit,
+	};
 	const lastCommittedKey = useRef<string | null>(null);
 
 	useEffect(() => {
-		const { urlValues: url, onCommit: commit } = latest.current;
-		if (isSameValues(debouncedValues, url)) return;
-		lastCommittedKey.current = debouncedKey;
-		commit(debouncedValues);
+		const {
+			urlValues: url,
+			commitValues: next,
+			onCommit: commit,
+		} = latest.current;
+		if (isSameValues(next, url)) return;
+		lastCommittedKey.current = commitKey;
+		commit(next);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [debouncedKey]);
+	}, [commitKey]);
 
 	// A URL change we committed ourselves must not overwrite what the user has
 	// typed since; only external changes (back/forward, links) flow back.
@@ -59,5 +85,7 @@ export function useUrlSyncedFilters<T extends FilterValues>({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [urlKey]);
 
-	return { isPending: JSON.stringify(formValues) !== debouncedKey };
+	// Pending until the URL has caught up with the form, so the loading state runs
+	// straight into the navigation instead of flashing the old results between them.
+	return { isPending: !isSameValues(formValues, urlValues) };
 }

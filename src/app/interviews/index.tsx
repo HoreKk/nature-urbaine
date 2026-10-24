@@ -4,6 +4,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import {
 	createFileRoute,
 	redirect,
+	stripSearchParams,
 	useNavigate,
 	useRouterState,
 } from '@tanstack/react-router';
@@ -19,17 +20,20 @@ import {
 	interviewsQueryOptions,
 } from '@/queries/interviews';
 
-const interviewsSearchSchema = interviewFilterSchema.extend({
-	page: z.coerce.number<number>().int().min(1).optional(),
+// A malformed URL param falls back to its default instead of failing the page.
+const interviewsSearchSchema = z.object({
+	search: interviewFilterSchema.shape.search.catch(undefined),
+	page: z.coerce.number<number>().int().min(1).default(1).catch(1),
 });
 
 type InterviewsSearch = z.infer<typeof interviewsSearchSchema>;
 
 export const Route = createFileRoute('/interviews/')({
 	validateSearch: interviewsSearchSchema,
+	search: { middlewares: [stripSearchParams({ page: 1 })] },
 	loaderDeps: ({ search }) => search,
 	loader: async ({ context, deps }) => {
-		const { page = 1, ...filters } = deps;
+		const { page, ...filters } = deps;
 		const interviews = await context.queryClient.ensureQueryData(
 			interviewsQueryOptions(page, filters),
 		);
@@ -60,7 +64,7 @@ const toFormValues = (search: InterviewsSearch): FilterFormValues => ({
 function RouteComponent() {
 	const search = Route.useSearch();
 	const navigate = useNavigate({ from: Route.fullPath });
-	const page = search.page ?? 1;
+	const { page } = search;
 
 	const urlValues = toFormValues(search);
 	const filterForm = useAppForm({
@@ -72,6 +76,7 @@ function RouteComponent() {
 	const { isPending } = useUrlSyncedFilters({
 		formValues,
 		urlValues,
+		debouncedKeys: ['search'],
 		setFormValues: (values) =>
 			filterForm.setFieldValue('search', values.search),
 		onCommit: (values) =>

@@ -3,14 +3,18 @@ import {
 	findReportById,
 	findReportCatalog,
 	REPORT_CATALOG_PAGE_SIZE,
+	REPORT_CATALOG_SORTS,
 	type ReportCatalogFilter,
 	reportCatalogFilterSchema,
+	type ReportCatalogSort,
 } from '@/server/report-catalog';
 
 export {
 	REPORT_CATALOG_PAGE_SIZE,
+	REPORT_CATALOG_SORTS,
 	reportCatalogFilterSchema,
 	type ReportCatalogFilter,
+	type ReportCatalogSort,
 };
 
 // The route loader fills the cache before render; without a staleTime the

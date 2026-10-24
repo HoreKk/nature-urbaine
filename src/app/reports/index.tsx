@@ -4,6 +4,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import {
 	createFileRoute,
 	redirect,
+	stripSearchParams,
 	useNavigate,
 	useRouterState,
 } from '@tanstack/react-router';
@@ -16,21 +17,34 @@ import { useUrlSyncedFilters } from '@/hooks/use-url-synced-filters';
 import { categoriesQueryOptions } from '@/queries/categories';
 import {
 	REPORT_CATALOG_PAGE_SIZE,
+	REPORT_CATALOG_SORTS,
 	reportCatalogFilterSchema,
 	reportCatalogQueryOptions,
+	type ReportCatalogSort,
 } from '@/queries/report-catalog';
 
-const reportsSearchSchema = reportCatalogFilterSchema.extend({
-	page: z.coerce.number<number>().int().min(1).optional(),
+// A malformed URL param falls back to its default instead of failing the page.
+const reportsSearchSchema = z.object({
+	category: reportCatalogFilterSchema.shape.category
+		.unwrap()
+		.default([])
+		.catch([]),
+	search: reportCatalogFilterSchema.shape.search.catch(undefined),
+	city: reportCatalogFilterSchema.shape.city.catch(undefined),
+	sort: reportCatalogFilterSchema.shape.sort.catch(undefined),
+	page: z.coerce.number<number>().int().min(1).default(1).catch(1),
 });
+
+const searchDefaults = { category: [], page: 1 };
 
 type ReportsSearch = z.infer<typeof reportsSearchSchema>;
 
 export const Route = createFileRoute('/reports/')({
 	validateSearch: reportsSearchSchema,
+	search: { middlewares: [stripSearchParams(searchDefaults)] },
 	loaderDeps: ({ search }) => search,
 	loader: async ({ context, deps }) => {
-		const { page = 1, ...filter } = deps;
+		const { page, ...filter } = deps;
 		const [reports] = await Promise.all([
 			context.queryClient.ensureQueryData(
 				reportCatalogQueryOptions(page, filter),
@@ -54,20 +68,28 @@ export const Route = createFileRoute('/reports/')({
 const filterFormSchema = z.object({
 	search: z.string().max(200),
 	category: z.array(z.string()),
+	sort: z.enum(REPORT_CATALOG_SORTS).or(z.literal('')),
 });
+
+const sortOptions: { label: string; value: ReportCatalogSort }[] = [
+	{ label: 'Plus récents en premier', value: 'recent' },
+	{ label: 'Chronologie des reportages', value: 'chronological' },
+	{ label: 'Villes (A–Z)', value: 'city' },
+];
 
 type FilterFormValues = z.infer<typeof filterFormSchema>;
 
 const toFormValues = (search: ReportsSearch): FilterFormValues => ({
 	search: search.search ?? '',
-	category: (search.category ?? []).map(String),
+	category: search.category.map(String),
+	sort: search.sort ?? '',
 });
 
 function RouteComponent() {
 	const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
 	const search = Route.useSearch();
 	const navigate = useNavigate({ from: Route.fullPath });
-	const page = search.page ?? 1;
+	const { page } = search;
 
 	const { contains } = useFilter({ sensitivity: 'base' });
 	const { collection, filter } = useListCollection({
@@ -88,9 +110,11 @@ function RouteComponent() {
 	const { isPending } = useUrlSyncedFilters({
 		formValues,
 		urlValues,
+		debouncedKeys: ['search'],
 		setFormValues: (values) => {
 			filterForm.setFieldValue('search', values.search);
 			filterForm.setFieldValue('category', values.category);
+			filterForm.setFieldValue('sort', values.sort);
 		},
 		onCommit: (values) =>
 			navigate({
@@ -101,6 +125,7 @@ function RouteComponent() {
 						values.category.length > 0
 							? values.category.map(Number)
 							: undefined,
+					sort: values.sort || undefined,
 					page: undefined,
 				}),
 				replace: true,
@@ -112,6 +137,7 @@ function RouteComponent() {
 		category: search.category,
 		search: search.search,
 		city: search.city,
+		sort: search.sort,
 	};
 
 	const { data } = useSuspenseQuery(
@@ -157,8 +183,18 @@ function RouteComponent() {
 							/>
 						)}
 					</filterForm.AppField>
+					<filterForm.AppField name="sort">
+						{(field) => (
+							<field.SelectField
+								label="Trier par"
+								placeholder="Sélectionnez un tri"
+								options={sortOptions}
+							/>
+						)}
+					</filterForm.AppField>
 				</>
 			}
+			filterColumns={3}
 			totalDocs={data.totalDocs}
 			isEmpty={data.docs.length === 0}
 			limit={REPORT_CATALOG_PAGE_SIZE}
