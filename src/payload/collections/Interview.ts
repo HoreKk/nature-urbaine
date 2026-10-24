@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { adminGroups } from '../admin-groups';
 import { DEFAULT_INTERVIEW_QUESTIONS } from './interview-questions';
 
 export const Interviews: CollectionConfig = {
@@ -13,6 +14,7 @@ export const Interviews: CollectionConfig = {
 		plural: 'Interviews',
 	},
 	admin: {
+		group: adminGroups.content,
 		useAsTitle: 'name',
 	},
 	fields: [

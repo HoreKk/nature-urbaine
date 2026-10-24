@@ -150,7 +150,7 @@ A tag is uniquely positioned in the taxonomy by `tagCategory` + `parentId` chain
 
 ### Media — `Media.ts` (slug `media`)
 
-Upload collection for images that belong to no gallery: the interviewee portrait (`Interview.intervieweePicture`), contribution photos and free editorial uploads. Same three variants as `Picture`. **Neither Reports nor Interviews take their hero from Media** — it is `relatedPictures[0]` (a `Picture` or an `InterviewPicture`).
+Upload collection (admin label « Images », in the « Médias » group) for images that belong to no gallery: the interviewee portrait (`Interview.intervieweePicture`), contribution photos and free editorial uploads. Same three variants as `Picture`. **Neither Reports nor Interviews take their hero from Media** — it is `relatedPictures[0]` (a `Picture` or an `InterviewPicture`).
 
 ### Users — `Users.ts` (slug `users`)
 

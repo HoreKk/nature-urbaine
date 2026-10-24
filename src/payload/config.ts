@@ -120,13 +120,13 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 						minWidth: 'medium',
 					},
 				],
-				// Built-in defaults plus the audience widget once Umami is configured.
+				// Audience (once Umami is configured) and collection links only:
+				// no pinned / recently viewed tabs.
 				defaultLayout: () => [
 					{ widgetSlug: 'welcome', width: 'full' },
 					...(getUmamiConfig()
 						? [{ widgetSlug: 'analytics' as const, width: 'full' as const }]
 						: []),
-					{ widgetSlug: 'activity', width: 'full' },
 					{ widgetSlug: 'collections', width: 'full' },
 				],
 			},
@@ -142,14 +142,15 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 		// v4 lowered the default from 2 to 1; the website's queries rely on 2.
 		defaultDepth: 2,
 		graphQL: { disable: true },
+		// Order sets the admin sidebar groups' order (see `admin-groups.ts`).
 		collections: [
-			Media,
+			Submissions,
 			Reports,
 			Interviews,
 			Pictures,
 			InterviewPictures,
+			Media,
 			Categories,
-			Submissions,
 			Tags,
 			TagCategories,
 			Users,

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { adminGroups } from '../admin-groups';
 
 export const Submissions: CollectionConfig = {
 	slug: 'submissions',
@@ -8,6 +9,7 @@ export const Submissions: CollectionConfig = {
 	},
 	defaultSort: '-createdAt',
 	admin: {
+		group: adminGroups.contributions,
 		useAsTitle: 'name',
 		defaultColumns: ['name', 'category', 'status', 'createdAt'],
 		listSearchableFields: ['name', 'contributorEmail'],

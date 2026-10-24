@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { readPublishedReports } from '../access';
+import { adminGroups } from '../admin-groups';
 import { computeReportNameHook, getSeasonFromDate } from '../utils/hooks';
 
 export const CITY_STRATUM_OPTIONS = [
@@ -28,6 +29,7 @@ export const Reports: CollectionConfig = {
 		},
 	},
 	admin: {
+		group: adminGroups.content,
 		useAsTitle: 'name',
 	},
 	fields: [

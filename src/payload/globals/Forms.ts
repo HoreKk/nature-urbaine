@@ -1,9 +1,13 @@
 import type { GlobalConfig } from 'payload';
+import { adminGroups } from '../admin-groups';
 import { DEFAULT_CONTACT_SECTOR_GROUPS } from './contact-sectors';
 
 export const Forms: GlobalConfig = {
 	slug: 'forms',
 	label: 'Formulaires',
+	admin: {
+		group: adminGroups.settings,
+	},
 	// The website reads it without a user (Payload 4 enforces access on the Local API).
 	access: {
 		read: () => true,

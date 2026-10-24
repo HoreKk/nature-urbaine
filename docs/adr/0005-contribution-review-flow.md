@@ -48,7 +48,7 @@ The Contribution's fields are editable while `pending` (to fix typos before Vali
 - The Report sidebar shows a read-only Contribution panel when the Report came from one: the author's email, the zip download, and a link to the Contribution.
 - The Contributions list has no forced filter: newest first, columns title, category, author, status, date.
 - A dashboard widget shows the queue: counts per status (to process, validated but not yet published, published, refused), the age of the oldest pending Contribution, and the latest pending ones with links.
-- The admin sidebar is grouped: **Contributions** (Contributions, Archives de contributions), **Contenu** (Reportages, Interviews), **Médias** (Photos de reportage, Photos d'interview, Médias), **Classement** (Catégories, Étiquettes, Catégories d'étiquettes), **Réglages** (Formulaires, Utilisateurs).
+- The admin sidebar is grouped: **Contributions** (Contributions, Archives de contributions), **Contenu** (Reportages, Interviews), **Médias** (Photos de reportage, Photos d'interview, Images), **Taxonomie** (Catégories, Étiquettes, Catégories d'étiquettes), **Réglages** (Administrateurs, Formulaires).
 
 ### Emails
 
