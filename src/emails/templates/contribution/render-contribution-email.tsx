@@ -4,6 +4,10 @@ import {
 	type ContributionEmailInput,
 } from './ContributionNotificationEmail';
 import {
+	ContributionPublishedEmail,
+	type ContributionPublishedEmailInput,
+} from './ContributionPublishedEmail';
+import {
 	ContributionRejectedEmail,
 	type ContributionRejectedEmailInput,
 } from './ContributionRejectedEmail';
@@ -42,6 +46,18 @@ export async function renderContributionRejectedEmail(
 
 	return {
 		subject: `Votre contribution « ${input.title} » à Nature Urbaine`,
+		html,
+		text: toPlainText(html),
+	};
+}
+
+export async function renderContributionPublishedEmail(
+	input: ContributionPublishedEmailInput,
+): Promise<RenderedContributionEmail> {
+	const html = await render(<ContributionPublishedEmail {...input} />);
+
+	return {
+		subject: `Vos photos sont en ligne sur Nature Urbaine`,
 		html,
 		text: toPlainText(html),
 	};

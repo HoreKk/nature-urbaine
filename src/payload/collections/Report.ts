@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload';
 import { readPublishedReports } from '../access';
 import { adminGroups } from '../admin-groups';
+import { publishContributionHook } from '../contribution-review';
 import { computeReportNameHook, getSeasonFromDate } from '../utils/hooks';
 import { locationDetailsField, projectDetailsField } from './report-fields';
 
@@ -23,6 +24,9 @@ export const Reports: CollectionConfig = {
 	admin: {
 		group: adminGroups.content,
 		useAsTitle: 'name',
+	},
+	hooks: {
+		afterChange: [publishContributionHook],
 	},
 	fields: [
 		{
@@ -82,6 +86,16 @@ export const Reports: CollectionConfig = {
 				defaultColumns: ['filename'],
 			},
 			hasMany: true,
+		},
+		{
+			name: 'contribution',
+			type: 'ui',
+			admin: {
+				position: 'sidebar',
+				components: {
+					Field: '/payload/admin/ReportContribution#ReportContribution',
+				},
+			},
 		},
 		{
 			name: 'category',

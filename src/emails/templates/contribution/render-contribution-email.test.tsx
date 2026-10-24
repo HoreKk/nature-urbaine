@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	getContributionSubject,
 	renderContributionEmail,
+	renderContributionPublishedEmail,
 	renderContributionRejectedEmail,
 } from './render-contribution-email';
 
@@ -49,5 +50,19 @@ describe('renderContributionRejectedEmail', () => {
 		expect(rendered.text).toContain('Bonjour Camille Martin');
 		expect(rendered.html).toContain('Photos trop sombres.<br/>');
 		expect(rendered.text).toContain('Répondez simplement à ce message');
+	});
+});
+
+describe('renderContributionPublishedEmail', () => {
+	it('links the Contributeur to the published Report', async () => {
+		const rendered = await renderContributionPublishedEmail({
+			title: 'PARIS, RUE DE LA PAIX',
+			authorName: 'Camille Martin',
+			reportUrl: 'https://example.com/reports/12',
+		});
+
+		expect(rendered.text).toContain('Bonjour Camille Martin');
+		expect(rendered.text).toContain('« PARIS, RUE DE LA PAIX »');
+		expect(rendered.html).toContain('href="https://example.com/reports/12"');
 	});
 });
