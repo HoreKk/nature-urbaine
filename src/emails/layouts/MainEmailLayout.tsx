@@ -38,7 +38,7 @@ export function MainEmailLayout({
 					<Hr style={styles.separator} />
 					<Section style={styles.footer}>
 						<Text style={styles.footerText}>
-							Ce message provient du formulaire de contact Nature Urbaine.
+							Ce message provient d’un formulaire du site Nature Urbaine.
 						</Text>
 					</Section>
 				</Container>

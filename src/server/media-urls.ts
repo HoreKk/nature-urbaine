@@ -1,6 +1,7 @@
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { storageCollections } from '@/payload/storage-collections';
+import { getBucketClient, readBucketConfig } from './bucket';
 
 // Railway buckets are private and the CMS answers with an uncacheable presigned 302 per
 // request, so the website signs URLs itself, pinned to the UTC day so browsers can cache them.
@@ -15,56 +16,6 @@ const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
 // Payload results are acyclic JSON a handful of levels deep; the cap only
 // guards against pathological input.
 const MAX_DEPTH = 32;
-
-type BucketConfig = {
-	bucket: string;
-	endpoint: string;
-	region: string;
-	accessKeyId: string;
-	secretAccessKey: string;
-};
-
-function readBucketConfig(): BucketConfig | null {
-	const bucket = process.env.S3_BUCKET;
-	const endpoint = process.env.S3_ENDPOINT;
-	const accessKeyId = process.env.S3_ACCESS_KEY;
-	const secretAccessKey = process.env.S3_SECRET_KEY;
-	if (!bucket || !endpoint || !accessKeyId || !secretAccessKey) return null;
-	return {
-		bucket,
-		endpoint,
-		region: process.env.S3_REGION || 'auto',
-		accessKeyId,
-		secretAccessKey,
-	};
-}
-
-let client: S3Client | null = null;
-let clientConfigKey = '';
-
-function getClient(config: BucketConfig): S3Client {
-	const key = [
-		config.endpoint,
-		config.bucket,
-		config.region,
-		config.accessKeyId,
-		config.secretAccessKey,
-	].join('|');
-	if (!client || clientConfigKey !== key) {
-		client = new S3Client({
-			endpoint: config.endpoint,
-			region: config.region,
-			credentials: {
-				accessKeyId: config.accessKeyId,
-				secretAccessKey: config.secretAccessKey,
-			},
-			// Same addressing as the CMS `s3Storage` config.
-			forcePathStyle: true,
-		});
-		clientConfigKey = key;
-	}
-	return client;
-}
 
 let cacheDay = -1;
 let signedUrlCache = new Map<string, Promise<string>>();
@@ -95,7 +46,7 @@ export function signUploadUrl(
 			// browsers keep the file for the day without touching stored objects.
 			ResponseCacheControl: 'public, max-age=86400',
 		});
-		const attempt = getSignedUrl(getClient(config), command, {
+		const attempt = getSignedUrl(getBucketClient(config), command, {
 			expiresIn: SEVEN_DAYS_S,
 			signingDate: new Date(day),
 		});

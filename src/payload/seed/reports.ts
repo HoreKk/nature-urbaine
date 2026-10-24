@@ -1,5 +1,5 @@
 import type { Payload } from 'payload';
-import { CITY_STRATUM_OPTIONS } from '../collections/Report';
+import { CITY_STRATUM_OPTIONS } from '../collections/report-fields';
 import { computeReportName } from '../utils/hooks';
 import { createOnce, reportKey } from '../utils/seed-once';
 import { cleanString, readExcelSheet } from '../utils/tools';

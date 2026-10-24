@@ -8,4 +8,5 @@ export const storageCollections = [
 	'media',
 	'pictures',
 	'interview-pictures',
+	'contribution-archives',
 ] as const;

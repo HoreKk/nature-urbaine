@@ -33,6 +33,7 @@
 		"db:push": "NODE_ENV=development PAYLOAD_CONFIG_PATH=./src/payload/default-config.ts payload run ./src/payload/scripts/db-push.ts",
 		"seed:dev": "NODE_ENV=development PAYLOAD_DROP_DATABASE=true PAYLOAD_CONFIG_PATH=./src/payload/default-config.ts payload run ./src/payload/seed/index.ts",
 		"storage:check": "PAYLOAD_CONFIG_PATH=./src/payload/read-config.ts payload run ./src/payload/scripts/check-storage.ts",
+		"storage:cors": "PAYLOAD_CONFIG_PATH=./src/payload/read-config.ts payload run ./src/payload/scripts/storage-cors.ts",
 		"storage:fixtures:large-report": "PAYLOAD_CONFIG_PATH=./src/payload/read-config.ts payload run ./src/payload/scripts/large-report-fixture.ts"
 	},
 	"dependencies": {
@@ -61,6 +62,8 @@
 		"@tanstack/react-start": "^1.169.3",
 		"@tanstack/router-plugin": "^1.168.47",
 		"@uidotdev/usehooks": "^2.4.1",
+		"exifreader": "^4.52.0",
+		"fflate": "^0.8.3",
 		"graphql": "^16.14.2",
 		"nodemailer": "10.1.7",
 		"payload": "4.0.0-beta.3",

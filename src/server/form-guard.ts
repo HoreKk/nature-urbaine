@@ -11,7 +11,7 @@ const MIN_FILL_MS = 3000;
 
 const limiters = {
 	contact: createRateLimiter({ limit: 5, windowMs: HOUR_MS }),
-	submission: createRateLimiter({ limit: 3, windowMs: HOUR_MS }),
+	contribution: createRateLimiter({ limit: 3, windowMs: HOUR_MS }),
 };
 
 interface GuardInput {

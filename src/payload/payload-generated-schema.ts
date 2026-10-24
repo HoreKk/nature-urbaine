@@ -8,21 +8,61 @@
  */
 
 import type {} from '@payloadcms/db-postgres'
-import { pgTable, index, uniqueIndex, foreignKey, serial, varchar, timestamp, numeric, integer, boolean, jsonb, type AnyPgColumn, pgEnum } from '@payloadcms/db-postgres/drizzle/pg-core'
+import { pgTable, index, uniqueIndex, foreignKey, serial, varchar, integer, numeric, timestamp, boolean, jsonb, type AnyPgColumn, pgEnum } from '@payloadcms/db-postgres/drizzle/pg-core'
 import { sql, relations } from '@payloadcms/db-postgres/drizzle'
+export const enum_contributions_location_details_city_stratum = pgEnum('enum_contributions_location_details_city_stratum', ['moins-de-500', '500-a-2000', '2000-a-3500', '3500-a-10000', '10000-a-30000', '30000-a-100000', 'plus-de-100000'])
+export const enum_contributions_status = pgEnum('enum_contributions_status', ['pending', 'accepted', 'published', 'rejected'])
 export const enum_reports_location_details_city_stratum = pgEnum('enum_reports_location_details_city_stratum', ['moins-de-500', '500-a-2000', '2000-a-3500', '3500-a-10000', '10000-a-30000', '30000-a-100000', 'plus-de-100000'])
 export const enum_reports_season = pgEnum('enum_reports_season', ['spring', 'summer', 'autumn', 'winter'])
 export const enum_reports_status = pgEnum('enum_reports_status', ['draft', 'published'])
 export const enum__reports_v_version_location_details_city_stratum = pgEnum('enum__reports_v_version_location_details_city_stratum', ['moins-de-500', '500-a-2000', '2000-a-3500', '3500-a-10000', '10000-a-30000', '30000-a-100000', 'plus-de-100000'])
 export const enum__reports_v_version_season = pgEnum('enum__reports_v_version_season', ['spring', 'summer', 'autumn', 'winter'])
 export const enum__reports_v_version_status = pgEnum('enum__reports_v_version_status', ['draft', 'published'])
-export const enum_submissions_status = pgEnum('enum_submissions_status', ['pending', 'accepted', 'rejected'])
 export const enum_payload_llm_instructions_entity_type = pgEnum('enum_payload_llm_instructions_entity_type', ['collection', 'global'])
 
-export const media = pgTable('media', {
+export const contributions = pgTable('contributions', {
   id: serial('id').primaryKey(),
-  alt: varchar('alt').notNull(),
-  prefix: varchar('prefix').default("media"),
+  title: varchar('title').notNull(),
+  description: varchar('description'),
+  category: integer('category_id').notNull().references(() => categories.id, {
+      onDelete: 'set null'
+  }),
+  projectDetails_projectOwner: varchar('project_details_project_owner'),
+  projectDetails_projectManagement: varchar('project_details_project_management'),
+  projectDetails_deliveryYear: numeric('project_details_delivery_year', {mode: 'number'}),
+  projectDetails_projectCost: varchar('project_details_project_cost'),
+  projectDetails_projectArea: varchar('project_details_project_area'),
+  locationDetails_country: varchar('location_details_country'),
+  locationDetails_city: varchar('location_details_city'),
+  locationDetails_postalCode: varchar('location_details_postal_code'),
+  locationDetails_address: varchar('location_details_address'),
+  locationDetails_departmentCode: varchar('location_details_department_code'),
+  locationDetails_department: varchar('location_details_department'),
+  locationDetails_region: varchar('location_details_region'),
+  locationDetails_cityStratum: enum_contributions_location_details_city_stratum('location_details_city_stratum'),
+  photosTakenAt: timestamp('photos_taken_at', {mode: 'string',withTimezone: true,precision: 3}),
+  authorName: varchar('author_name').notNull(),
+  authorEmail: varchar('author_email').notNull(),
+  archive: integer('archive_id').notNull().references(() => contribution_archives.id, {
+      onDelete: 'set null'
+  }),
+  status: enum_contributions_status('status').notNull().default("pending"),
+  rejectionNote: varchar('rejection_note'),
+  report: integer('report_id').references(() => reports.id, {
+      onDelete: 'set null'
+  }),
+  consentedAt: timestamp('consented_at', {mode: 'string',withTimezone: true,precision: 3}).notNull(),
+  updatedAt: timestamp('updated_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
+  createdAt: timestamp('created_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
+}, (columns) => [
+    index('contributions_category_idx').on(columns.category), index('contributions_archive_idx').on(columns.archive), index('contributions_report_idx').on(columns.report), index('contributions_updated_at_idx').on(columns.updatedAt), index('contributions_created_at_idx').on(columns.createdAt),
+]
+)
+
+
+export const contribution_archives = pgTable('contribution_archives', {
+  id: serial('id').primaryKey(),
+  prefix: varchar('prefix').default("contribution-archives"),
   _objectKey: varchar('_objectkey'),
   updatedAt: timestamp('updated_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
   createdAt: timestamp('created_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
@@ -43,32 +83,8 @@ export const media = pgTable('media', {
   original__objectKey: varchar('original__objectkey'),
   focalX: numeric('focal_x', {mode: 'number'}),
   focalY: numeric('focal_y', {mode: 'number'}),
-  variants_thumbnail_url: varchar('variants_thumbnail_url'),
-  variants_thumbnail_width: numeric('variants_thumbnail_width', {mode: 'number'}),
-  variants_thumbnail_height: numeric('variants_thumbnail_height', {mode: 'number'}),
-  variants_thumbnail_mimeType: varchar('variants_thumbnail_mime_type'),
-  variants_thumbnail_filesize: numeric('variants_thumbnail_filesize', {mode: 'number'}),
-  variants_thumbnail_filename: varchar('variants_thumbnail_filename'),
-  variants_thumbnail_prefix: varchar('variants_thumbnail_prefix'),
-  variants_thumbnail__objectKey: varchar('variants_thumbnail__objectkey'),
-  variants_medium_url: varchar('variants_medium_url'),
-  variants_medium_width: numeric('variants_medium_width', {mode: 'number'}),
-  variants_medium_height: numeric('variants_medium_height', {mode: 'number'}),
-  variants_medium_mimeType: varchar('variants_medium_mime_type'),
-  variants_medium_filesize: numeric('variants_medium_filesize', {mode: 'number'}),
-  variants_medium_filename: varchar('variants_medium_filename'),
-  variants_medium_prefix: varchar('variants_medium_prefix'),
-  variants_medium__objectKey: varchar('variants_medium__objectkey'),
-  variants_large_url: varchar('variants_large_url'),
-  variants_large_width: numeric('variants_large_width', {mode: 'number'}),
-  variants_large_height: numeric('variants_large_height', {mode: 'number'}),
-  variants_large_mimeType: varchar('variants_large_mime_type'),
-  variants_large_filesize: numeric('variants_large_filesize', {mode: 'number'}),
-  variants_large_filename: varchar('variants_large_filename'),
-  variants_large_prefix: varchar('variants_large_prefix'),
-  variants_large__objectKey: varchar('variants_large__objectkey'),
 }, (columns) => [
-    index('media_updated_at_idx').on(columns.updatedAt), index('media_created_at_idx').on(columns.createdAt), uniqueIndex('media_filename_idx').on(columns.filename), index('media_original_original_filename_idx').on(columns.original_filename), index('media_variants_thumbnail_variants_thumbnail_filename_idx').on(columns.variants_thumbnail_filename), index('media_variants_medium_variants_medium_filename_idx').on(columns.variants_medium_filename), index('media_variants_large_variants_large_filename_idx').on(columns.variants_large_filename),
+    index('contribution_archives_updated_at_idx').on(columns.updatedAt), index('contribution_archives_created_at_idx').on(columns.createdAt), uniqueIndex('contribution_archives_filename_idx').on(columns.filename), index('contribution_archives_original_original_filename_idx').on(columns.original_filename),
 ]
 )
 
@@ -324,6 +340,60 @@ export const interview_pictures = pgTable('interview_pictures', {
 )
 
 
+export const media = pgTable('media', {
+  id: serial('id').primaryKey(),
+  alt: varchar('alt').notNull(),
+  prefix: varchar('prefix').default("media"),
+  _objectKey: varchar('_objectkey'),
+  updatedAt: timestamp('updated_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
+  createdAt: timestamp('created_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
+  url: varchar('url'),
+  thumbnailURL: varchar('thumbnail_u_r_l'),
+  filename: varchar('filename'),
+  mimeType: varchar('mime_type'),
+  filesize: numeric('filesize', {mode: 'number'}),
+  width: numeric('width', {mode: 'number'}),
+  height: numeric('height', {mode: 'number'}),
+  original_filename: varchar('original_filename'),
+  original_url: varchar('original_url'),
+  original_mimeType: varchar('original_mime_type'),
+  original_filesize: numeric('original_filesize', {mode: 'number'}),
+  original_width: numeric('original_width', {mode: 'number'}),
+  original_height: numeric('original_height', {mode: 'number'}),
+  original_prefix: varchar('original_prefix'),
+  original__objectKey: varchar('original__objectkey'),
+  focalX: numeric('focal_x', {mode: 'number'}),
+  focalY: numeric('focal_y', {mode: 'number'}),
+  variants_thumbnail_url: varchar('variants_thumbnail_url'),
+  variants_thumbnail_width: numeric('variants_thumbnail_width', {mode: 'number'}),
+  variants_thumbnail_height: numeric('variants_thumbnail_height', {mode: 'number'}),
+  variants_thumbnail_mimeType: varchar('variants_thumbnail_mime_type'),
+  variants_thumbnail_filesize: numeric('variants_thumbnail_filesize', {mode: 'number'}),
+  variants_thumbnail_filename: varchar('variants_thumbnail_filename'),
+  variants_thumbnail_prefix: varchar('variants_thumbnail_prefix'),
+  variants_thumbnail__objectKey: varchar('variants_thumbnail__objectkey'),
+  variants_medium_url: varchar('variants_medium_url'),
+  variants_medium_width: numeric('variants_medium_width', {mode: 'number'}),
+  variants_medium_height: numeric('variants_medium_height', {mode: 'number'}),
+  variants_medium_mimeType: varchar('variants_medium_mime_type'),
+  variants_medium_filesize: numeric('variants_medium_filesize', {mode: 'number'}),
+  variants_medium_filename: varchar('variants_medium_filename'),
+  variants_medium_prefix: varchar('variants_medium_prefix'),
+  variants_medium__objectKey: varchar('variants_medium__objectkey'),
+  variants_large_url: varchar('variants_large_url'),
+  variants_large_width: numeric('variants_large_width', {mode: 'number'}),
+  variants_large_height: numeric('variants_large_height', {mode: 'number'}),
+  variants_large_mimeType: varchar('variants_large_mime_type'),
+  variants_large_filesize: numeric('variants_large_filesize', {mode: 'number'}),
+  variants_large_filename: varchar('variants_large_filename'),
+  variants_large_prefix: varchar('variants_large_prefix'),
+  variants_large__objectKey: varchar('variants_large__objectkey'),
+}, (columns) => [
+    index('media_updated_at_idx').on(columns.updatedAt), index('media_created_at_idx').on(columns.createdAt), uniqueIndex('media_filename_idx').on(columns.filename), index('media_original_original_filename_idx').on(columns.original_filename), index('media_variants_thumbnail_variants_thumbnail_filename_idx').on(columns.variants_thumbnail_filename), index('media_variants_medium_variants_medium_filename_idx').on(columns.variants_medium_filename), index('media_variants_large_variants_large_filename_idx').on(columns.variants_large_filename),
+]
+)
+
+
 export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
   name: varchar('name').notNull(),
@@ -333,55 +403,6 @@ export const categories = pgTable('categories', {
   createdAt: timestamp('created_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
 }, (columns) => [
     index('categories_updated_at_idx').on(columns.updatedAt), index('categories_created_at_idx').on(columns.createdAt),
-]
-)
-
-
-export const submissions = pgTable('submissions', {
-  id: serial('id').primaryKey(),
-  name: varchar('name').notNull(),
-  description: varchar('description').notNull(),
-  category: integer('category_id').notNull().references(() => categories.id, {
-      onDelete: 'set null'
-  }),
-  deliveryYear: numeric('delivery_year', {mode: 'number'}).notNull(),
-  address: varchar('address').notNull(),
-  locationDetails_city: varchar('location_details_city'),
-  locationDetails_postcode: varchar('location_details_postcode'),
-  locationDetails_department: varchar('location_details_department'),
-  locationDetails_region: varchar('location_details_region'),
-  locationDetails_citycode: varchar('location_details_citycode'),
-  contributorEmail: varchar('contributor_email').notNull(),
-  status: enum_submissions_status('status').notNull().default("pending"),
-  rejectionNote: varchar('rejection_note'),
-  promoted: boolean('promoted').default(false),
-  promotedReport: integer('promoted_report_id').references(() => reports.id, {
-      onDelete: 'set null'
-  }),
-  updatedAt: timestamp('updated_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
-  createdAt: timestamp('created_at', {mode: 'string',withTimezone: true,precision: 3}).defaultNow().notNull(),
-}, (columns) => [
-    index('submissions_category_idx').on(columns.category), index('submissions_promoted_report_idx').on(columns.promotedReport), index('submissions_updated_at_idx').on(columns.updatedAt), index('submissions_created_at_idx').on(columns.createdAt),
-]
-)
-
-
-export const submissions_rels = pgTable('submissions_rels', {
-  id: serial('id').primaryKey(),
-  order: integer('order'),
-  parent: integer('parent_id').notNull(),
-  path: varchar('path').notNull(),
-  mediaID: integer('media_id'),
-}, (columns) => [
-    index('submissions_rels_order_idx').on(columns.order), index('submissions_rels_parent_idx').on(columns.parent), index('submissions_rels_path_idx').on(columns.path), index('submissions_rels_media_id_idx').on(columns.mediaID), foreignKey({
-      columns: [columns['parent']],
-      foreignColumns: [submissions.id],
-      name: 'submissions_rels_parent_fk'
-    }).onDelete('cascade'), foreignKey({
-      columns: [columns['mediaID']],
-      foreignColumns: [media.id],
-      name: 'submissions_rels_media_fk'
-    }).onDelete('cascade'),
 ]
 )
 
@@ -476,25 +497,30 @@ export const payload_locked_documents_rels = pgTable('payload_locked_documents_r
   order: integer('order'),
   parent: integer('parent_id').notNull(),
   path: varchar('path').notNull(),
-  mediaID: integer('media_id'),
+  contributionsID: integer('contributions_id'),
+  'contribution-archivesID': integer('contribution_archives_id'),
   reportsID: integer('reports_id'),
   interviewsID: integer('interviews_id'),
   picturesID: integer('pictures_id'),
   'interview-picturesID': integer('interview_pictures_id'),
+  mediaID: integer('media_id'),
   categoriesID: integer('categories_id'),
-  submissionsID: integer('submissions_id'),
   tagsID: integer('tags_id'),
   'tag-categoriesID': integer('tag_categories_id'),
   usersID: integer('users_id'),
 }, (columns) => [
-    index('payload_locked_documents_rels_order_idx').on(columns.order), index('payload_locked_documents_rels_parent_idx').on(columns.parent), index('payload_locked_documents_rels_path_idx').on(columns.path), index('payload_locked_documents_rels_media_id_idx').on(columns.mediaID), index('payload_locked_documents_rels_reports_id_idx').on(columns.reportsID), index('payload_locked_documents_rels_interviews_id_idx').on(columns.interviewsID), index('payload_locked_documents_rels_pictures_id_idx').on(columns.picturesID), index('payload_locked_documents_rels_interview_pictures_id_idx').on(columns['interview-picturesID']), index('payload_locked_documents_rels_categories_id_idx').on(columns.categoriesID), index('payload_locked_documents_rels_submissions_id_idx').on(columns.submissionsID), index('payload_locked_documents_rels_tags_id_idx').on(columns.tagsID), index('payload_locked_documents_rels_tag_categories_id_idx').on(columns['tag-categoriesID']), index('payload_locked_documents_rels_users_id_idx').on(columns.usersID), foreignKey({
+    index('payload_locked_documents_rels_order_idx').on(columns.order), index('payload_locked_documents_rels_parent_idx').on(columns.parent), index('payload_locked_documents_rels_path_idx').on(columns.path), index('payload_locked_documents_rels_contributions_id_idx').on(columns.contributionsID), index('payload_locked_documents_rels_contribution_archives_id_idx').on(columns['contribution-archivesID']), index('payload_locked_documents_rels_reports_id_idx').on(columns.reportsID), index('payload_locked_documents_rels_interviews_id_idx').on(columns.interviewsID), index('payload_locked_documents_rels_pictures_id_idx').on(columns.picturesID), index('payload_locked_documents_rels_interview_pictures_id_idx').on(columns['interview-picturesID']), index('payload_locked_documents_rels_media_id_idx').on(columns.mediaID), index('payload_locked_documents_rels_categories_id_idx').on(columns.categoriesID), index('payload_locked_documents_rels_tags_id_idx').on(columns.tagsID), index('payload_locked_documents_rels_tag_categories_id_idx').on(columns['tag-categoriesID']), index('payload_locked_documents_rels_users_id_idx').on(columns.usersID), foreignKey({
       columns: [columns['parent']],
       foreignColumns: [payload_locked_documents.id],
       name: 'payload_locked_documents_rels_parent_fk'
     }).onDelete('cascade'), foreignKey({
-      columns: [columns['mediaID']],
-      foreignColumns: [media.id],
-      name: 'payload_locked_documents_rels_media_fk'
+      columns: [columns['contributionsID']],
+      foreignColumns: [contributions.id],
+      name: 'payload_locked_documents_rels_contributions_fk'
+    }).onDelete('cascade'), foreignKey({
+      columns: [columns['contribution-archivesID']],
+      foreignColumns: [contribution_archives.id],
+      name: 'payload_locked_documents_rels_contribution_archives_fk'
     }).onDelete('cascade'), foreignKey({
       columns: [columns['reportsID']],
       foreignColumns: [reports.id],
@@ -512,13 +538,13 @@ export const payload_locked_documents_rels = pgTable('payload_locked_documents_r
       foreignColumns: [interview_pictures.id],
       name: 'payload_locked_documents_rels_interview_pictures_fk'
     }).onDelete('cascade'), foreignKey({
+      columns: [columns['mediaID']],
+      foreignColumns: [media.id],
+      name: 'payload_locked_documents_rels_media_fk'
+    }).onDelete('cascade'), foreignKey({
       columns: [columns['categoriesID']],
       foreignColumns: [categories.id],
       name: 'payload_locked_documents_rels_categories_fk'
-    }).onDelete('cascade'), foreignKey({
-      columns: [columns['submissionsID']],
-      foreignColumns: [submissions.id],
-      name: 'payload_locked_documents_rels_submissions_fk'
     }).onDelete('cascade'), foreignKey({
       columns: [columns['tagsID']],
       foreignColumns: [tags.id],
@@ -650,7 +676,27 @@ export const forms = pgTable('forms', {
 }
 )
 
-export const relations_media = relations(media, () => ({
+export const relations_contributions = relations(contributions, ({ one }) => ({
+  category: one(categories, {
+    
+    fields: [contributions.category],
+    references: [categories.id],
+    relationName: 'category',
+    }),
+    archive: one(contribution_archives, {
+    
+    fields: [contributions.archive],
+    references: [contribution_archives.id],
+    relationName: 'archive',
+    }),
+    report: one(reports, {
+    
+    fields: [contributions.report],
+    references: [reports.id],
+    relationName: 'report',
+    }),
+      }))
+export const relations_contribution_archives = relations(contribution_archives, () => ({
   
       }))
 export const relations_reports = relations(reports, ({ one }) => ({
@@ -727,39 +773,11 @@ export const relations_interview_pictures = relations(interview_pictures, ({ one
     relationName: 'interview',
     }),
       }))
-export const relations_categories = relations(categories, () => ({
+export const relations_media = relations(media, () => ({
   
       }))
-export const relations_submissions_rels = relations(submissions_rels, ({ one }) => ({
-  parent: one(submissions, {
-    
-    fields: [submissions_rels.parent],
-    references: [submissions.id],
-    relationName: '_rels',
-    }),
-    mediaID: one(media, {
-    
-    fields: [submissions_rels.mediaID],
-    references: [media.id],
-    relationName: 'media',
-    }),
-      }))
-export const relations_submissions = relations(submissions, ({ one, many }) => ({
-  category: one(categories, {
-    
-    fields: [submissions.category],
-    references: [categories.id],
-    relationName: 'category',
-    }),
-    promotedReport: one(reports, {
-    
-    fields: [submissions.promotedReport],
-    references: [reports.id],
-    relationName: 'promotedReport',
-    }),
-    _rels: many(submissions_rels, {
-            relationName: '_rels',
-    }),
+export const relations_categories = relations(categories, () => ({
+  
       }))
 export const relations_tags = relations(tags, ({ one }) => ({
   tagCategory: one(tag_categories, {
@@ -801,11 +819,17 @@ export const relations_payload_locked_documents_rels = relations(payload_locked_
     references: [payload_locked_documents.id],
     relationName: '_rels',
     }),
-    mediaID: one(media, {
+    contributionsID: one(contributions, {
     
-    fields: [payload_locked_documents_rels.mediaID],
-    references: [media.id],
-    relationName: 'media',
+    fields: [payload_locked_documents_rels.contributionsID],
+    references: [contributions.id],
+    relationName: 'contributions',
+    }),
+    'contribution-archivesID': one(contribution_archives, {
+    
+    fields: [payload_locked_documents_rels['contribution-archivesID']],
+    references: [contribution_archives.id],
+    relationName: 'contribution-archives',
     }),
     reportsID: one(reports, {
     
@@ -831,17 +855,17 @@ export const relations_payload_locked_documents_rels = relations(payload_locked_
     references: [interview_pictures.id],
     relationName: 'interview-pictures',
     }),
+    mediaID: one(media, {
+    
+    fields: [payload_locked_documents_rels.mediaID],
+    references: [media.id],
+    relationName: 'media',
+    }),
     categoriesID: one(categories, {
     
     fields: [payload_locked_documents_rels.categoriesID],
     references: [categories.id],
     relationName: 'categories',
-    }),
-    submissionsID: one(submissions, {
-    
-    fields: [payload_locked_documents_rels.submissionsID],
-    references: [submissions.id],
-    relationName: 'submissions',
     }),
     tagsID: one(tags, {
     
@@ -934,15 +958,17 @@ export const relations_forms = relations(forms, ({ many }) => ({
       }))
 
 type DatabaseSchema = {
+  enum_contributions_location_details_city_stratum: typeof enum_contributions_location_details_city_stratum
+  enum_contributions_status: typeof enum_contributions_status
   enum_reports_location_details_city_stratum: typeof enum_reports_location_details_city_stratum
   enum_reports_season: typeof enum_reports_season
   enum_reports_status: typeof enum_reports_status
   enum__reports_v_version_location_details_city_stratum: typeof enum__reports_v_version_location_details_city_stratum
   enum__reports_v_version_season: typeof enum__reports_v_version_season
   enum__reports_v_version_status: typeof enum__reports_v_version_status
-  enum_submissions_status: typeof enum_submissions_status
   enum_payload_llm_instructions_entity_type: typeof enum_payload_llm_instructions_entity_type
-  media: typeof media
+  contributions: typeof contributions
+  contribution_archives: typeof contribution_archives
   reports: typeof reports
   _reports_v: typeof _reports_v
   interviews_questions: typeof interviews_questions
@@ -950,9 +976,8 @@ type DatabaseSchema = {
   pictures: typeof pictures
   pictures_rels: typeof pictures_rels
   interview_pictures: typeof interview_pictures
+  media: typeof media
   categories: typeof categories
-  submissions: typeof submissions
-  submissions_rels: typeof submissions_rels
   tags: typeof tags
   tag_categories: typeof tag_categories
   users_sessions: typeof users_sessions
@@ -968,7 +993,8 @@ type DatabaseSchema = {
   forms_contact_sector_groups_sectors: typeof forms_contact_sector_groups_sectors
   forms_contact_sector_groups: typeof forms_contact_sector_groups
   forms: typeof forms
-  relations_media: typeof relations_media
+  relations_contributions: typeof relations_contributions
+  relations_contribution_archives: typeof relations_contribution_archives
   relations_reports: typeof relations_reports
   relations__reports_v: typeof relations__reports_v
   relations_interviews_questions: typeof relations_interviews_questions
@@ -976,9 +1002,8 @@ type DatabaseSchema = {
   relations_pictures_rels: typeof relations_pictures_rels
   relations_pictures: typeof relations_pictures
   relations_interview_pictures: typeof relations_interview_pictures
+  relations_media: typeof relations_media
   relations_categories: typeof relations_categories
-  relations_submissions_rels: typeof relations_submissions_rels
-  relations_submissions: typeof relations_submissions
   relations_tags: typeof relations_tags
   relations_tag_categories: typeof relations_tag_categories
   relations_users_sessions: typeof relations_users_sessions

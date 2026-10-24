@@ -11,12 +11,13 @@ import sharp from 'sharp';
 
 import { getUmamiConfig } from '../server/umami';
 import { Categories } from './collections/Category';
+import { Contributions } from './collections/Contribution';
+import { ContributionArchives } from './collections/ContributionArchive';
 import { Interviews } from './collections/Interview';
 import { InterviewPictures } from './collections/InterviewPicture';
 import { Media } from './collections/Media';
 import { Pictures } from './collections/Picture';
 import { Reports } from './collections/Report';
-import { Submissions } from './collections/Submission';
 import { Tags } from './collections/Tag';
 import { TagCategories } from './collections/TagCategory';
 import { Users } from './collections/Users';
@@ -144,7 +145,8 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 		graphQL: { disable: true },
 		// Order sets the admin sidebar groups' order (see `admin-groups.ts`).
 		collections: [
-			Submissions,
+			Contributions,
+			ContributionArchives,
 			Reports,
 			Interviews,
 			Pictures,

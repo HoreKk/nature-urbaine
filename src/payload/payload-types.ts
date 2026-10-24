@@ -62,20 +62,21 @@ export type SupportedTimezones =
   | 'Pacific/Fiji';
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_CFC869B7".
+ * via the `definition` "LexicalNodes_51C9D479".
  */
-export type LexicalNodes_CFC869B7 =
+export type LexicalNodes_51C9D479 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_CFC869B7>
+  | SerializedParagraphNode<LexicalNodes_51C9D479>
   | SerializedHorizontalRuleNode
+  | SerializedUploadNode<'contribution-archives'>
   | SerializedUploadNode<'pictures'>
   | SerializedUploadNode<'interview-pictures'>
   | SerializedUploadNode<'media'>
-  | SerializedQuoteNode<LexicalNodes_CFC869B7>
+  | SerializedQuoteNode<LexicalNodes_51C9D479>
   | SerializedRelationshipNode<
-      | 'submissions'
+      | 'contributions'
       | 'reports'
       | 'interviews'
       | 'categories'
@@ -87,11 +88,11 @@ export type LexicalNodes_CFC869B7 =
       | 'payload-preferences'
       | 'payload-migrations'
     >
-  | SerializedAutoLinkNode<LexicalNodes_CFC869B7, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_CFC869B7, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_CFC869B7>
-  | SerializedListItemNode<LexicalNodes_CFC869B7>
-  | SerializedHeadingNode<LexicalNodes_CFC869B7>;
+  | SerializedAutoLinkNode<LexicalNodes_51C9D479, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_51C9D479, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_51C9D479>
+  | SerializedListItemNode<LexicalNodes_51C9D479>
+  | SerializedHeadingNode<LexicalNodes_51C9D479>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_3DE324E4".
@@ -111,7 +112,8 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    submissions: Submission;
+    contributions: Contribution;
+    'contribution-archives': ContributionArchive;
     reports: Report;
     interviews: Interview;
     pictures: Picture;
@@ -145,7 +147,8 @@ export interface Config {
     };
   };
   collectionsSelect: {
-    submissions: SubmissionsSelect<false> | SubmissionsSelect<true>;
+    contributions: ContributionsSelect<false> | ContributionsSelect<true>;
+    'contribution-archives': ContributionArchivesSelect<false> | ContributionArchivesSelect<true>;
     reports: ReportsSelect<false> | ReportsSelect<true>;
     interviews: InterviewsSelect<false> | InterviewsSelect<true>;
     pictures: PicturesSelect<false> | PicturesSelect<true>;
@@ -206,31 +209,54 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "submissions".
+ * via the `definition` "contributions".
  */
-export interface Submission {
+export interface Contribution {
   id: number;
-  name: string;
-  description: string;
+  title: string;
+  description?: string | null;
   category: number | Category;
-  deliveryYear: number;
-  address: string;
-  /**
-   * Auto-dérivé de l'autocomplétion BAN lors de la soumission
-   */
+  projectDetails?: {
+    projectOwner?: string | null;
+    projectManagement?: string | null;
+    deliveryYear?: number | null;
+    projectCost?: string | null;
+    projectArea?: string | null;
+  };
   locationDetails?: {
+    country?: string | null;
     city?: string | null;
-    postcode?: string | null;
+    postalCode?: string | null;
+    address?: string | null;
+    departmentCode?: string | null;
     department?: string | null;
     region?: string | null;
-    citycode?: string | null;
+    cityStratum?:
+      | (
+          | 'moins-de-500'
+          | '500-a-2000'
+          | '2000-a-3500'
+          | '3500-a-10000'
+          | '10000-a-30000'
+          | '30000-a-100000'
+          | 'plus-de-100000'
+        )
+      | null;
   };
-  contributorEmail: string;
-  pictures: (number | Media)[];
-  status: 'pending' | 'accepted' | 'rejected';
+  /**
+   * Lue dans les photos envoyées ; à défaut, la date d’envoi est utilisée pour le reportage.
+   */
+  photosTakenAt?: string | null;
+  authorName: string;
+  authorEmail: string;
+  archive: number | ContributionArchive;
+  status: 'pending' | 'accepted' | 'published' | 'rejected';
   rejectionNote?: string | null;
-  promoted?: boolean | null;
-  promotedReport?: (number | null) | Report;
+  report?: (number | null) | Report;
+  /**
+   * L’auteur a certifié être l’auteur des photos et autorisé leur publication avec son nom.
+   */
+  consentedAt: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -410,6 +436,68 @@ export interface TagCategory {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contribution-archives".
+ */
+export interface ContributionArchive {
+  id: number;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  original?: {
+    filename?: string | null;
+    url?: string | null;
+    mimeType?: string | null;
+    filesize?: number | null;
+    width?: number | null;
+    height?: number | null;
+    prefix?: string | null;
+    _objectKey?: string | null;
+  };
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "interviews".
+ */
+export interface Interview {
+  id: number;
+  name: string;
+  interviewee: string;
+  intervieweeRole: string;
+  intervieweePicture?: (number | null) | Media;
+  city: string;
+  department: string;
+  projectOwner: string;
+  projectManagement: string;
+  projectCost?: string | null;
+  area: string;
+  relatedPictures?: {
+    docs?: (number | InterviewPicture)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  summary: string;
+  questions: {
+    question: string;
+    answer: LexicalRichText<LexicalNodes_51C9D479>;
+    id?: string | null;
+  }[];
+  realisedAt: string;
+  publishedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
@@ -470,38 +558,6 @@ export interface Media {
       _objectKey?: string | null;
     };
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "interviews".
- */
-export interface Interview {
-  id: number;
-  name: string;
-  interviewee: string;
-  intervieweeRole: string;
-  intervieweePicture?: (number | null) | Media;
-  city: string;
-  department: string;
-  projectOwner: string;
-  projectManagement: string;
-  projectCost?: string | null;
-  area: string;
-  relatedPictures?: {
-    docs?: (number | InterviewPicture)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  summary: string;
-  questions: {
-    question: string;
-    answer: LexicalRichText<LexicalNodes_CFC869B7>;
-    id?: string | null;
-  }[];
-  realisedAt: string;
-  publishedAt: string;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -619,8 +675,12 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'submissions';
-        value: number | Submission;
+        relationTo: 'contributions';
+        value: number | Contribution;
+      } | null)
+    | ({
+        relationTo: 'contribution-archives';
+        value: number | ContributionArchive;
       } | null)
     | ({
         relationTo: 'reports';
@@ -724,31 +784,74 @@ export interface PayloadLlmInstruction {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "submissions_select".
+ * via the `definition` "contributions_select".
  */
-export interface SubmissionsSelect<T extends boolean = true> {
-  name?: T;
+export interface ContributionsSelect<T extends boolean = true> {
+  title?: T;
   description?: T;
   category?: T;
-  deliveryYear?: T;
-  address?: T;
+  projectDetails?:
+    | T
+    | {
+        projectOwner?: T;
+        projectManagement?: T;
+        deliveryYear?: T;
+        projectCost?: T;
+        projectArea?: T;
+      };
   locationDetails?:
     | T
     | {
+        country?: T;
         city?: T;
-        postcode?: T;
+        postalCode?: T;
+        address?: T;
+        departmentCode?: T;
         department?: T;
         region?: T;
-        citycode?: T;
+        cityStratum?: T;
       };
-  contributorEmail?: T;
-  pictures?: T;
+  photosTakenAt?: T;
+  authorName?: T;
+  authorEmail?: T;
+  archive?: T;
   status?: T;
   rejectionNote?: T;
-  promoted?: T;
-  promotedReport?: T;
+  report?: T;
+  consentedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contribution-archives_select".
+ */
+export interface ContributionArchivesSelect<T extends boolean = true> {
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  original?:
+    | T
+    | {
+        filename?: T;
+        url?: T;
+        mimeType?: T;
+        filesize?: T;
+        width?: T;
+        height?: T;
+        prefix?: T;
+        _objectKey?: T;
+      };
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1243,7 +1346,8 @@ export interface CollectionQueryWidget {
   data?: {
     title?: string | null;
     relatedCollection:
-      | 'submissions'
+      | 'contributions'
+      | 'contribution-archives'
       | 'reports'
       | 'interviews'
       | 'pictures'
@@ -1276,7 +1380,8 @@ export interface ActivityWidget {
   data?: {
     excludedCollections?:
       | (
-          | 'submissions'
+          | 'contributions'
+          | 'contribution-archives'
           | 'reports'
           | 'interviews'
           | 'pictures'
@@ -1297,7 +1402,7 @@ export interface ActivityWidget {
  */
 export interface UploadDropzoneWidget {
   data?: {
-    excludedCollections?: ('pictures' | 'interview-pictures' | 'media')[] | null;
+    excludedCollections?: ('contribution-archives' | 'pictures' | 'interview-pictures' | 'media')[] | null;
   };
   width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
 }

@@ -1,5 +1,7 @@
 import type { Access } from 'payload';
 
+export const loggedIn: Access = ({ req }) => Boolean(req.user);
+
 /** Visitors read published Reports only; drafts stay in the admin. */
 export const readPublishedReports: Access = ({ req }) =>
 	req.user ? true : { _status: { equals: 'published' } };

@@ -13,11 +13,18 @@ import { useDebounce } from '@uidotdev/usehooks';
 import { useState } from 'react';
 import { Field } from '@/components/ui/field';
 import { type DefaultFieldProps, useFieldContext } from '@/hooks/form-context';
+import type { ContributionLocation } from '@/server/contribution-contract';
 import { normalizeString } from '@/utils/tools';
 
 type AddressFeature = {
 	properties: {
 		label: string;
+		name?: string;
+		postcode?: string;
+		city?: string;
+		depcode?: string;
+		/** `75, Paris, Île-de-France`: department code, department, region. */
+		context?: string;
 	};
 };
 
@@ -25,26 +32,54 @@ type GeocodageResponse = {
 	features: AddressFeature[];
 };
 
-type AddressItem = { label: string; value: string };
+type AddressItem = {
+	label: string;
+	value: string;
+	location: ContributionLocation;
+};
 
-async function fetchAddressSuggestions(query: string): Promise<string[]> {
+function toLocation({ properties }: AddressFeature): ContributionLocation {
+	const [, department, region] = (properties.context ?? '')
+		.split(',')
+		.map((part) => part.trim());
+	return {
+		address: properties.name,
+		city: properties.city,
+		postalCode: properties.postcode,
+		departmentCode: properties.depcode,
+		department,
+		region,
+		country: 'France',
+	};
+}
+
+async function fetchAddressSuggestions(query: string): Promise<AddressItem[]> {
 	const params = new URLSearchParams({ q: query, limit: '5' });
 	const res = await fetch(
 		`https://data.geopf.fr/geocodage/search?${params.toString()}`,
 	);
 	if (!res.ok) throw new Error('Geocoding request failed');
 	const data: GeocodageResponse = await res.json();
-	return data.features.map((f) => f.properties.label);
+	return data.features.map((feature) => ({
+		label: feature.properties.label,
+		value: feature.properties.label,
+		location: toLocation(feature),
+	}));
 }
 
+/**
+ * The search covers French addresses only: a typed address is kept as it is,
+ * without the city and department details a suggestion carries.
+ */
 export function AddressAutocompleteField({
 	label,
 	placeholder,
 	required,
 }: DefaultFieldProps) {
-	const field = useFieldContext<string>();
-	const [selectedValue, setSelectedValue] = useState(field.state.value ?? '');
-	const [inputValue, setInputValue] = useState(field.state.value ?? '');
+	const field = useFieldContext<ContributionLocation>();
+	const initialAddress = field.state.value?.address ?? '';
+	const [selectedValue, setSelectedValue] = useState(initialAddress);
+	const [inputValue, setInputValue] = useState(initialAddress);
 	const [isFocused, setIsFocused] = useState(false);
 	const debouncedInput = useDebounce(inputValue, 350);
 
@@ -60,12 +95,7 @@ export function AddressAutocompleteField({
 	const { isFetching } = useQuery({
 		queryKey: ['address-suggestions', debouncedInput],
 		queryFn: async () => {
-			const items = (await fetchAddressSuggestions(debouncedInput)).map(
-				(l) => ({
-					label: l,
-					value: l,
-				}),
-			);
+			const items = await fetchAddressSuggestions(debouncedInput);
 			set(items);
 			return items;
 		},
@@ -79,7 +109,7 @@ export function AddressAutocompleteField({
 	function clear() {
 		setInputValue('');
 		setSelectedValue('');
-		field.handleChange('');
+		field.handleChange({});
 		set([]);
 	}
 
@@ -93,16 +123,20 @@ export function AddressAutocompleteField({
 	function handleBlur() {
 		setIsFocused(false);
 		if (inputValue !== selectedValue) {
-			setInputValue(selectedValue);
-			field.handleChange(selectedValue);
+			const address = inputValue.trim();
+			setSelectedValue(inputValue);
+			field.handleChange(address ? { address } : {});
 			set([]);
 		}
 	}
 
 	function handleSelect(value: string) {
+		const item = collection.items.find(
+			(candidate) => candidate.value === value,
+		);
 		setSelectedValue(value);
 		setInputValue(value);
-		field.handleChange(value);
+		field.handleChange(item?.location ?? { address: value });
 		set([]);
 	}
 

@@ -3,24 +3,36 @@ import {
 	Box,
 	Button,
 	Container,
-	Link,
+	Progress,
+	SimpleGrid,
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { createFileRoute, Link as RouterLink } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import type z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
 import { useAppForm } from '@/hooks/form-context';
 import { getAllCategories } from '@/server/categories';
+import {
+	ARCHIVE_INVALID,
+	ARCHIVE_MISSING,
+	CONTRIBUTION_DESCRIPTION_MAX_LENGTH,
+	CONTRIBUTION_MAX_PICTURES,
+	CONTRIBUTION_MAX_SOURCE_PICTURE_BYTES,
+	CONTRIBUTION_MAX_SOURCE_PICTURE_LABEL,
+	clientContributionSchema,
+} from '@/server/contribution-contract';
+import {
+	prepareContributionUpload,
+	submitContribution,
+} from '@/server/contributions';
 import { submitErrorMessage } from '@/server/form-guard-contract';
 import {
-	clientSubmissionSchema,
-	SUBMISSION_DESCRIPTION_MAX_LENGTH,
-	SUBMISSION_MAX_PICTURE_SIZE_LABEL,
-	SUBMISSION_MAX_PICTURES,
-} from '@/server/submission-contract';
-import { createSubmission } from '@/server/submissions';
+	buildContributionArchive,
+	PHOTO_UNREADABLE,
+	uploadArchive,
+} from '@/utils/contribution-photos';
 
 export const Route = createFileRoute('/contribuer')({
 	component: RouteComponent,
@@ -30,31 +42,69 @@ export const Route = createFileRoute('/contribuer')({
 	},
 });
 
-const defaultValues: z.input<typeof clientSubmissionSchema> = {
-	name: '',
+const defaultValues: z.input<typeof clientContributionSchema> = {
+	title: '',
 	description: '',
 	category: '',
-	deliveryYear: undefined as unknown as number,
-	address: '',
+	projectOwner: '',
+	projectManagement: '',
+	deliveryYear: '',
+	projectCost: '',
+	projectArea: '',
+	location: {},
 	pictures: [],
-	contributorEmail: '',
+	authorName: '',
+	authorEmail: '',
+	consent: false as unknown as true,
 	honeypot: '',
 };
 
-async function toBase64(file: File): Promise<string> {
-	const arrayBuffer = await file.arrayBuffer();
-	let binary = '';
-	const bytes = new Uint8Array(arrayBuffer);
-	for (const byte of bytes) {
-		binary += String.fromCharCode(byte);
+type Progression =
+	| { step: 'preparing'; done: number; total: number }
+	| { step: 'uploading'; ratio: number }
+	| { step: 'verifying' };
+
+function progressLabel(progression: Progression): string {
+	switch (progression.step) {
+		case 'preparing':
+			return `Préparation des photos (${progression.done}/${progression.total})…`;
+		case 'uploading':
+			return `Envoi des photos (${Math.round(progression.ratio * 100)} %)…`;
+		case 'verifying':
+			return 'Vérification de l’envoi…';
 	}
-	return btoa(binary);
+}
+
+function progressValue(progression: Progression): number | null {
+	switch (progression.step) {
+		case 'preparing':
+			return (progression.done / progression.total) * 100;
+		case 'uploading':
+			return progression.ratio * 100;
+		case 'verifying':
+			return null;
+	}
+}
+
+function contributionErrorMessage(error: unknown): string {
+	if (!(error instanceof Error)) return submitErrorMessage(error);
+	if (error.message === PHOTO_UNREADABLE) {
+		return `La photo « ${String(error.cause)} » n’a pas pu être lue. Enregistrez-la au format JPEG puis réessayez.`;
+	}
+	if (error.message.startsWith('UPLOAD_FAILED')) {
+		return 'L’envoi des photos a échoué. Vérifiez votre connexion puis réessayez.';
+	}
+	if (error.message === ARCHIVE_INVALID || error.message === ARCHIVE_MISSING) {
+		return 'Vos photos n’ont pas pu être vérifiées. Veuillez réessayer.';
+	}
+	return submitErrorMessage(error);
 }
 
 function RouteComponent() {
 	const { categories } = Route.useLoaderData();
 	const [submitSuccess, setSubmitSuccess] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
+	const [progression, setProgression] = useState<Progression | null>(null);
 	const [mountedAt] = useState(() => Date.now());
 
 	const categoryOptions = categories.map((cat) => ({
@@ -64,34 +114,62 @@ function RouteComponent() {
 
 	const form = useAppForm({
 		defaultValues,
-		validators: { onSubmit: clientSubmissionSchema },
+		validators: { onSubmit: clientContributionSchema },
 		onSubmit: async ({ value, formApi }) => {
 			setSubmitError(null);
 			setSubmitSuccess(false);
 			try {
-				const pictures = await Promise.all(
-					value.pictures.map(async (picture) => ({
-						name: picture.name,
-						type: picture.type,
-						size: picture.size,
-						base64: await toBase64(picture),
-					})),
+				const total = value.pictures.length;
+				setProgression({ step: 'preparing', done: 0, total });
+				const { archive, photosTakenAt } = await buildContributionArchive(
+					value.pictures,
+					(done) => setProgression({ step: 'preparing', done, total }),
 				);
 
-				await createSubmission({
+				const { upload } = await prepareContributionUpload({
 					data: {
-						...value,
-						category: Number(value.category),
-						deliveryYear: Number(value.deliveryYear),
-						pictures,
+						archiveSize: archive.size,
+						honeypot: value.honeypot,
 						fillMs: Date.now() - mountedAt,
 					},
 				});
 
+				if (upload) {
+					setProgression({ step: 'uploading', ratio: 0 });
+					await uploadArchive(upload, archive, (ratio) =>
+						setProgression({ step: 'uploading', ratio }),
+					);
+
+					setProgression({ step: 'verifying' });
+					await submitContribution({
+						data: {
+							title: value.title,
+							description: value.description,
+							category: Number(value.category),
+							projectOwner: value.projectOwner,
+							projectManagement: value.projectManagement,
+							deliveryYear:
+								value.deliveryYear === ''
+									? undefined
+									: Number(value.deliveryYear),
+							projectCost: value.projectCost,
+							projectArea: value.projectArea,
+							location: value.location,
+							photosTakenAt,
+							authorName: value.authorName,
+							authorEmail: value.authorEmail,
+							consent: true,
+							uploadKey: upload.key,
+						},
+					});
+				}
+
 				formApi.reset();
 				setSubmitSuccess(true);
 			} catch (error) {
-				setSubmitError(submitErrorMessage(error));
+				setSubmitError(contributionErrorMessage(error));
+			} finally {
+				setProgression(null);
 			}
 		},
 	});
@@ -101,15 +179,9 @@ function RouteComponent() {
 			<PageHeader
 				eyebrow="Contribuer"
 				title="Proposez votre projet."
-				description="Renseignez quelques informations sur votre projet. Notre équipe revient vers vous après validation pour la mise en forme et la publication."
+				description="Renseignez quelques informations sur votre projet. Notre équipe mettra en ligne vos photographies."
 			/>
 			<Container maxW="container.md" py={{ base: 10, md: 16 }}>
-				<Text mb={8} color="fg.muted">
-					Une question ou une erreur à signaler ?{' '}
-					<Link asChild color="fg">
-						<RouterLink to="/contact">Contact.</RouterLink>
-					</Link>
-				</Text>
 				<Box
 					as="form"
 					onSubmit={(e) => {
@@ -119,11 +191,11 @@ function RouteComponent() {
 					}}
 				>
 					<Stack gap={6}>
-						<form.AppField name="name">
+						<form.AppField name="title">
 							{(field) => (
 								<field.TextField
 									label="Titre du projet"
-									placeholder="Ex. Réaménagement de la place Jourdan"
+									placeholder="Ex : PARIS, RUE DE LA PAIX"
 									required
 								/>
 							)}
@@ -132,9 +204,8 @@ function RouteComponent() {
 							{(field) => (
 								<field.TextareaField
 									label="Description"
-									placeholder={`Décrivez votre projet en quelques phrases (${SUBMISSION_DESCRIPTION_MAX_LENGTH} caractères max)`}
-									maxLength={SUBMISSION_DESCRIPTION_MAX_LENGTH}
-									required
+									placeholder={`Décrivez votre projet en quelques phrases (${CONTRIBUTION_DESCRIPTION_MAX_LENGTH} caractères max)`}
+									maxLength={CONTRIBUTION_DESCRIPTION_MAX_LENGTH}
 								/>
 							)}
 						</form.AppField>
@@ -148,46 +219,117 @@ function RouteComponent() {
 								/>
 							)}
 						</form.AppField>
-						<form.AppField name="deliveryYear">
-							{(field) => (
-								<field.TextField
-									label="Année de livraison"
-									placeholder="Ex. 2022"
-									required
-								/>
-							)}
-						</form.AppField>
-						<form.AppField name="address">
+						<SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+							<form.AppField name="projectOwner">
+								{(field) => (
+									<field.TextField
+										label="Maître d’ouvrage"
+										placeholder="Ex. Ville de Paris"
+									/>
+								)}
+							</form.AppField>
+							<form.AppField name="projectManagement">
+								{(field) => (
+									<field.TextField
+										label="Maître d’œuvre"
+										placeholder="Ex. Agence de paysage"
+									/>
+								)}
+							</form.AppField>
+						</SimpleGrid>
+						<SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
+							<form.AppField name="deliveryYear">
+								{(field) => (
+									<field.TextField
+										label="Année de livraison"
+										placeholder="Ex. 2022"
+									/>
+								)}
+							</form.AppField>
+							<form.AppField name="projectCost">
+								{(field) => (
+									<field.TextField label="Coût" placeholder="Ex. 1,2 M€ HT" />
+								)}
+							</form.AppField>
+							<form.AppField name="projectArea">
+								{(field) => (
+									<field.TextField
+										label="Superficie"
+										placeholder="Ex. 4 500 m²"
+									/>
+								)}
+							</form.AppField>
+						</SimpleGrid>
+						<form.AppField name="location">
 							{(field) => (
 								<field.AddressAutocompleteField
 									label="Adresse"
 									placeholder="Ex. 12 rue de la Paix, Paris"
-									required
-								/>
-							)}
-						</form.AppField>
-						<form.AppField name="contributorEmail">
-							{(field) => (
-								<field.TextField
-									label="Votre email"
-									placeholder="vous@exemple.com"
-									required
 								/>
 							)}
 						</form.AppField>
 						<form.AppField name="pictures">
 							{(field) => (
 								<field.FilesField
-									label="Images du projet"
+									label="Photographies"
 									accept={['image/*']}
-									helperText={`Formats image uniquement, ${SUBMISSION_MAX_PICTURES} images maximum, ${SUBMISSION_MAX_PICTURE_SIZE_LABEL} par image.`}
+									maxFiles={CONTRIBUTION_MAX_PICTURES}
+									maxFileSize={CONTRIBUTION_MAX_SOURCE_PICTURE_BYTES}
+									helperText={`Formats image uniquement, ${CONTRIBUTION_MAX_PICTURES} photos maximum, ${CONTRIBUTION_MAX_SOURCE_PICTURE_LABEL} par photo.`}
 									required
 								/>
 							)}
 						</form.AppField>
+						<SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+							<form.AppField name="authorName">
+								{(field) => (
+									<field.TextField
+										label="Auteur des photographies"
+										placeholder="Prénom Nom"
+										required
+									/>
+								)}
+							</form.AppField>
+							<form.AppField name="authorEmail">
+								{(field) => (
+									<field.TextField
+										label="Email de l’auteur"
+										placeholder="vous@exemple.com"
+										required
+									/>
+								)}
+							</form.AppField>
+						</SimpleGrid>
+						<form.AppField name="consent">
+							{(field) => (
+								<field.CheckboxField
+									label="Je certifie être l’auteur de ces photographies et j’autorise Nature Urbaine à les publier avec mention de mon nom."
+									required
+								/>
+							)}
+						</form.AppField>
+						<Text color="fg.muted" fontSize="sm">
+							Votre adresse email sert uniquement à vous prévenir de la mise en
+							ligne de vos photographies, ou de la raison d’un refus. Elle n’est
+							jamais publiée.
+						</Text>
 						<form.AppField name="honeypot">
 							{(field) => <field.HoneypotField />}
 						</form.AppField>
+						{progression && (
+							<Progress.Root
+								value={progressValue(progression)}
+								size="sm"
+								colorPalette="primary"
+							>
+								<Progress.Label mb={2} fontWeight={400} color="fg.muted">
+									{progressLabel(progression)}
+								</Progress.Label>
+								<Progress.Track>
+									<Progress.Range />
+								</Progress.Track>
+							</Progress.Root>
+						)}
 						{submitError && (
 							<Alert.Root status="error">
 								<Alert.Indicator />
@@ -201,16 +343,22 @@ function RouteComponent() {
 								<Alert.Indicator />
 								<Alert.Content>
 									<Alert.Description>
-										Merci, votre contribution a bien ete envoyee. Notre equipe
-										l'examinera et vous contactera a l'adresse indiquee.
+										Merci ! Vos photographies ont bien été envoyées. Nous vous
+										écrirons dès leur mise en ligne.
 									</Alert.Description>
 								</Alert.Content>
 							</Alert.Root>
 						)}
 						<form.Subscribe selector={(state) => state.isSubmitting}>
 							{(isSubmitting) => (
-								<Button type="submit" alignSelf="flex-start" px={6}>
-									{isSubmitting ? 'Envoi…' : 'Envoyer ma contribution'}
+								<Button
+									type="submit"
+									alignSelf="flex-start"
+									px={6}
+									loading={isSubmitting}
+									loadingText="Envoi…"
+								>
+									Envoyer ma contribution
 								</Button>
 							)}
 						</form.Subscribe>
