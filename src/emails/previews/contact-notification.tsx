@@ -6,7 +6,7 @@ export default function ContactNotificationPreview() {
 			firstName="Claire"
 			lastName="Martin"
 			email="claire.martin@example.com"
-			sector="paysagiste"
+			sector="Paysagiste concepteur (Maîtrise d'œuvre)"
 			message={
 				"Bonjour,\nJe souhaite echanger sur un reportage de reamenagement d'espace public.\nPouvez-vous me recontacter cette semaine ?"
 			}

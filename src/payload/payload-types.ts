@@ -165,8 +165,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    forms: Form;
+  };
+  globalsSelect: {
+    forms: FormsSelect<false> | FormsSelect<true>;
+  };
   locale: null;
   widgets: {
     analytics: AnalyticsWidget;
@@ -1150,6 +1154,56 @@ export interface PayloadLlmInstructionsSelect<T extends boolean = true> {
   updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forms".
+ */
+export interface Form {
+  id: number;
+  contact: {
+    /**
+     * Choix du menu déroulant « Secteur d’activité », regroupés sous un titre.
+     */
+    sectorGroups: {
+      /**
+       * Laisser vide pour afficher les choix sans titre (ex. « Autre »).
+       */
+      label?: string | null;
+      sectors: {
+        label: string;
+        id?: string | null;
+      }[];
+      id?: string | null;
+    }[];
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forms_select".
+ */
+export interface FormsSelect<T extends boolean = true> {
+  contact?:
+    | T
+    | {
+        sectorGroups?:
+          | T
+          | {
+              label?: T;
+              sectors?:
+                | T
+                | {
+                    label?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -1,13 +1,5 @@
-import {
-	Alert,
-	Box,
-	Button,
-	Container,
-	Link,
-	Stack,
-	Text,
-} from '@chakra-ui/react';
-import { createFileRoute, Link as RouterLink } from '@tanstack/react-router';
+import { Alert, Box, Button, Container, Stack } from '@chakra-ui/react';
+import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import type z from 'zod';
 import PageHeader from '@/components/sections/PageHeader';
@@ -18,9 +10,14 @@ import {
 } from '@/server/contact-contract';
 import { createContact } from '@/server/emails/contact';
 import { submitErrorMessage } from '@/server/form-guard-contract';
+import { getContactSectorGroups } from '@/server/forms';
 
 export const Route = createFileRoute('/contact')({
 	component: RouteComponent,
+	loader: async () => {
+		const sectorGroups = await getContactSectorGroups();
+		return { sectorGroups };
+	},
 });
 
 const defaultValues: z.input<typeof clientContactSchema> = {
@@ -32,18 +29,21 @@ const defaultValues: z.input<typeof clientContactSchema> = {
 	honeypot: '',
 };
 
-const SECTOR_OPTIONS = [
-	{ label: 'Paysagiste', value: 'paysagiste' },
-	{ label: "Maîtrise d'ouvrage (MOA)", value: 'MOA' },
-	{ label: "Maîtrise d'œuvre (MOE)", value: 'MOE' },
-	{ label: 'Urbaniste', value: 'urbaniste' },
-	{ label: 'Autre', value: 'autre' },
-];
-
 function RouteComponent() {
+	const { sectorGroups } = Route.useLoaderData();
 	const [submitSuccess, setSubmitSuccess] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 	const [mountedAt] = useState(() => Date.now());
+
+	// The label is the submitted value, so the email reads as the visitor saw it.
+	const sectorOptions = sectorGroups.flatMap((group) =>
+		group.sectors.map((sector) => {
+			const value = group.label
+				? `${sector.label} (${group.label})`
+				: sector.label;
+			return { group: group.label ?? undefined, label: sector.label, value };
+		}),
+	);
 
 	const form = useAppForm({
 		defaultValues,
@@ -67,16 +67,10 @@ function RouteComponent() {
 		<>
 			<PageHeader
 				eyebrow="Contact"
-				title="Une question ?"
+				title={'Une question\u00a0? Une proposition\u00a0?'}
 				description="Renseignez le formulaire ci-dessous. Notre équipe vous répondra dans les meilleurs délais."
 			/>
 			<Container maxW="container.md" py={{ base: 10, md: 16 }}>
-				<Text mb={8} color="fg.muted">
-					Vous souhaitez proposer un projet ?{' '}
-					<Link asChild color="fg">
-						<RouterLink to="/contribuer">Contribuer.</RouterLink>
-					</Link>
-				</Text>
 				<Box
 					as="form"
 					onSubmit={(e) => {
@@ -114,7 +108,7 @@ function RouteComponent() {
 								<field.SelectField
 									label="Secteur d'activité"
 									placeholder="Choisir un secteur"
-									options={SECTOR_OPTIONS}
+									options={sectorOptions}
 									required
 								/>
 							)}

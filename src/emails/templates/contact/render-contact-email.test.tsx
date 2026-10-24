@@ -7,7 +7,7 @@ describe('renderContactEmail', () => {
 			firstName: 'Claire',
 			lastName: 'Martin',
 			email: 'claire.martin@example.com',
-			sector: 'paysagiste',
+			sector: "Paysagiste concepteur (Maîtrise d'œuvre)",
 			message: 'Bonjour,\nJe vous contacte pour un projet.',
 			submittedAtParis: '03/05/2026 14:20',
 			source: '/contact',
@@ -17,7 +17,7 @@ describe('renderContactEmail', () => {
 			getContactSubject({
 				firstName: 'Claire',
 				lastName: 'Martin',
-				sector: 'paysagiste',
+				sector: "Paysagiste concepteur (Maîtrise d'œuvre)",
 			}),
 		);
 		expect(rendered.html).toContain('Nouveau message de contact');

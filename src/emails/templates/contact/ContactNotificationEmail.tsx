@@ -11,18 +11,6 @@ export type ContactEmailInput = {
 	source: string;
 };
 
-const SECTOR_LABELS: Record<string, string> = {
-	paysagiste: 'Paysagiste',
-	MOA: "Maîtrise d'ouvrage (MOA)",
-	MOE: "Maîtrise d'œuvre (MOE)",
-	urbaniste: 'Urbaniste',
-	autre: 'Autre',
-};
-
-function getSectorLabel(value: string): string {
-	return SECTOR_LABELS[value] ?? value;
-}
-
 function MessageWithBreaks({ value }: { value: string }) {
 	const lines = value.split('\n');
 
@@ -42,7 +30,7 @@ export function ContactNotificationEmail(props: ContactEmailInput) {
 	return (
 		<MainEmailLayout
 			title="Nouveau message de contact"
-			preheader={`Nouveau message de ${props.firstName} ${props.lastName} (${getSectorLabel(props.sector)}).`}
+			preheader={`Nouveau message de ${props.firstName} ${props.lastName} (${props.sector}).`}
 		>
 			<Section style={styles.block}>
 				<Text style={styles.label}>Prénom</Text>
@@ -58,7 +46,7 @@ export function ContactNotificationEmail(props: ContactEmailInput) {
 			</Section>
 			<Section style={styles.block}>
 				<Text style={styles.label}>Secteur d'activité</Text>
-				<Text style={styles.value}>{getSectorLabel(props.sector)}</Text>
+				<Text style={styles.value}>{props.sector}</Text>
 			</Section>
 			<Section style={styles.block}>
 				<Text style={styles.label}>Message</Text>

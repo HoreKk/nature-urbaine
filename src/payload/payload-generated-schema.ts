@@ -612,6 +612,44 @@ export const payload_llm_instructions_rels = pgTable('payload_llm_instructions_r
 ]
 )
 
+
+export const forms_contact_sector_groups_sectors = pgTable('forms_contact_sector_groups_sectors', {
+  _order: integer('_order').notNull(),
+  _parentID: varchar('_parent_id').notNull(),
+  id: varchar('id').primaryKey(),
+  label: varchar('label').notNull(),
+}, (columns) => [
+    index('forms_contact_sector_groups_sectors_order_idx').on(columns._order), index('forms_contact_sector_groups_sectors_parent_id_idx').on(columns._parentID), foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [forms_contact_sector_groups.id],
+      name: 'forms_contact_sector_groups_sectors_parent_id_fk'
+    }).onDelete('cascade'),
+]
+)
+
+
+export const forms_contact_sector_groups = pgTable('forms_contact_sector_groups', {
+  _order: integer('_order').notNull(),
+  _parentID: integer('_parent_id').notNull(),
+  id: varchar('id').primaryKey(),
+  label: varchar('label'),
+}, (columns) => [
+    index('forms_contact_sector_groups_order_idx').on(columns._order), index('forms_contact_sector_groups_parent_id_idx').on(columns._parentID), foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [forms.id],
+      name: 'forms_contact_sector_groups_parent_id_fk'
+    }).onDelete('cascade'),
+]
+)
+
+
+export const forms = pgTable('forms', {
+  id: serial('id').primaryKey(),
+  updatedAt: timestamp('updated_at', {mode: 'string',withTimezone: true,precision: 3}),
+  createdAt: timestamp('created_at', {mode: 'string',withTimezone: true,precision: 3}),
+}
+)
+
 export const relations_media = relations(media, () => ({
   
       }))
@@ -870,6 +908,30 @@ export const relations_payload_llm_instructions = relations(payload_llm_instruct
             relationName: '_rels',
     }),
       }))
+export const relations_forms_contact_sector_groups_sectors = relations(forms_contact_sector_groups_sectors, ({ one }) => ({
+  _parentID: one(forms_contact_sector_groups, {
+    
+    fields: [forms_contact_sector_groups_sectors._parentID],
+    references: [forms_contact_sector_groups.id],
+    relationName: 'sectors',
+    }),
+      }))
+export const relations_forms_contact_sector_groups = relations(forms_contact_sector_groups, ({ one, many }) => ({
+  _parentID: one(forms, {
+    
+    fields: [forms_contact_sector_groups._parentID],
+    references: [forms.id],
+    relationName: 'contact_sectorGroups',
+    }),
+    sectors: many(forms_contact_sector_groups_sectors, {
+            relationName: 'sectors',
+    }),
+      }))
+export const relations_forms = relations(forms, ({ many }) => ({
+  contact_sectorGroups: many(forms_contact_sector_groups, {
+            relationName: 'contact_sectorGroups',
+    }),
+      }))
 
 type DatabaseSchema = {
   enum_reports_location_details_city_stratum: typeof enum_reports_location_details_city_stratum
@@ -903,6 +965,9 @@ type DatabaseSchema = {
   payload_migrations: typeof payload_migrations
   payload_llm_instructions: typeof payload_llm_instructions
   payload_llm_instructions_rels: typeof payload_llm_instructions_rels
+  forms_contact_sector_groups_sectors: typeof forms_contact_sector_groups_sectors
+  forms_contact_sector_groups: typeof forms_contact_sector_groups
+  forms: typeof forms
   relations_media: typeof relations_media
   relations_reports: typeof relations_reports
   relations__reports_v: typeof relations__reports_v
@@ -926,6 +991,9 @@ type DatabaseSchema = {
   relations_payload_migrations: typeof relations_payload_migrations
   relations_payload_llm_instructions_rels: typeof relations_payload_llm_instructions_rels
   relations_payload_llm_instructions: typeof relations_payload_llm_instructions
+  relations_forms_contact_sector_groups_sectors: typeof relations_forms_contact_sector_groups_sectors
+  relations_forms_contact_sector_groups: typeof relations_forms_contact_sector_groups
+  relations_forms: typeof relations_forms
 }
     
 

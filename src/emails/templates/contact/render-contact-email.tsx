@@ -10,24 +10,12 @@ type RenderedContactEmail = {
 	text: string;
 };
 
-const SECTOR_LABELS: Record<string, string> = {
-	paysagiste: 'Paysagiste',
-	MOA: "Maîtrise d'ouvrage (MOA)",
-	MOE: "Maîtrise d'œuvre (MOE)",
-	urbaniste: 'Urbaniste',
-	autre: 'Autre',
-};
-
-function getSectorLabel(value: string): string {
-	return SECTOR_LABELS[value] ?? value;
-}
-
 export function getContactSubject({
 	firstName,
 	lastName,
 	sector,
 }: Pick<ContactEmailInput, 'firstName' | 'lastName' | 'sector'>): string {
-	return `[Contact] ${firstName} ${lastName} — ${getSectorLabel(sector)}`;
+	return `[Contact] ${firstName} ${lastName} — ${sector}`;
 }
 
 export async function renderContactEmail(

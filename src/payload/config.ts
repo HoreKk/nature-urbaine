@@ -20,6 +20,7 @@ import { Submissions } from './collections/Submission';
 import { Tags } from './collections/Tag';
 import { TagCategories } from './collections/TagCategory';
 import { Users } from './collections/Users';
+import { Forms } from './globals/Forms';
 import { pictureVariants } from './image-variants';
 import { storageAdapter, storageCoverageGuard } from './storage';
 
@@ -153,6 +154,7 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 			TagCategories,
 			Users,
 		],
+		globals: [Forms],
 		editor: lexicalEditor(),
 		secret: process.env.PAYLOAD_SECRET || '',
 		email: buildEmailAdapter(),

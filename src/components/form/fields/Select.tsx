@@ -5,6 +5,7 @@ import { type DefaultFieldProps, useFieldContext } from '@/hooks/form-context';
 interface SelectOption {
 	label: string;
 	value: string;
+	group?: string;
 }
 
 interface SelectFieldProps extends DefaultFieldProps {
@@ -18,7 +19,10 @@ export function SelectField({
 	required,
 }: SelectFieldProps) {
 	const field = useFieldContext<string>();
-	const collection = createListCollection({ items: options });
+	const collection = createListCollection({
+		items: options,
+		groupBy: (item) => item.group ?? '',
+	});
 
 	return (
 		<Field
@@ -44,10 +48,17 @@ export function SelectField({
 				<Portal>
 					<Select.Positioner>
 						<Select.Content>
-							{collection.items.map((item) => (
-								<Select.Item key={item.value} item={item}>
-									{item.label}
-								</Select.Item>
+							{collection.group().map(([group, items]) => (
+								<Select.ItemGroup key={group}>
+									{group && (
+										<Select.ItemGroupLabel>{group}</Select.ItemGroupLabel>
+									)}
+									{items.map((item) => (
+										<Select.Item key={item.value} item={item}>
+											{item.label}
+										</Select.Item>
+									))}
+								</Select.ItemGroup>
 							))}
 						</Select.Content>
 					</Select.Positioner>
