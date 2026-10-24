@@ -3,6 +3,10 @@ import {
 	ContributionNotificationEmail,
 	type ContributionEmailInput,
 } from './ContributionNotificationEmail';
+import {
+	ContributionRejectedEmail,
+	type ContributionRejectedEmailInput,
+} from './ContributionRejectedEmail';
 
 type RenderedContributionEmail = {
 	subject: string;
@@ -28,5 +32,17 @@ export async function renderContributionEmail(
 		subject: getContributionSubject(input),
 		html,
 		text,
+	};
+}
+
+export async function renderContributionRejectedEmail(
+	input: ContributionRejectedEmailInput,
+): Promise<RenderedContributionEmail> {
+	const html = await render(<ContributionRejectedEmail {...input} />);
+
+	return {
+		subject: `Votre contribution « ${input.title} » à Nature Urbaine`,
+		html,
+		text: toPlainText(html),
 	};
 }

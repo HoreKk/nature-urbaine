@@ -14,9 +14,10 @@ export const Reports: CollectionConfig = {
 		singular: 'Reportage',
 		plural: 'Reportages',
 	},
+	// Drafts save incomplete, as Valider creates them (ADR-0005); publishing validates.
 	versions: {
 		drafts: {
-			validate: true,
+			validate: false,
 		},
 	},
 	admin: {

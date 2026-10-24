@@ -8,6 +8,7 @@ export const UPLOADS_UNAVAILABLE = 'UPLOADS_UNAVAILABLE';
 
 export const CONTRIBUTION_MAX_PICTURES = 50;
 export const CONTRIBUTION_DESCRIPTION_MAX_LENGTH = 500;
+export const CONTRIBUTION_REJECTION_NOTE_MAX_LENGTH = 2000;
 export const CONTRIBUTION_DELIVERY_YEAR_MIN = 1900;
 export const CONTRIBUTION_DELIVERY_YEAR_MAX = 2100;
 /** Before downscaling: photographers' originals routinely weigh 10–25 Mo. */

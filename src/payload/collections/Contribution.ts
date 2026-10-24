@@ -1,6 +1,7 @@
 import type { CollectionConfig, FieldAccess } from 'payload';
 import { loggedIn } from '../access';
 import { adminGroups } from '../admin-groups';
+import { contributionReviewEndpoints } from '../contribution-review';
 import { locationDetailsField, projectDetailsField } from './report-fields';
 
 /** What the Contributeur sent stays correctable until Valider or Refuser (ADR-0005). */
@@ -19,7 +20,15 @@ export const Contributions: CollectionConfig = {
 		useAsTitle: 'title',
 		defaultColumns: ['title', 'category', 'authorName', 'status', 'createdAt'],
 		listSearchableFields: ['title', 'authorEmail'],
+		components: {
+			edit: {
+				beforeDocumentControls: [
+					'/payload/admin/ContributionReview#ContributionReview',
+				],
+			},
+		},
 	},
+	endpoints: contributionReviewEndpoints,
 	// Created only by `submitContribution`, server-side.
 	access: {
 		create: () => false,
@@ -106,7 +115,7 @@ export const Contributions: CollectionConfig = {
 			type: 'upload',
 			relationTo: 'contribution-archives',
 			label: 'Photos (zip)',
-			required: true,
+			// Set by `submitContribution`; emptied by Refuser, which deletes the zip.
 			admin: { readOnly: true },
 		},
 		{

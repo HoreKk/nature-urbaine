@@ -19,7 +19,7 @@ export type ContributionEmailInput = {
 	source: string;
 };
 
-function MessageWithBreaks({ value }: { value: string }) {
+export function MessageWithBreaks({ value }: { value: string }) {
 	const lines = value.split('\n');
 
 	return (

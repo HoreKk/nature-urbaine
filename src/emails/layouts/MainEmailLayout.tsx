@@ -14,12 +14,14 @@ import {
 type MainEmailLayoutProps = {
 	preheader: string;
 	title: string;
+	footer?: string;
 	children: ReactNode;
 };
 
 export function MainEmailLayout({
 	preheader,
 	title,
+	footer = 'Ce message provient d’un formulaire du site Nature Urbaine.',
 	children,
 }: MainEmailLayoutProps) {
 	return (
@@ -37,9 +39,7 @@ export function MainEmailLayout({
 					<Section style={styles.content}>{children}</Section>
 					<Hr style={styles.separator} />
 					<Section style={styles.footer}>
-						<Text style={styles.footerText}>
-							Ce message provient d’un formulaire du site Nature Urbaine.
-						</Text>
+						<Text style={styles.footerText}>{footer}</Text>
 					</Section>
 				</Container>
 			</Body>

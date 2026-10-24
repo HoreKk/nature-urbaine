@@ -249,7 +249,7 @@ export interface Contribution {
   photosTakenAt?: string | null;
   authorName: string;
   authorEmail: string;
-  archive: number | ContributionArchive;
+  archive?: (number | null) | ContributionArchive;
   status: 'pending' | 'accepted' | 'published' | 'rejected';
   rejectionNote?: string | null;
   report?: (number | null) | Report;

@@ -25,7 +25,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"photos_taken_at" timestamp(3) with time zone,
   	"author_name" varchar NOT NULL,
   	"author_email" varchar NOT NULL,
-  	"archive_id" integer NOT NULL,
+  	"archive_id" integer,
   	"status" "enum_contributions_status" DEFAULT 'pending' NOT NULL,
   	"rejection_note" varchar,
   	"report_id" integer,

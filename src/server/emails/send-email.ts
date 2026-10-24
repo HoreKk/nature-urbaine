@@ -27,22 +27,36 @@ interface RenderedEmail {
 	text: string;
 }
 
-export async function sendTemplatedEmail(
+async function deliver(
 	rendered: RenderedEmail,
-	replyTo: string,
+	recipients: { to: string | string[]; replyTo: string | string[] },
 ): Promise<void> {
 	if (!dailyEmails.consume('all')) {
 		throw new Error('EMAIL_DAILY_CAP_REACHED');
 	}
 
-	const emailConfig = readEmailConfig();
 	const payload = await getPayload({ config: payloadConfig });
 
 	await payload.sendEmail({
-		to: emailConfig.to,
-		replyTo,
+		...recipients,
 		subject: rendered.subject,
 		html: rendered.html,
 		text: rendered.text,
 	});
+}
+
+/** To the operator; replies go to the visitor who filled the form. */
+export async function sendTemplatedEmail(
+	rendered: RenderedEmail,
+	replyTo: string,
+): Promise<void> {
+	await deliver(rendered, { to: readEmailConfig().to, replyTo });
+}
+
+/** To a Contributeur; replies go to the operator. */
+export async function sendContributorEmail(
+	rendered: RenderedEmail,
+	to: string,
+): Promise<void> {
+	await deliver(rendered, { to, replyTo: readEmailConfig().to });
 }

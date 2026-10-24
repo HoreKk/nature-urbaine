@@ -131,7 +131,7 @@
           "name": "archive_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "status": {
           "name": "status",
@@ -4757,6 +4757,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "d02e9229-442a-4841-a595-426535d5c0ff",
+  "id": "429f71c2-623d-4345-b923-d5be53a3e2dc",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
