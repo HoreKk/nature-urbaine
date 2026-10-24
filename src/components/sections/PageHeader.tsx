@@ -16,7 +16,7 @@ const PageHeader = ({ eyebrow, title, description }: PageHeaderProps) => {
 			borderColor="border.muted"
 		>
 			<Container maxW="container.xl" py={{ base: 6, md: 10 }}>
-				<Stack gap={4} maxW="900px">
+				<Stack gap={4}>
 					{eyebrow && <Text textStyle="kicker">{eyebrow}</Text>}
 					<Heading as="h1" textStyle="heading.xl">
 						{title}
