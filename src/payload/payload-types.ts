@@ -169,6 +169,7 @@ export interface Config {
   globalsSelect: {};
   locale: null;
   widgets: {
+    analytics: AnalyticsWidget;
     welcome: WelcomeWidget;
     collections: CollectionsWidget;
     'collection-query': CollectionQueryWidget;
@@ -1149,6 +1150,16 @@ export interface PayloadLlmInstructionsSelect<T extends boolean = true> {
   updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "analytics_widget".
+ */
+export interface AnalyticsWidget {
+  data?: {
+    days?: ('7' | '30' | '90') | null;
+  };
+  width: 'medium' | 'large' | 'x-large' | 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

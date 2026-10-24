@@ -9,6 +9,7 @@ import { fr } from '@payloadcms/translations/languages/fr';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
 
+import { getUmamiConfig } from '../server/umami';
 import { Categories } from './collections/Category';
 import { Interviews } from './collections/Interview';
 import { InterviewPictures } from './collections/InterviewPicture';
@@ -95,6 +96,38 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 			importMap: {
 				// Component paths like `/payload/admin/PictureNav` resolve from `src/`.
 				baseDir: path.resolve(payloadDir, '..'),
+			},
+			dashboard: {
+				widgets: [
+					{
+						slug: 'analytics',
+						label: 'Audience du site',
+						Component: '/payload/admin/AnalyticsWidget#AnalyticsWidget',
+						fields: [
+							{
+								name: 'days',
+								label: 'Période',
+								type: 'select',
+								defaultValue: '30',
+								options: [
+									{ label: '7 derniers jours', value: '7' },
+									{ label: '30 derniers jours', value: '30' },
+									{ label: '90 derniers jours', value: '90' },
+								],
+							},
+						],
+						minWidth: 'medium',
+					},
+				],
+				// Built-in defaults plus the audience widget once Umami is configured.
+				defaultLayout: () => [
+					{ widgetSlug: 'welcome', width: 'full' },
+					...(getUmamiConfig()
+						? [{ widgetSlug: 'analytics' as const, width: 'full' as const }]
+						: []),
+					{ widgetSlug: 'activity', width: 'full' },
+					{ widgetSlug: 'collections', width: 'full' },
+				],
 			},
 		},
 		i18n: {

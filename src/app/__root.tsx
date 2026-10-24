@@ -50,11 +50,22 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	shellComponent: withPayloadRoot(RootDocument),
 });
 
+const umamiUrl = import.meta.env.VITE_UMAMI_URL?.replace(/\/+$/, '');
+const umamiWebsiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID;
+
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="fr">
 			<head>
 				<HeadContent />
+				{/* Here rather than in `head()`: the admin shell renders `head()` too, and admin visits must stay out of the stats. */}
+				{umamiUrl && umamiWebsiteId ? (
+					<script
+						defer
+						src={`${umamiUrl}/script.js`}
+						data-website-id={umamiWebsiteId}
+					/>
+				) : null}
 			</head>
 			<body>
 				<ChakraProvider>
