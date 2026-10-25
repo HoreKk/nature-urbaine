@@ -20,7 +20,7 @@ export type ReportCatalogSort = (typeof REPORT_CATALOG_SORTS)[number];
 
 const sortFields: Record<ReportCatalogSort, string[]> = {
 	recent: ['-createdAt', '-date'],
-	chronological: ['date'],
+	chronological: ['-date'],
 	city: ['locationDetails.city', 'name'],
 };
 

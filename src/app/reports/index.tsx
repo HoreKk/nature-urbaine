@@ -72,9 +72,9 @@ const filterFormSchema = z.object({
 });
 
 const sortOptions: { label: string; value: ReportCatalogSort }[] = [
-	{ label: 'Plus récents en premier', value: 'recent' },
+	{ label: 'Publications récentes en premier', value: 'recent' },
 	{ label: 'Chronologie des reportages', value: 'chronological' },
-	{ label: 'Villes (A–Z)', value: 'city' },
+	{ label: 'Ville (A-Z)', value: 'city' },
 ];
 
 type FilterFormValues = z.infer<typeof filterFormSchema>;
