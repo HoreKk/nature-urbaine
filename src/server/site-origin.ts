@@ -6,10 +6,10 @@ export function siteOrigin(): string {
 		return getRequestUrl({ xForwardedHost: true, xForwardedProto: true })
 			.origin;
 	} catch {
-		const domain = process.env.WEBSITE_DOMAIN;
+		const domain = process.env.RAILWAY_PUBLIC_DOMAIN;
 		if (domain) return `https://${domain}`;
 		throw new Error(
-			'No request and no WEBSITE_DOMAIN to build an absolute link',
+			'No request and no RAILWAY_PUBLIC_DOMAIN to build an absolute link',
 		);
 	}
 }

@@ -202,9 +202,6 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 			...(process.env.RAILWAY_PUBLIC_DOMAIN
 				? [`https://${process.env.RAILWAY_PUBLIC_DOMAIN}`]
 				: []),
-			...(process.env.WEBSITE_DOMAIN
-				? [`https://${process.env.WEBSITE_DOMAIN}`]
-				: []),
 		],
 		plugins: [storageCoverageGuard],
 	});
