@@ -18,7 +18,11 @@ export const CONTRIBUTION_PICTURE_MAX_EDGE = 2560;
 /** 50 downscaled JPEGs land around 50–100 Mo; the zip stores them uncompressed. */
 export const CONTRIBUTION_MAX_ARCHIVE_BYTES = 200 * 1024 * 1024;
 
-const optionalText = (max: number) => z.string().trim().max(max).optional();
+// An emptied input sends '': stored and emailed as "not given".
+const emptyAsUndefined = (value: string) => value || undefined;
+
+const optionalText = (max: number) =>
+	z.string().trim().max(max).transform(emptyAsUndefined).optional();
 
 /** Filled from the address search; empty when the address was typed freely. */
 export const contributionLocationSchema = z.object({
@@ -48,6 +52,7 @@ const contributionFieldsSchema = z.object({
 			CONTRIBUTION_DESCRIPTION_MAX_LENGTH,
 			`La description ne doit pas dépasser ${CONTRIBUTION_DESCRIPTION_MAX_LENGTH} caractères`,
 		)
+		.transform(emptyAsUndefined)
 		.optional(),
 	projectOwner: optionalText(200),
 	projectManagement: optionalText(200),
@@ -60,7 +65,7 @@ const contributionFieldsSchema = z.object({
 		.min(1, 'Le nom de l’auteur des photographies est requis')
 		.max(120),
 	authorEmail: z.string().trim().email('Adresse email invalide').max(254),
-	consent: z.literal(true, {
+	consent: z.boolean().refine((consent) => consent, {
 		message: 'Votre accord est nécessaire pour publier les photographies',
 	}),
 });

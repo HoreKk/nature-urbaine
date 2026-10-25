@@ -1,6 +1,8 @@
 import type { PayloadRequest, WidgetServerProps } from 'payload';
 import { formatAdminURL } from 'payload/shared';
+import { CONTRIBUTION_STATUSES } from '../fields/contribution-statuses';
 import type { Contribution } from '../payload-types';
+import { contributionAdminURL } from '../utilities/contribution-admin-url';
 
 const MONTHS_SHOWN = 12;
 const LATEST_PENDING = 5;
@@ -14,13 +16,6 @@ const monthFormat = new Intl.DateTimeFormat('fr-FR', {
 const relativeFormat = new Intl.RelativeTimeFormat('fr-FR', {
 	numeric: 'auto',
 });
-
-const STATUSES: { value: Contribution['status']; label: string }[] = [
-	{ value: 'pending', label: 'À traiter' },
-	{ value: 'accepted', label: 'Validées, à publier' },
-	{ value: 'published', label: 'Publiées' },
-	{ value: 'rejected', label: 'Refusées' },
-];
 
 function daysAgo(value: string, now: Date) {
 	const days = Math.floor(
@@ -45,7 +40,7 @@ async function loadQueue(req: PayloadRequest) {
 	const months = lastMonths(now);
 	const [counts, pending, oldest, received] = await Promise.all([
 		Promise.all(
-			STATUSES.map(({ value }) =>
+			CONTRIBUTION_STATUSES.map(({ value }) =>
 				payload
 					.count({
 						collection: 'contributions',
@@ -137,9 +132,9 @@ export const ContributionsWidget = async ({ req }: WidgetServerProps) => {
 				</a>
 			</div>
 			<div className="stats-widget__kpis">
-				{STATUSES.map(({ value, label }, index) => (
+				{CONTRIBUTION_STATUSES.map(({ value, queueLabel }, index) => (
 					<a key={value} className="stats-widget__kpi" href={listURL(value)}>
-						<span className="stats-widget__kpi-label">{label}</span>
+						<span className="stats-widget__kpi-label">{queueLabel}</span>
 						<span className="stats-widget__kpi-value">
 							{numberFormat.format(counts[index] ?? 0)}
 						</span>
@@ -178,10 +173,7 @@ export const ContributionsWidget = async ({ req }: WidgetServerProps) => {
 								<li key={contribution.id}>
 									<a
 										className="stats-widget__list-label stats-widget__link"
-										href={formatAdminURL({
-											adminRoute: payload.config.routes.admin,
-											path: `/collections/contributions/${contribution.id}`,
-										})}
+										href={contributionAdminURL(payload, contribution.id)}
 									>
 										{contribution.title} · {contribution.authorName}
 									</a>

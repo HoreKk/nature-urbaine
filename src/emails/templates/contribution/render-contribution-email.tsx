@@ -1,7 +1,7 @@
-import { render, toPlainText } from 'react-email';
+import { type RenderedEmail, renderEmail } from '../../render-email';
 import {
 	ContributionNotificationEmail,
-	type ContributionEmailInput,
+	type ContributionNotificationEmailInput,
 } from './ContributionNotificationEmail';
 import {
 	ContributionPublishedEmail,
@@ -12,53 +12,36 @@ import {
 	type ContributionRejectedEmailInput,
 } from './ContributionRejectedEmail';
 
-type RenderedContributionEmail = {
-	subject: string;
-	html: string;
-	text: string;
-};
-
 export function getContributionSubject({
 	title,
 	category,
-}: Pick<ContributionEmailInput, 'title' | 'category'>): string {
+}: Pick<ContributionNotificationEmailInput, 'title' | 'category'>): string {
 	return `[Contribution] ${title} - ${category}`;
 }
 
-export async function renderContributionEmail(
-	input: ContributionEmailInput,
-): Promise<RenderedContributionEmail> {
-	const email = <ContributionNotificationEmail {...input} />;
-	const html = await render(email);
-	const text = toPlainText(html);
-
-	return {
-		subject: getContributionSubject(input),
-		html,
-		text,
-	};
+export function renderContributionNotificationEmail(
+	input: ContributionNotificationEmailInput,
+): Promise<RenderedEmail> {
+	return renderEmail(
+		<ContributionNotificationEmail {...input} />,
+		getContributionSubject(input),
+	);
 }
 
-export async function renderContributionRejectedEmail(
+export function renderContributionRejectedEmail(
 	input: ContributionRejectedEmailInput,
-): Promise<RenderedContributionEmail> {
-	const html = await render(<ContributionRejectedEmail {...input} />);
-
-	return {
-		subject: `Votre contribution « ${input.title} » à Nature Urbaine`,
-		html,
-		text: toPlainText(html),
-	};
+): Promise<RenderedEmail> {
+	return renderEmail(
+		<ContributionRejectedEmail {...input} />,
+		`Votre contribution « ${input.title} » à Nature Urbaine`,
+	);
 }
 
-export async function renderContributionPublishedEmail(
+export function renderContributionPublishedEmail(
 	input: ContributionPublishedEmailInput,
-): Promise<RenderedContributionEmail> {
-	const html = await render(<ContributionPublishedEmail {...input} />);
-
-	return {
-		subject: `Vos photos sont en ligne sur Nature Urbaine`,
-		html,
-		text: toPlainText(html),
-	};
+): Promise<RenderedEmail> {
+	return renderEmail(
+		<ContributionPublishedEmail {...input} />,
+		'Vos photos sont en ligne sur Nature Urbaine',
+	);
 }

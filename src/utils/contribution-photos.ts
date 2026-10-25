@@ -7,6 +7,7 @@ const JPEG_QUALITY = 0.85;
 const EXIF_READ_BYTES = 128 * 1024;
 
 export const PHOTO_UNREADABLE = 'PHOTO_UNREADABLE';
+export const UPLOAD_FAILED = 'UPLOAD_FAILED';
 
 /** `2024:05:12 14:20:11`, the EXIF format, read as local time. */
 export function parseExifDate(value: string | undefined): Date | null {
@@ -109,9 +110,9 @@ export function uploadArchive(
 		request.addEventListener('load', () =>
 			request.status >= 200 && request.status < 300
 				? resolve()
-				: reject(new Error(`UPLOAD_FAILED_${request.status}`)),
+				: reject(new Error(UPLOAD_FAILED, { cause: request.status })),
 		);
-		request.addEventListener('error', () => reject(new Error('UPLOAD_FAILED')));
+		request.addEventListener('error', () => reject(new Error(UPLOAD_FAILED)));
 		request.send(archive);
 	});
 }

@@ -2,10 +2,12 @@ import type { CollectionConfig, FieldAccess } from 'payload';
 import { loggedIn } from '../access';
 import { adminGroups } from '../admin/groups';
 import { contributionReviewEndpoints } from '../endpoints/contribution-review';
+import { CONTRIBUTION_STATUSES } from '../fields/contribution-statuses';
 import {
 	locationDetailsField,
 	projectDetailsField,
 } from '../fields/report-fields';
+import { idOf } from '../utilities/relation';
 
 /** What the Contributeur sent stays correctable until Valider or Refuser (ADR-0005). */
 const editableWhilePending: FieldAccess = ({ doc }) =>
@@ -42,8 +44,7 @@ export const Contributions: CollectionConfig = {
 	hooks: {
 		afterDelete: [
 			async ({ doc, req }) => {
-				const archive =
-					typeof doc.archive === 'object' ? doc.archive?.id : doc.archive;
+				const archive = idOf(doc.archive);
 				if (archive == null) return;
 				await req.payload.delete({
 					collection: 'contribution-archives',
@@ -127,12 +128,10 @@ export const Contributions: CollectionConfig = {
 			label: 'Statut',
 			required: true,
 			defaultValue: 'pending',
-			options: [
-				{ label: 'À traiter', value: 'pending' },
-				{ label: 'Validée', value: 'accepted' },
-				{ label: 'Publiée', value: 'published' },
-				{ label: 'Refusée', value: 'rejected' },
-			],
+			options: CONTRIBUTION_STATUSES.map(({ value, label }) => ({
+				value,
+				label,
+			})),
 			admin: { position: 'sidebar', readOnly: true },
 		},
 		{

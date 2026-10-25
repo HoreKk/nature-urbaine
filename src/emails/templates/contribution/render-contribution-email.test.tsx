@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	getContributionSubject,
-	renderContributionEmail,
+	renderContributionNotificationEmail,
 	renderContributionPublishedEmail,
 	renderContributionRejectedEmail,
 } from './render-contribution-email';
@@ -19,9 +19,9 @@ const input = {
 	source: '/contribuer',
 };
 
-describe('renderContributionEmail', () => {
+describe('renderContributionNotificationEmail', () => {
 	it('renders the contribution with a link to the admin', async () => {
-		const rendered = await renderContributionEmail(input);
+		const rendered = await renderContributionNotificationEmail(input);
 
 		expect(rendered.subject).toBe(getContributionSubject(input));
 		expect(rendered.html).toContain('Nouvelle contribution');
@@ -31,7 +31,7 @@ describe('renderContributionEmail', () => {
 	});
 
 	it('leaves out the fields the author did not fill', async () => {
-		const rendered = await renderContributionEmail(input);
+		const rendered = await renderContributionNotificationEmail(input);
 
 		expect(rendered.text).not.toContain('Maître d’ouvrage');
 		expect(rendered.text).not.toContain('Superficie');

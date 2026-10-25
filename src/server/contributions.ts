@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
-import { getRequestUrl } from '@tanstack/react-start/server';
+import { contributionAdminURL } from '@/payload/utilities/contribution-admin-url';
 import { inspectContributionArchive } from './contribution-archive';
 import {
 	ARCHIVE_MISSING,
@@ -14,8 +14,9 @@ import {
 	sweepStaleStagingUploads,
 } from './contribution-uploads';
 import { baseProcedure } from './db';
-import { sendContributionEmail } from './emails/contribution';
+import { sendContributionNotificationEmail } from './emails/contribution';
 import { guardFormSubmission } from './form-guard';
+import { siteOrigin } from './site-origin';
 
 /** First step: the browser PUTs the zip to the returned URL, then calls `submitContribution`. */
 export const prepareContributionUpload = createServerFn({ method: 'POST' })
@@ -36,10 +37,30 @@ export const submitContribution = createServerFn({ method: 'POST' })
 	.middleware([baseProcedure])
 	.handler(async ({ data, context }) => {
 		const { db } = context;
+		const {
+			uploadKey,
+			consent: _consent,
+			category,
+			location,
+			photosTakenAt,
+			projectOwner,
+			projectManagement,
+			deliveryYear,
+			projectCost,
+			projectArea,
+			...fields
+		} = data;
+		const projectDetails = {
+			projectOwner,
+			projectManagement,
+			deliveryYear,
+			projectCost,
+			projectArea,
+		};
 
 		try {
-			if (!claimStagingUpload(data.uploadKey)) throw new Error(ARCHIVE_MISSING);
-			const bytes = await readStagingUpload(data.uploadKey);
+			if (!claimStagingUpload(uploadKey)) throw new Error(ARCHIVE_MISSING);
+			const bytes = await readStagingUpload(uploadKey);
 			if (!bytes) throw new Error(ARCHIVE_MISSING);
 			const { pictureCount } = inspectContributionArchive(bytes);
 
@@ -50,7 +71,7 @@ export const submitContribution = createServerFn({ method: 'POST' })
 				collection: 'contribution-archives',
 				data: {},
 				file: {
-					name: archiveFilename(data.title),
+					name: archiveFilename(fields.title),
 					mimetype: 'application/zip',
 					size: bytes.length,
 					data: Buffer.from(bytes),
@@ -62,20 +83,11 @@ export const submitContribution = createServerFn({ method: 'POST' })
 					overrideAccess: true,
 					collection: 'contributions',
 					data: {
-						title: data.title,
-						description: data.description || undefined,
-						category: data.category,
-						projectDetails: {
-							projectOwner: data.projectOwner || undefined,
-							projectManagement: data.projectManagement || undefined,
-							deliveryYear: data.deliveryYear,
-							projectCost: data.projectCost || undefined,
-							projectArea: data.projectArea || undefined,
-						},
-						locationDetails: data.location,
-						photosTakenAt: data.photosTakenAt,
-						authorName: data.authorName,
-						authorEmail: data.authorEmail,
+						...fields,
+						category,
+						projectDetails,
+						locationDetails: location,
+						photosTakenAt,
 						archive: archive.id,
 						status: 'pending',
 						consentedAt: new Date().toISOString(),
@@ -83,22 +95,16 @@ export const submitContribution = createServerFn({ method: 'POST' })
 					depth: 1,
 				});
 
-				const category = contribution.category;
-				sendContributionEmail({
-					title: data.title,
+				sendContributionNotificationEmail({
+					...fields,
+					...projectDetails,
 					category:
-						typeof category === 'object' ? category.name : String(category),
-					description: data.description || undefined,
-					projectOwner: data.projectOwner || undefined,
-					projectManagement: data.projectManagement || undefined,
-					deliveryYear: data.deliveryYear,
-					projectCost: data.projectCost || undefined,
-					projectArea: data.projectArea || undefined,
-					address: data.location.address || undefined,
-					authorName: data.authorName,
-					authorEmail: data.authorEmail,
+						typeof contribution.category === 'object'
+							? contribution.category.name
+							: String(contribution.category),
+					address: location.address,
 					pictureCount,
-					adminUrl: `${getRequestUrl({ xForwardedHost: true, xForwardedProto: true }).origin}/admin/collections/contributions/${contribution.id}`,
+					adminUrl: contributionAdminURL(db, contribution.id, siteOrigin()),
 				}).catch((error) => {
 					console.error('Contribution email sending failed', {
 						error,
@@ -116,7 +122,7 @@ export const submitContribution = createServerFn({ method: 'POST' })
 				throw error;
 			}
 		} finally {
-			await deleteStagingUpload(data.uploadKey).catch((error) => {
+			await deleteStagingUpload(uploadKey).catch((error) => {
 				console.error('Contribution staging cleanup failed', { error });
 			});
 		}

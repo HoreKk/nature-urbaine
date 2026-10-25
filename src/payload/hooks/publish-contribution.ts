@@ -1,5 +1,6 @@
 import type { CollectionAfterChangeHook } from 'payload';
 import type { Report } from '../payload-types';
+import { emailContributor } from '../utilities/email-contributor';
 import { afterCommit } from '../utilities/transaction';
 
 /**
@@ -35,23 +36,13 @@ export const publishContributionHook: CollectionAfterChangeHook<
 		data: { status: 'published' },
 	});
 
+	// Publishing must not fail on an email; the operator can write by hand.
 	await afterCommit(req, async () => {
-		try {
-			const { sendContributionPublishedEmail } =
-				await import('../../server/emails/contribution');
-			await sendContributionPublishedEmail({
-				title: contribution.title,
-				authorName: contribution.authorName,
-				authorEmail: contribution.authorEmail,
-				reportId: doc.id,
-			});
-		} catch (error) {
-			// Publishing must not fail on an email; the operator can write by hand.
-			req.payload.logger.error(
-				{ err: error },
-				'Contribution published email failed',
-			);
-		}
+		await emailContributor(
+			req,
+			(emails) => emails.sendContributionPublishedEmail(contribution, doc.id),
+			'Contribution published email failed',
+		);
 	});
 	return doc;
 };

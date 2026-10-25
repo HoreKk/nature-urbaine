@@ -10,6 +10,8 @@ import {
 import { z } from 'zod';
 import { CONTRIBUTION_REJECTION_NOTE_MAX_LENGTH } from '../../server/contribution-contract';
 import type { Contribution } from '../payload-types';
+import { emailContributor } from '../utilities/email-contributor';
+import { idOf } from '../utilities/relation';
 import { lockContribution } from '../utilities/transaction';
 
 /** Its message is shown to the operator as is. */
@@ -21,9 +23,6 @@ class ReviewError extends Error {
 		super(message);
 	}
 }
-
-const idOf = (value: number | { id: number } | null | undefined) =>
-	typeof value === 'object' ? value?.id : value;
 
 async function inTransaction<T>(
 	req: PayloadRequest,
@@ -179,25 +178,13 @@ async function reject(req: PayloadRequest): Promise<Response> {
 		return contribution;
 	});
 
-	// Imported here: the email module loads the Payload config, which loads this file.
-	const { sendContributionRejectedEmail } =
-		await import('../../server/emails/contribution');
-	try {
-		await sendContributionRejectedEmail({
-			title: rejected.title,
-			authorName: rejected.authorName,
-			authorEmail: rejected.authorEmail,
-			rejectionNote: note,
-		});
-		return Response.json({ emailSent: true });
-	} catch (error) {
-		// The refusal stands: the note stays on the Contribution for a manual reply.
-		req.payload.logger.error(
-			{ err: error },
-			'Contribution rejection email failed',
-		);
-		return Response.json({ emailSent: false });
-	}
+	// On failure the refusal stands: the note stays on the Contribution for a manual reply.
+	const emailSent = await emailContributor(
+		req,
+		(emails) => emails.sendContributionRejectedEmail(rejected, note),
+		'Contribution rejection email failed',
+	);
+	return Response.json({ emailSent });
 }
 
 const reviewHandler =

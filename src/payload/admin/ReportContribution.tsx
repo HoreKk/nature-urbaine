@@ -1,6 +1,6 @@
 import { FieldLabel } from '@payloadcms/ui';
 import type { UIFieldServerProps } from 'payload';
-import { formatAdminURL } from 'payload/shared';
+import { contributionAdminURL } from '../utilities/contribution-admin-url';
 
 const linkStyle = { color: 'inherit', textDecoration: 'underline' };
 
@@ -48,10 +48,7 @@ export const ReportContribution = async ({
 					</a>
 				)}
 				<a
-					href={formatAdminURL({
-						adminRoute: payload.config.routes.admin,
-						path: `/collections/contributions/${contribution.id}`,
-					})}
+					href={contributionAdminURL(payload, contribution.id)}
 					style={linkStyle}
 				>
 					Ouvrir la contribution

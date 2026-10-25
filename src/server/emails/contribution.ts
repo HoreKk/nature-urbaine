@@ -1,63 +1,55 @@
-import { getRequestUrl } from '@tanstack/react-start/server';
-import type { ContributionEmailInput } from '@/emails/templates/contribution/ContributionNotificationEmail';
-import type { ContributionPublishedEmailInput } from '@/emails/templates/contribution/ContributionPublishedEmail';
-import type { ContributionRejectedEmailInput } from '@/emails/templates/contribution/ContributionRejectedEmail';
+import type { ContributionNotificationEmailInput } from '@/emails/templates/contribution/ContributionNotificationEmail';
 import {
-	renderContributionEmail,
+	renderContributionNotificationEmail,
 	renderContributionPublishedEmail,
 	renderContributionRejectedEmail,
 } from '@/emails/templates/contribution/render-contribution-email';
+import type { Contribution } from '@/payload/payload-types';
+import { siteOrigin } from '../site-origin';
 import {
 	getParisTimestamp,
 	sendContributorEmail,
-	sendTemplatedEmail,
+	sendOperatorEmail,
 } from './send-email';
 
-export async function sendContributionEmail(
-	data: Omit<ContributionEmailInput, 'submittedAtParis' | 'source'>,
+type Contributor = Pick<Contribution, 'title' | 'authorName' | 'authorEmail'>;
+
+export async function sendContributionNotificationEmail(
+	data: Omit<ContributionNotificationEmailInput, 'submittedAtParis' | 'source'>,
 ): Promise<void> {
-	const rendered = await renderContributionEmail({
+	const rendered = await renderContributionNotificationEmail({
 		...data,
 		submittedAtParis: getParisTimestamp(new Date()),
 		source: '/contribuer',
 	});
 
-	await sendTemplatedEmail(rendered, data.authorEmail);
+	await sendOperatorEmail(rendered, data.authorEmail);
 }
 
 export async function sendContributionRejectedEmail(
-	data: ContributionRejectedEmailInput & { authorEmail: string },
+	{ title, authorName, authorEmail }: Contributor,
+	rejectionNote: string,
 ): Promise<void> {
 	await sendContributorEmail(
-		await renderContributionRejectedEmail(data),
-		data.authorEmail,
+		await renderContributionRejectedEmail({
+			title,
+			authorName,
+			rejectionNote,
+		}),
+		authorEmail,
 	);
 }
 
-export async function sendContributionPublishedEmail({
-	reportId,
-	...data
-}: Omit<ContributionPublishedEmailInput, 'reportUrl'> & {
-	authorEmail: string;
-	reportId: number;
-}): Promise<void> {
-	const origin = siteOrigin();
+export async function sendContributionPublishedEmail(
+	{ title, authorName, authorEmail }: Contributor,
+	reportId: number,
+): Promise<void> {
 	await sendContributorEmail(
 		await renderContributionPublishedEmail({
-			...data,
-			reportUrl: `${origin}/reports/${reportId}`,
+			title,
+			authorName,
+			reportUrl: `${siteOrigin()}/reports/${reportId}`,
 		}),
-		data.authorEmail,
+		authorEmail,
 	);
-}
-
-// A Report can be published outside a website request (script, job): no request URL then.
-function siteOrigin(): string {
-	try {
-		return getRequestUrl({ xForwardedHost: true, xForwardedProto: true })
-			.origin;
-	} catch {
-		if (process.env.SITE_URL) return new URL(process.env.SITE_URL).origin;
-		throw new Error('No request and no SITE_URL to build the report link');
-	}
 }

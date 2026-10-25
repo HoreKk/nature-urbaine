@@ -1,5 +1,6 @@
 import payloadConfig from '@payload-config';
 import { getPayload } from 'payload';
+import type { RenderedEmail } from '@/emails/render-email';
 import { createRateLimiter } from '../rate-limit';
 import { readEmailConfig } from './email-env';
 
@@ -21,12 +22,6 @@ export function getParisTimestamp(now: Date): string {
 	}).format(now);
 }
 
-interface RenderedEmail {
-	subject: string;
-	html: string;
-	text: string;
-}
-
 async function deliver(
 	rendered: RenderedEmail,
 	recipients: { to: string | string[]; replyTo: string | string[] },
@@ -46,7 +41,7 @@ async function deliver(
 }
 
 /** To the operator; replies go to the visitor who filled the form. */
-export async function sendTemplatedEmail(
+export async function sendOperatorEmail(
 	rendered: RenderedEmail,
 	replyTo: string,
 ): Promise<void> {

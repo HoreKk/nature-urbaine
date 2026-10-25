@@ -22,7 +22,7 @@ describe('renderContactEmail', () => {
 		);
 		expect(rendered.html).toContain('Nouveau message de contact');
 		expect(rendered.html).toContain('Secteur d&#x27;activité');
-		expect(rendered.html).toContain('Source: <!-- -->/contact');
+		expect(rendered.html).toContain('Source : /contact');
 		expect(rendered.text).toContain('Prénom');
 		expect(rendered.text).toContain('Message');
 		expect(rendered.text).toContain('Bonjour,');

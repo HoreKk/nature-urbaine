@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { renderContactEmail } from '@/emails/templates/contact/render-contact-email';
 import { wireContactSchema } from '../contact-contract';
 import { guardFormSubmission } from '../form-guard';
-import { getParisTimestamp, sendTemplatedEmail } from './send-email';
+import { getParisTimestamp, sendOperatorEmail } from './send-email';
 
 export const createContact = createServerFn({ method: 'POST' })
 	.validator(wireContactSchema)
@@ -22,7 +22,7 @@ export const createContact = createServerFn({ method: 'POST' })
 				source: '/contact',
 			});
 
-			await sendTemplatedEmail(rendered, data.email);
+			await sendOperatorEmail(rendered, data.email);
 
 			return { ok: true as const };
 		} catch (error) {

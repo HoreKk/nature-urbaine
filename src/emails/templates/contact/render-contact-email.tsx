@@ -1,14 +1,8 @@
-import { render, toPlainText } from 'react-email';
+import { type RenderedEmail, renderEmail } from '../../render-email';
 import {
 	ContactNotificationEmail,
 	type ContactEmailInput,
 } from './ContactNotificationEmail';
-
-type RenderedContactEmail = {
-	subject: string;
-	html: string;
-	text: string;
-};
 
 export function getContactSubject({
 	firstName,
@@ -18,16 +12,11 @@ export function getContactSubject({
 	return `[Contact] ${firstName} ${lastName} — ${sector}`;
 }
 
-export async function renderContactEmail(
+export function renderContactEmail(
 	input: ContactEmailInput,
-): Promise<RenderedContactEmail> {
-	const email = <ContactNotificationEmail {...input} />;
-	const html = await render(email);
-	const text = toPlainText(html);
-
-	return {
-		subject: getContactSubject(input),
-		html,
-		text,
-	};
+): Promise<RenderedEmail> {
+	return renderEmail(
+		<ContactNotificationEmail {...input} />,
+		getContactSubject(input),
+	);
 }

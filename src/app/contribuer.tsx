@@ -31,6 +31,7 @@ import { submitErrorMessage } from '@/server/form-guard-contract';
 import {
 	buildContributionArchive,
 	PHOTO_UNREADABLE,
+	UPLOAD_FAILED,
 	uploadArchive,
 } from '@/utils/contribution-photos';
 
@@ -55,7 +56,7 @@ const defaultValues: z.input<typeof clientContributionSchema> = {
 	pictures: [],
 	authorName: '',
 	authorEmail: '',
-	consent: false as unknown as true,
+	consent: false,
 	honeypot: '',
 };
 
@@ -64,25 +65,23 @@ type Progression =
 	| { step: 'uploading'; ratio: number }
 	| { step: 'verifying' };
 
-function progressLabel(progression: Progression): string {
+function describeProgress(progression: Progression): {
+	label: string;
+	value: number | null;
+} {
 	switch (progression.step) {
 		case 'preparing':
-			return `Préparation des photos (${progression.done}/${progression.total})…`;
+			return {
+				label: `Préparation des photos (${progression.done}/${progression.total})…`,
+				value: (progression.done / progression.total) * 100,
+			};
 		case 'uploading':
-			return `Envoi des photos (${Math.round(progression.ratio * 100)} %)…`;
+			return {
+				label: `Envoi des photos (${Math.round(progression.ratio * 100)} %)…`,
+				value: progression.ratio * 100,
+			};
 		case 'verifying':
-			return 'Vérification de l’envoi…';
-	}
-}
-
-function progressValue(progression: Progression): number | null {
-	switch (progression.step) {
-		case 'preparing':
-			return (progression.done / progression.total) * 100;
-		case 'uploading':
-			return progression.ratio * 100;
-		case 'verifying':
-			return null;
+			return { label: 'Vérification de l’envoi…', value: null };
 	}
 }
 
@@ -91,7 +90,7 @@ function contributionErrorMessage(error: unknown): string {
 	if (error.message === PHOTO_UNREADABLE) {
 		return `La photo « ${String(error.cause)} » n’a pas pu être lue. Enregistrez-la au format JPEG puis réessayez.`;
 	}
-	if (error.message.startsWith('UPLOAD_FAILED')) {
+	if (error.message === UPLOAD_FAILED) {
 		return 'L’envoi des photos a échoué. Vérifiez votre connexion puis réessayez.';
 	}
 	if (error.message === ARCHIVE_INVALID || error.message === ARCHIVE_MISSING) {
@@ -105,6 +104,7 @@ function RouteComponent() {
 	const [submitSuccess, setSubmitSuccess] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 	const [progression, setProgression] = useState<Progression | null>(null);
+	const progress = progression && describeProgress(progression);
 	const [mountedAt] = useState(() => Date.now());
 
 	const categoryOptions = categories.map((cat) => ({
@@ -118,18 +118,19 @@ function RouteComponent() {
 		onSubmit: async ({ value, formApi }) => {
 			setSubmitError(null);
 			setSubmitSuccess(false);
+			const { pictures, honeypot, category, deliveryYear, ...fields } = value;
 			try {
-				const total = value.pictures.length;
+				const total = pictures.length;
 				setProgression({ step: 'preparing', done: 0, total });
 				const { archive, photosTakenAt } = await buildContributionArchive(
-					value.pictures,
+					pictures,
 					(done) => setProgression({ step: 'preparing', done, total }),
 				);
 
 				const { upload } = await prepareContributionUpload({
 					data: {
 						archiveSize: archive.size,
-						honeypot: value.honeypot,
+						honeypot,
 						fillMs: Date.now() - mountedAt,
 					},
 				});
@@ -143,22 +144,11 @@ function RouteComponent() {
 					setProgression({ step: 'verifying' });
 					await submitContribution({
 						data: {
-							title: value.title,
-							description: value.description,
-							category: Number(value.category),
-							projectOwner: value.projectOwner,
-							projectManagement: value.projectManagement,
+							...fields,
+							category: Number(category),
 							deliveryYear:
-								value.deliveryYear === ''
-									? undefined
-									: Number(value.deliveryYear),
-							projectCost: value.projectCost,
-							projectArea: value.projectArea,
-							location: value.location,
+								deliveryYear === '' ? undefined : Number(deliveryYear),
 							photosTakenAt,
-							authorName: value.authorName,
-							authorEmail: value.authorEmail,
-							consent: true,
 							uploadKey: upload.key,
 						},
 					});
@@ -316,14 +306,14 @@ function RouteComponent() {
 						<form.AppField name="honeypot">
 							{(field) => <field.HoneypotField />}
 						</form.AppField>
-						{progression && (
+						{progress && (
 							<Progress.Root
-								value={progressValue(progression)}
+								value={progress.value}
 								size="sm"
 								colorPalette="primary"
 							>
 								<Progress.Label mb={2} fontWeight={400} color="fg.muted">
-									{progressLabel(progression)}
+									{progress.label}
 								</Progress.Label>
 								<Progress.Track>
 									<Progress.Range />
