@@ -6,7 +6,10 @@ export function siteOrigin(): string {
 		return getRequestUrl({ xForwardedHost: true, xForwardedProto: true })
 			.origin;
 	} catch {
-		if (process.env.SITE_URL) return new URL(process.env.SITE_URL).origin;
-		throw new Error('No request and no SITE_URL to build an absolute link');
+		const domain = process.env.WEBSITE_DOMAIN;
+		if (domain) return `https://${domain}`;
+		throw new Error(
+			'No request and no WEBSITE_DOMAIN to build an absolute link',
+		);
 	}
 }
