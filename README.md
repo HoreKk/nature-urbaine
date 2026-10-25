@@ -217,6 +217,15 @@ One Railway service builds from the repo root with Railpack (`packageManager` an
 | Healthcheck path   | `/`                                                                                                                   |
 | Variables          | `PAYLOAD_SECRET`, `DATABASE_URL`, the `S3_*` bucket references, SMTP and contact email variables (see `.env.example`) |
 
+`/contribuer` PUTs its zip straight from the browser to the bucket (ADR-0005), which Railway refuses without a CORS rule for the site's origin. Set it once per bucket, and again when the domain changes, with the AWS CLI from a linked checkout:
+
+```bash
+echo '{"CORSRules":[{"AllowedOrigins":["https://www.nature-urbaine.com"],"AllowedMethods":["PUT"],"AllowedHeaders":["content-type"],"MaxAgeSeconds":3600}]}' > /tmp/cors.json
+railway run --no-local -- sh -c 'AWS_ACCESS_KEY_ID="$S3_ACCESS_KEY" AWS_SECRET_ACCESS_KEY="$S3_SECRET_KEY" aws s3api put-bucket-cors --bucket "$S3_BUCKET" --endpoint-url "$S3_ENDPOINT" --region "${S3_REGION:-auto}" --cors-configuration file:///tmp/cors.json'
+```
+
+The local RustFS bucket has no rule, so it accepts every origin.
+
 Without `S3_*` on Railway the app refuses to boot (`src/payload/storage/index.ts`), so uploads can't land on the container disk. `railway.json` is deprecated by Railway: build and start come from `package.json` and `railpack.json`, while the pre-deploy command, healthcheck and variables live in the service settings.
 
 ---
