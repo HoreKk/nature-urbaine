@@ -199,7 +199,7 @@ Uploads go to the local RustFS object store (S3 API on `:9100`, console on `:910
 
 ### Picture variants
 
-Every upload (`pictures`, `interview-pictures`, `media`) gets three variants (`src/payload/image-variants.ts`): a 400×300 `thumbnail` crop for cards and grids, and uncropped `medium` (1024 px wide) and `large` (2048 px wide) WebP files. The report and interview banners, carousels and lightboxes only use `medium`/`large` through `srcSet`; they fall back to the original only for a row without variants.
+Every upload (`pictures`, `interview-pictures`, `media`) gets three variants (`src/payload/storage/image-variants.ts`): a 400×300 `thumbnail` crop for cards and grids, and uncropped `medium` (1024 px wide) and `large` (2048 px wide) WebP files. The report and interview banners, carousels and lightboxes only use `medium`/`large` through `srcSet`; they fall back to the original only for a row without variants.
 
 To reproduce a large report locally, `pnpm storage:fixtures:large-report` (with the RustFS `S3_*` variables set) creates « Reportage de test · 240 photos » (`FIXTURE_COUNT=5` for « … · 5 photos »).
 
@@ -217,7 +217,7 @@ One Railway service builds from the repo root with Railpack (`packageManager` an
 | Healthcheck path   | `/`                                                                                                                   |
 | Variables          | `PAYLOAD_SECRET`, `DATABASE_URL`, the `S3_*` bucket references, SMTP and contact email variables (see `.env.example`) |
 
-Without `S3_*` on Railway the app refuses to boot (`src/payload/storage.ts`), so uploads can't land on the container disk. `railway.json` is deprecated by Railway: build and start come from `package.json` and `railpack.json`, while the pre-deploy command, healthcheck and variables live in the service settings.
+Without `S3_*` on Railway the app refuses to boot (`src/payload/storage/index.ts`), so uploads can't land on the container disk. `railway.json` is deprecated by Railway: build and start come from `package.json` and `railpack.json`, while the pre-deploy command, healthcheck and variables live in the service settings.
 
 ---
 

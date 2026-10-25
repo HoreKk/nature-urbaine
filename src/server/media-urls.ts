@@ -1,6 +1,6 @@
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { storageCollections } from '@/payload/storage-collections';
+import { storageCollections } from '@/payload/storage/collections';
 import { getBucketClient, readBucketConfig } from './bucket';
 
 // Railway buckets are private and the CMS answers with an uncacheable presigned 302 per

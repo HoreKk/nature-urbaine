@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload';
-import { adminGroups } from '../admin-groups';
-import { DEFAULT_CONTACT_SECTOR_GROUPS } from './contact-sectors';
+import { adminGroups } from '../admin/groups';
+import { DEFAULT_CONTACT_SECTOR_GROUPS } from '../fields/contact-sectors';
 
 export const Forms: GlobalConfig = {
 	slug: 'forms',

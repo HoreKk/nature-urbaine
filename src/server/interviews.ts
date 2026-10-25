@@ -1,3 +1,4 @@
+import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html';
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import type { PaginatedDocs } from 'payload';
@@ -7,7 +8,6 @@ import type {
 	InterviewPicture,
 	Media,
 } from '@/payload/payload-types';
-import { convertLexicalToHTML } from '@/payload/utils/lexical';
 import { pickRandom } from '@/utils/tools';
 import { baseProcedure } from './db';
 import { withMediaUrls } from './media-urls';

@@ -1,6 +1,6 @@
 import { getPayload } from 'payload';
 import config from '../default-config';
-import { assertLocalDatabase } from '../utils/local-database';
+import { assertLocalDatabase } from '../utilities/local-database';
 import seedCategories from './categories';
 import seedInterviews from './interviews';
 import seedReports from './reports';

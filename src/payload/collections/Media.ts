@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { adminGroups } from '../admin-groups';
+import { adminGroups } from '../admin/groups';
 
 export const Media: CollectionConfig = {
 	slug: 'media',

@@ -1,7 +1,7 @@
 import { Button, ChevronIcon } from '@payloadcms/ui';
 import type { BeforeDocumentControlsServerProps } from 'payload';
 import { formatAdminURL } from 'payload/shared';
-import type { PictureNavTarget } from '../collections/picture-collection';
+import type { PictureNavTarget } from '../utilities/picture-collection';
 
 type DocId = number | string;
 

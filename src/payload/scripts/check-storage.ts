@@ -5,7 +5,7 @@
 import { HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import pg from 'pg';
 import { readS3Env } from '../storage';
-import { storageCollections } from '../storage-collections';
+import { storageCollections } from '../storage/collections';
 
 type Job = {
 	collection: string;

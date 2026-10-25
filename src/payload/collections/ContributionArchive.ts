@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { loggedIn } from '../access';
-import { adminGroups } from '../admin-groups';
+import { adminGroups } from '../admin/groups';
 
 /** The zip of a Contribution's photos: only the operator downloads it (ADR-0005). */
 export const ContributionArchives: CollectionConfig = {

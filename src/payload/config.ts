@@ -22,8 +22,8 @@ import { Tags } from './collections/Tag';
 import { TagCategories } from './collections/TagCategory';
 import { Users } from './collections/Users';
 import { Forms } from './globals/Forms';
-import { pictureVariants } from './image-variants';
 import { storageAdapter, storageCoverageGuard } from './storage';
+import { pictureVariants } from './storage/image-variants';
 
 // One process serves site, admin and uploads: libvips' cache and per-core threads
 // add hundreds of MB of RSS per ~50 MB decode. Uploads are rare; keep them lean.
@@ -150,7 +150,7 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 		// v4 lowered the default from 2 to 1; the website's queries rely on 2.
 		defaultDepth: 2,
 		graphQL: { disable: true },
-		// Order sets the admin sidebar groups' order (see `admin-groups.ts`).
+		// Order sets the admin sidebar groups' order (see `admin/groups.ts`).
 		collections: [
 			Contributions,
 			ContributionArchives,

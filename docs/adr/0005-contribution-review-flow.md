@@ -28,7 +28,7 @@ The browser reads each photo's EXIF date, downscales it to a 2560 px long edge (
 
 Payload's own direct-to-bucket uploads (`clientUploads` with `getUploadInstructions`) were set aside: the option applies to every collection of the storage adapter, so it would also move the admin's photo uploads onto that path, and registering the uploaded object goes through `payload/internal` helpers of a beta release. The server downloads the zip to check it anyway, so storing it through the Local API costs one upload inside the host's network.
 
-The zip lives in a private upload collection, `contribution-archives` (zip only, no variants, logged-in read), listed in `storage-collections.ts`. The Contribution's `archive` field points to it.
+The zip lives in a private upload collection, `contribution-archives` (zip only, no variants, logged-in read), listed in `storage/collections.ts`. The Contribution's `archive` field points to it.
 
 ### Lifecycle
 

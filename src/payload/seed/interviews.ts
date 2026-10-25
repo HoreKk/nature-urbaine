@@ -4,10 +4,10 @@ import {
 } from '@payloadcms/richtext-lexical';
 import { JSDOM } from 'jsdom';
 import type { Payload } from 'payload';
-import { DEFAULT_INTERVIEW_QUESTIONS } from '../collections/interview-questions';
 import payloadConfig from '../default-config';
-import { createOnce, interviewKey } from '../utils/seed-once';
-import { cleanString, readExcelSheet } from '../utils/tools';
+import { DEFAULT_INTERVIEW_QUESTIONS } from '../fields/interview-questions';
+import { cleanString, readExcelSheet } from './excel';
+import { createOnce, interviewKey } from './seed-once';
 
 type ExcelInterview = {
 	'Ville // Département': string;

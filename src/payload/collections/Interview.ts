@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
-import { adminGroups } from '../admin-groups';
-import { DEFAULT_INTERVIEW_QUESTIONS } from './interview-questions';
+import { adminGroups } from '../admin/groups';
+import { DEFAULT_INTERVIEW_QUESTIONS } from '../fields/interview-questions';
 
 export const Interviews: CollectionConfig = {
 	slug: 'interviews',

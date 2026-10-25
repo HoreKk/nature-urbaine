@@ -1,7 +1,7 @@
 import { s3Storage } from '@payloadcms/storage-s3';
 import type { Plugin, StorageAdapter } from 'payload';
 
-import { storageCollections } from './storage-collections';
+import { storageCollections } from './collections';
 
 export function readS3Env() {
 	const bucket = process.env.S3_BUCKET;
@@ -40,7 +40,7 @@ function assertUploadsCovered(slugs: string[]) {
 	);
 	if (uncovered.length === 0) return;
 	throw new Error(
-		`[storage] Upload collection(s) ${uncovered.join(', ')} are not in storageCollections (src/payload/storage.ts). ` +
+		`[storage] Upload collection(s) ${uncovered.join(', ')} are not in storageCollections (src/payload/storage/index.ts). ` +
 			'Their files would be written to the container disk and lost on redeploy.',
 	);
 }

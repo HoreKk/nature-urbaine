@@ -1,5 +1,5 @@
 import type { Access, CollectionConfig, CollectionSlug, Field } from 'payload';
-import { adminGroups } from '../admin-groups';
+import { adminGroups } from '../admin/groups';
 
 /** Collections whose `relatedPictures` join orders a photo collection. */
 export type GalleryOwnerSlug = 'reports' | 'interviews';

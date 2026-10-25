@@ -1,8 +1,11 @@
 import type { CollectionConfig, FieldAccess } from 'payload';
 import { loggedIn } from '../access';
-import { adminGroups } from '../admin-groups';
-import { contributionReviewEndpoints } from '../contribution-review';
-import { locationDetailsField, projectDetailsField } from './report-fields';
+import { adminGroups } from '../admin/groups';
+import { contributionReviewEndpoints } from '../endpoints/contribution-review';
+import {
+	locationDetailsField,
+	projectDetailsField,
+} from '../fields/report-fields';
 
 /** What the Contributeur sent stays correctable until Valider or Refuser (ADR-0005). */
 const editableWhilePending: FieldAccess = ({ doc }) =>

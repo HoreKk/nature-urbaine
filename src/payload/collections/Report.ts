@@ -1,9 +1,12 @@
 import type { CollectionConfig } from 'payload';
 import { readPublishedReports } from '../access';
-import { adminGroups } from '../admin-groups';
-import { publishContributionHook } from '../contribution-review';
-import { computeReportNameHook, getSeasonFromDate } from '../utils/hooks';
-import { locationDetailsField, projectDetailsField } from './report-fields';
+import { adminGroups } from '../admin/groups';
+import {
+	locationDetailsField,
+	projectDetailsField,
+} from '../fields/report-fields';
+import { publishContributionHook } from '../hooks/publish-contribution';
+import { computeReportNameHook, getSeasonFromDate } from '../hooks/report-name';
 
 export const Reports: CollectionConfig = {
 	slug: 'reports',

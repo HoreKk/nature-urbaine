@@ -1,5 +1,5 @@
 import { readPublishedReportPictures } from '../access';
-import { pictureCollection } from './picture-collection';
+import { pictureCollection } from '../utilities/picture-collection';
 
 // The slug predates Interview photos; renaming it would move ~19k rows and objects.
 export const Pictures = pictureCollection({

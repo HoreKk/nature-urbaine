@@ -1,8 +1,8 @@
 import type { Payload } from 'payload';
-import { CITY_STRATUM_OPTIONS } from '../collections/report-fields';
-import { computeReportName } from '../utils/hooks';
-import { createOnce, reportKey } from '../utils/seed-once';
-import { cleanString, readExcelSheet } from '../utils/tools';
+import { CITY_STRATUM_OPTIONS } from '../fields/report-fields';
+import { computeReportName } from '../hooks/report-name';
+import { cleanString, readExcelSheet } from './excel';
+import { createOnce, reportKey } from './seed-once';
 
 type ExcelReport = {
 	PAYS: string;

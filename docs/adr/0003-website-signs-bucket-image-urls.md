@@ -34,7 +34,7 @@ Admin, API and site now run in one TanStack Start process; this decision still h
 
 The migration trigger below fired. Report pages with 200+ Pictures loaded the ~4000×3000 originals in the banner, carousel and lightbox. A browser kept every visited slide decoded (~46 MB each, 1.15 GB after 20 photos), and report 752 alone references 787 MB of originals.
 
-- `Picture` gets two uncropped WebP variants next to `thumbnail`: `medium` (1024 px wide) and `large` (2048 px wide), both `withoutEnlargement`. They are defined once in `src/payload/image-variants.ts`.
+- `Picture` gets two uncropped WebP variants next to `thumbnail`: `medium` (1024 px wide) and `large` (2048 px wide), both `withoutEnlargement`. They are defined once in `src/payload/storage/image-variants.ts`.
 - The "Sizes" rule above changes:
   - Carousels and lightboxes now get `medium` + `large` in `srcSet`, and the original only while a row has no variant yet.
   - Heroes get `thumbnail` + `medium` + `large`.

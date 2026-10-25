@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { adminGroups } from '../admin-groups';
+import { adminGroups } from '../admin/groups';
 
 const HEX_COLOR = /^#[0-9A-F]{6}$/i;
 

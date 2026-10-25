@@ -1,6 +1,6 @@
 # One photo collection per gallery owner, built from a shared factory
 
-Reports and Interviews each own an ordered photo gallery with the same admin UI, the same website components and the same "first photo is the Vignette" rule. Each owner gets its own upload collection (`pictures` for Reports, `interview-pictures` for Interviews), both produced by `pictureCollection()` in `src/payload/collections/picture-collection.ts`, and both joined from their owner through a join named `relatedPictures`.
+Reports and Interviews each own an ordered photo gallery with the same admin UI, the same website components and the same "first photo is the Vignette" rule. Each owner gets its own upload collection (`pictures` for Reports, `interview-pictures` for Interviews), both produced by `pictureCollection()` in `src/payload/utilities/picture-collection.ts`, and both joined from their owner through a join named `relatedPictures`.
 
 ## Status
 
@@ -23,7 +23,7 @@ Production holds ~19.3k Report photos in `pictures`, keyed by `report_id`, and t
 - **Same join on both owners.** `Report.relatedPictures` and `Interview.relatedPictures` are identical joins (`orderable`, `defaultLimit: 0`), so server functions, the admin and the glossary read the same way for both.
 - **Interview photos are untagged.** Tag search covers Report photos only (ADR-0002); `relatedTags` stays specific to `pictures`.
 - **Legacy thumbnails were copied, not re-pointed.** A one-off `storage:backfill:interview-media` created an `InterviewPicture` from each Interview `thumbnail` after the deploy, and generated the Media variants (12 thumbnails, 89 Media rows, on 2026-10-23). `thumbnail` was then dropped by a second migration and the script was deleted. The Media rows stay.
-- **Every upload collection is listed once**, in `storage-collections.ts`: the storage prefix, the website's URL signing and `storage:check` all follow that list.
+- **Every upload collection is listed once**, in `storage/collections.ts`: the storage prefix, the website's URL signing and `storage:check` all follow that list.
 
 ## Considered alternatives
 
@@ -33,7 +33,7 @@ Production holds ~19.3k Report photos in `pictures`, keyed by `report_id`, and t
 
 ## Consequences
 
-- A third upload collection must be wired wherever uploads are enumerated: `storage-collections.ts`, the sharp transformer config, and the bucket prefix `interview-pictures/`. `storageCoverageGuard` refuses to start if the list is incomplete.
+- A third upload collection must be wired wherever uploads are enumerated: `storage/collections.ts`, the sharp transformer config, and the bucket prefix `interview-pictures/`. `storageCoverageGuard` refuses to start if the list is incomplete.
 - `interview-pictures` photos appear in a separate admin list from Report photos. Editors manage both from the owner's form.
 - Giving a third entity a gallery means a third collection from the same factory and a `relatedPictures` join on the owner, nothing else.
 - Making Interview photos searchable later means adding `relatedTags` to `interview-pictures` and a second query in tag search, not a model change.
