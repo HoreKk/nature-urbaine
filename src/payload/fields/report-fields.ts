@@ -10,9 +10,8 @@ export const CITY_STRATUM_OPTIONS = [
 	{ label: 'Plus de 100 000 hab.', value: 'plus-de-100000' },
 ] as const;
 
-// Builders, not constants: Payload sanitizes field configs in place, so two
-// collections must never share one object. A Contribution and the Report
-// created from it hold the same groups, which Valider copies as they are.
+// Builders, not constants: Payload sanitizes field configs in place, so a
+// Contribution and its Report must never share one object.
 
 export const locationDetailsField = (): GroupField => ({
 	name: 'locationDetails',

@@ -29,7 +29,6 @@ function daysAgo(value: string, now: Date) {
 	return relativeFormat.format(-days, 'day');
 }
 
-/** First day of each of the last 12 months, oldest first. */
 function lastMonths(now: Date) {
 	return Array.from({ length: MONTHS_SHOWN }, (_, index) => {
 		const month = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -113,7 +112,6 @@ async function loadQueue(req: PayloadRequest) {
 	};
 }
 
-/** The review queue (ADR-0005): counts per status, waiting time, recent arrivals. */
 export const ContributionsWidget = async ({ req }: WidgetServerProps) => {
 	const { payload } = req;
 	const { counts, bars, max, oldestReceived, pending } = await loadQueue(req);
@@ -138,7 +136,6 @@ export const ContributionsWidget = async ({ req }: WidgetServerProps) => {
 					Toutes les contributions
 				</a>
 			</div>
-
 			<div className="stats-widget__kpis">
 				{STATUSES.map(({ value, label }, index) => (
 					<a key={value} className="stats-widget__kpi" href={listURL(value)}>
@@ -149,7 +146,6 @@ export const ContributionsWidget = async ({ req }: WidgetServerProps) => {
 					</a>
 				))}
 			</div>
-
 			<div className="stats-widget__lists">
 				<div className="stats-widget__chart">
 					<span className="stats-widget__section-title">Reçues par mois</span>
@@ -170,7 +166,6 @@ export const ContributionsWidget = async ({ req }: WidgetServerProps) => {
 						<span>{bars.at(-1)?.label}</span>
 					</div>
 				</div>
-
 				<div className="stats-widget__list">
 					<span className="stats-widget__section-title">
 						Dernières à traiter

@@ -31,7 +31,6 @@ async function readMessage(response: Response): Promise<string> {
 	return body.message ?? 'Une erreur est survenue. Réessayez.';
 }
 
-/** Valider and Refuser, next to « Sauvegarder », while the transition is allowed. */
 export function ContributionReview() {
 	const { id } = useDocumentInfo();
 	const status = useFormFields(([fields]) => fields.status?.value);
@@ -150,7 +149,6 @@ export function ContributionReview() {
 			>
 				Refuser
 			</Button>
-
 			<DialogModal slug={ACCEPT_MODAL} size="medium">
 				<DialogHeader showClose title="Valider la contribution" />
 				<DialogBody>
@@ -179,7 +177,6 @@ export function ContributionReview() {
 					/>
 				</DialogFooter>
 			</DialogModal>
-
 			<DialogModal slug={REJECT_MODAL} size="medium">
 				<DialogHeader showClose title="Refuser la contribution" />
 				<DialogBody>

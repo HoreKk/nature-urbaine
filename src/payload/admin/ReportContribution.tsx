@@ -4,7 +4,6 @@ import { formatAdminURL } from 'payload/shared';
 
 const linkStyle = { color: 'inherit', textDecoration: 'underline' };
 
-/** Where a Report's photos came from, when Valider created it (ADR-0005). */
 export const ReportContribution = async ({
 	id,
 	payload,

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { formGuardFields } from './form-guard-contract';
 
-/** Error codes the page turns into messages. */
 export const ARCHIVE_INVALID = 'ARCHIVE_INVALID';
 export const ARCHIVE_MISSING = 'ARCHIVE_MISSING';
 export const UPLOADS_UNAVAILABLE = 'UPLOADS_UNAVAILABLE';

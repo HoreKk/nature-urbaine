@@ -1,9 +1,5 @@
-/**
- * `/contribuer` uploads its zip straight from the browser to the bucket (ADR-0005),
- * which the bucket refuses without a CORS rule for the site's origins. Run once per
- * bucket, and again when a domain changes: `pnpm storage:cors`. It replaces the
- * bucket's CORS rules; downloads need none (images are plain <img> requests).
- */
+// `/contribuer` PUTs its zip straight to the bucket, refused without a CORS rule
+// for the site's origins: rerun when a domain changes. Replaces the bucket's rules.
 import {
 	GetBucketCorsCommand,
 	PutBucketCorsCommand,

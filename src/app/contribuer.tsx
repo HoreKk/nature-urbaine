@@ -343,7 +343,7 @@ function RouteComponent() {
 								<Alert.Indicator />
 								<Alert.Content>
 									<Alert.Description>
-										Merci ! Vos photographies ont bien été envoyées. Nous vous
+										Merci, vos photographies ont bien été envoyées. Nous vous
 										écrirons dès leur mise en ligne.
 									</Alert.Description>
 								</Alert.Content>

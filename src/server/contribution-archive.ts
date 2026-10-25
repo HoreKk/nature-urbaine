@@ -7,11 +7,8 @@ import {
 
 const JPEG_SIGNATURE = [0xff, 0xd8, 0xff];
 
-/**
- * The browser re-encodes every photo to JPEG before zipping, so anything else in
- * the archive did not come from our form. The operator unzips it on their own
- * machine: check contents by signature, and cap the unpacked size before inflating.
- */
+// The form only zips JPEGs, and the operator unzips this on their own machine:
+// check signatures, and cap the unpacked size before inflating.
 export function inspectContributionArchive(bytes: Uint8Array): {
 	pictureCount: number;
 } {
