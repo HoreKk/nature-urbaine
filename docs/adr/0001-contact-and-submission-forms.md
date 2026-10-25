@@ -6,6 +6,8 @@
 
 accepted — 2026-05-01
 
+The `/contribuer` part (the `Submission` collection, its fields, the promote hook, photo handling, contributor identity, its notifications and its cross-link) is superseded by ADR-0005. The `/contact` part still stands.
+
 ## Context
 
 Going into this decision, `src/routes/contact.tsx` was a confused hybrid (eyebrow `"Contact · Contribution"`, fields shaped like a contribution form) and `src/routes/contribuer.tsx` was a placeholder. The cahier des charges describes them as two distinct top-level pages with different field sets, audiences, and downstream flows. GLOSSARY.md §12 had this as an open question: should the contribution form persist to a collection or just send email.

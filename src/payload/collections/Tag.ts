@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { adminGroups } from '../admin/groups';
 
 export const Tags: CollectionConfig = {
 	slug: 'tags',
@@ -12,6 +13,7 @@ export const Tags: CollectionConfig = {
 		plural: 'Étiquettes',
 	},
 	admin: {
+		group: adminGroups.taxonomy,
 		useAsTitle: 'name',
 	},
 	fields: [

@@ -1,5 +1,6 @@
 import payloadConfig from '@payload-config';
 import { getPayload } from 'payload';
+import type { RenderedEmail } from '@/emails/render-email';
 import { createRateLimiter } from '../rate-limit';
 import { readEmailConfig } from './email-env';
 
@@ -21,28 +22,36 @@ export function getParisTimestamp(now: Date): string {
 	}).format(now);
 }
 
-interface RenderedEmail {
-	subject: string;
-	html: string;
-	text: string;
-}
-
-export async function sendTemplatedEmail(
+async function deliver(
 	rendered: RenderedEmail,
-	replyTo: string,
+	recipients: { to: string | string[]; replyTo: string | string[] },
 ): Promise<void> {
 	if (!dailyEmails.consume('all')) {
 		throw new Error('EMAIL_DAILY_CAP_REACHED');
 	}
 
-	const emailConfig = readEmailConfig();
 	const payload = await getPayload({ config: payloadConfig });
 
 	await payload.sendEmail({
-		to: emailConfig.to,
-		replyTo,
+		...recipients,
 		subject: rendered.subject,
 		html: rendered.html,
 		text: rendered.text,
 	});
+}
+
+/** To the operator; replies go to the visitor who filled the form. */
+export async function sendOperatorEmail(
+	rendered: RenderedEmail,
+	replyTo: string,
+): Promise<void> {
+	await deliver(rendered, { to: readEmailConfig().to, replyTo });
+}
+
+/** To a Contributeur; replies go to the operator. */
+export async function sendContributorEmail(
+	rendered: RenderedEmail,
+	to: string,
+): Promise<void> {
+	await deliver(rendered, { to, replyTo: readEmailConfig().to });
 }

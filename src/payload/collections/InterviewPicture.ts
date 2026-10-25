@@ -1,4 +1,4 @@
-import { pictureCollection } from './picture-collection';
+import { pictureCollection } from '../utilities/picture-collection';
 
 // No tags: tag search only covers Report photos (see `tags.ts`).
 export const InterviewPictures = pictureCollection({

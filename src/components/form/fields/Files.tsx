@@ -58,7 +58,7 @@ export function FilesField({
 					const hasRejectedFiles = details.files.length > 0;
 					setUploadError(
 						hasRejectedFiles
-							? `Certains fichiers ont ete refuses. Verifiez le format (${accept.join(', ')}) et la taille maximale.`
+							? `Certains fichiers ont été refusés. Vérifiez le format (${accept.join(', ')}) et la taille maximale.`
 							: 'Certains fichiers ne sont pas valides.',
 					);
 				}}
@@ -80,7 +80,7 @@ export function FilesField({
 						<Stack align="center" gap={2} textAlign="center">
 							<Icon as={LuImagePlus} boxSize={5} color="fg.muted" />
 							<Text color="fg" fontWeight={500}>
-								Deposez vos images ici
+								Déposez vos photos ici
 							</Text>
 							<Text color="fg.muted" fontSize="sm">
 								ou cliquez pour parcourir vos fichiers

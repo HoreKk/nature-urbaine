@@ -10,16 +10,19 @@ import {
 	Section,
 	Text,
 } from 'react-email';
+import { colors, fonts, labelText } from '../theme';
 
 type MainEmailLayoutProps = {
 	preheader: string;
 	title: string;
+	footer?: string;
 	children: ReactNode;
 };
 
 export function MainEmailLayout({
 	preheader,
 	title,
+	footer = 'Ce message provient d’un formulaire du site Nature Urbaine.',
 	children,
 }: MainEmailLayoutProps) {
 	return (
@@ -37,9 +40,7 @@ export function MainEmailLayout({
 					<Section style={styles.content}>{children}</Section>
 					<Hr style={styles.separator} />
 					<Section style={styles.footer}>
-						<Text style={styles.footerText}>
-							Ce message provient du formulaire de contact Nature Urbaine.
-						</Text>
+						<Text style={styles.footerText}>{footer}</Text>
 					</Section>
 				</Container>
 			</Body>
@@ -49,14 +50,14 @@ export function MainEmailLayout({
 
 const styles = {
 	body: {
-		backgroundColor: '#f3eee7',
-		fontFamily: 'Instrument Sans, Arial, sans-serif',
+		backgroundColor: colors.sand,
+		fontFamily: fonts.sans,
 		margin: 0,
 		padding: '24px 12px',
 	},
 	container: {
-		backgroundColor: '#fdfaf4',
-		border: '1px solid #ddd3c7',
+		backgroundColor: colors.paper,
+		border: `1px solid ${colors.line}`,
 		borderRadius: '8px',
 		margin: '0 auto',
 		maxWidth: '620px',
@@ -66,16 +67,12 @@ const styles = {
 		marginBottom: '16px',
 	},
 	kicker: {
-		color: '#6f665b',
-		fontFamily: 'JetBrains Mono, monospace',
-		fontSize: '11px',
-		letterSpacing: '0.08em',
+		...labelText,
 		margin: '0 0 8px',
-		textTransform: 'uppercase' as const,
 	},
 	title: {
-		color: '#1b1d1a',
-		fontFamily: 'Newsreader, Georgia, serif',
+		color: colors.ink,
+		fontFamily: fonts.serif,
 		fontSize: '30px',
 		fontWeight: 500,
 		lineHeight: '1.2',
@@ -85,14 +82,14 @@ const styles = {
 		margin: 0,
 	},
 	separator: {
-		borderColor: '#ddd3c7',
+		borderColor: colors.line,
 		margin: '24px 0 16px',
 	},
 	footer: {
 		marginTop: 0,
 	},
 	footerText: {
-		color: '#6f665b',
+		color: colors.muted,
 		fontSize: '12px',
 		lineHeight: '1.6',
 		margin: 0,

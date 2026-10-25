@@ -11,18 +11,19 @@ import sharp from 'sharp';
 
 import { getUmamiConfig } from '../server/umami';
 import { Categories } from './collections/Category';
+import { Contributions } from './collections/Contribution';
+import { ContributionArchives } from './collections/ContributionArchive';
 import { Interviews } from './collections/Interview';
 import { InterviewPictures } from './collections/InterviewPicture';
 import { Media } from './collections/Media';
 import { Pictures } from './collections/Picture';
 import { Reports } from './collections/Report';
-import { Submissions } from './collections/Submission';
 import { Tags } from './collections/Tag';
 import { TagCategories } from './collections/TagCategory';
 import { Users } from './collections/Users';
 import { Forms } from './globals/Forms';
-import { pictureVariants } from './image-variants';
 import { storageAdapter, storageCoverageGuard } from './storage';
+import { pictureVariants } from './storage/image-variants';
 
 // One process serves site, admin and uploads: libvips' cache and per-core threads
 // add hundreds of MB of RSS per ~50 MB decode. Uploads are rare; keep them lean.
@@ -101,6 +102,12 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 			dashboard: {
 				widgets: [
 					{
+						slug: 'contributions',
+						label: 'Contributions',
+						Component: '/payload/admin/ContributionsWidget#ContributionsWidget',
+						minWidth: 'medium',
+					},
+					{
 						slug: 'analytics',
 						label: 'Audience du site',
 						Component: '/payload/admin/AnalyticsWidget#AnalyticsWidget',
@@ -120,13 +127,14 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 						minWidth: 'medium',
 					},
 				],
-				// Built-in defaults plus the audience widget once Umami is configured.
+				// The contributions queue, audience (once Umami is configured) and
+				// collection links: no pinned / recently viewed tabs.
 				defaultLayout: () => [
 					{ widgetSlug: 'welcome', width: 'full' },
+					{ widgetSlug: 'contributions', width: 'full' },
 					...(getUmamiConfig()
 						? [{ widgetSlug: 'analytics' as const, width: 'full' as const }]
 						: []),
-					{ widgetSlug: 'activity', width: 'full' },
 					{ widgetSlug: 'collections', width: 'full' },
 				],
 			},
@@ -142,14 +150,16 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 		// v4 lowered the default from 2 to 1; the website's queries rely on 2.
 		defaultDepth: 2,
 		graphQL: { disable: true },
+		// Order sets the admin sidebar groups' order (see `admin/groups.ts`).
 		collections: [
-			Media,
+			Contributions,
+			ContributionArchives,
 			Reports,
 			Interviews,
 			Pictures,
 			InterviewPictures,
+			Media,
 			Categories,
-			Submissions,
 			Tags,
 			TagCategories,
 			Users,

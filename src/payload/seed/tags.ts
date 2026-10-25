@@ -1,6 +1,6 @@
 import type { Payload } from 'payload';
-import { createOnce, tagCategoryKey, tagKey } from '../utils/seed-once';
-import { cleanString, readExcelSheet } from '../utils/tools';
+import { cleanString, readExcelSheet } from './excel';
+import { createOnce, tagCategoryKey, tagKey } from './seed-once';
 
 type ExcelTags = {
 	category: string;

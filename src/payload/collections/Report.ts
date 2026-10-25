@@ -1,34 +1,35 @@
 import type { CollectionConfig } from 'payload';
-import { computeReportNameHook, getSeasonFromDate } from '../utils/hooks';
-
-export const CITY_STRATUM_OPTIONS = [
-	{ label: 'Moins de 500 hab.', value: 'moins-de-500' },
-	{ label: 'De 500 à 2 000 hab.', value: '500-a-2000' },
-	{ label: 'De 2 000 à 3 500 hab.', value: '2000-a-3500' },
-	{ label: 'De 3 500 à 10 000 hab.', value: '3500-a-10000' },
-	{ label: 'De 10 000 à 30 000 hab.', value: '10000-a-30000' },
-	{ label: 'De 30 000 à 100 000 hab.', value: '30000-a-100000' },
-	{ label: 'Plus de 100 000 hab.', value: 'plus-de-100000' },
-] as const;
+import { readPublishedReports } from '../access';
+import { adminGroups } from '../admin/groups';
+import {
+	locationDetailsField,
+	projectDetailsField,
+} from '../fields/report-fields';
+import { publishContributionHook } from '../hooks/publish-contribution';
+import { computeReportNameHook, getSeasonFromDate } from '../hooks/report-name';
 
 export const Reports: CollectionConfig = {
 	slug: 'reports',
-	// Public catalog data: the website reads it without a user (Payload 4
-	// enforces access on the Local API by default).
+	// The website reads without a user, so this rule is what keeps drafts off it.
 	access: {
-		read: () => true,
+		read: readPublishedReports,
 	},
 	labels: {
 		singular: 'Reportage',
 		plural: 'Reportages',
 	},
+	// Drafts save incomplete, as Valider creates them (ADR-0005); publishing validates.
 	versions: {
 		drafts: {
-			validate: true,
+			validate: false,
 		},
 	},
 	admin: {
+		group: adminGroups.content,
 		useAsTitle: 'name',
+	},
+	hooks: {
+		afterChange: [publishContributionHook],
 	},
 	fields: [
 		{
@@ -75,64 +76,7 @@ export const Reports: CollectionConfig = {
 			type: 'text',
 			label: 'Nom du projet',
 		},
-		{
-			name: 'locationDetails',
-			type: 'group',
-			label: 'Localisation',
-			fields: [
-				{
-					type: 'row',
-					fields: [
-						{
-							name: 'country',
-							type: 'text',
-							label: 'Pays',
-						},
-						{
-							name: 'city',
-							type: 'text',
-							label: 'Ville',
-						},
-						{
-							name: 'postalCode',
-							type: 'text',
-							label: 'Code postal',
-						},
-					],
-				},
-				{
-					name: 'address',
-					type: 'text',
-					label: 'Adresse',
-				},
-				{
-					type: 'row',
-					fields: [
-						{
-							name: 'departmentCode',
-							type: 'text',
-							label: 'Code département',
-						},
-						{
-							name: 'department',
-							type: 'text',
-							label: 'Département',
-						},
-						{
-							name: 'region',
-							type: 'text',
-							label: 'Région',
-						},
-					],
-				},
-				{
-					name: 'cityStratum',
-					type: 'select',
-					label: 'Strate de la ville',
-					options: [...CITY_STRATUM_OPTIONS],
-				},
-			],
-		},
+		locationDetailsField(),
 		{
 			name: 'relatedPictures',
 			type: 'join',
@@ -145,6 +89,16 @@ export const Reports: CollectionConfig = {
 				defaultColumns: ['filename'],
 			},
 			hasMany: true,
+		},
+		{
+			name: 'contribution',
+			type: 'ui',
+			admin: {
+				position: 'sidebar',
+				components: {
+					Field: '/payload/admin/ReportContribution#ReportContribution',
+				},
+			},
 		},
 		{
 			name: 'category',
@@ -194,53 +148,13 @@ export const Reports: CollectionConfig = {
 				readOnly: true,
 			},
 		},
-		{
-			name: 'projectDetails',
-			type: 'group',
-			label: 'Détails du projet',
-			fields: [
-				{
-					type: 'row',
-					fields: [
-						{
-							name: 'projectOwner',
-							type: 'text',
-							label: "Maître d'ouvrage",
-						},
-						{
-							name: 'projectManagement',
-							type: 'text',
-							label: "Maître d'oeuvre",
-						},
-					],
-				},
-				{
-					type: 'row',
-					fields: [
-						{
-							name: 'deliveryYear',
-							type: 'number',
-							label: 'Année de livraison',
-						},
-						{
-							name: 'projectCost',
-							type: 'text',
-							label: 'Coût',
-						},
-						{
-							name: 'projectArea',
-							type: 'text',
-							label: 'Superficie',
-						},
-					],
-				},
-				{
-					name: 'photoAuthor',
-					type: 'text',
-					label: 'Auteur des photographies',
-				},
-			],
-		},
+		projectDetailsField([
+			{
+				name: 'photoAuthor',
+				type: 'text',
+				label: 'Auteur des photographies',
+			},
+		]),
 	],
 	authorship: false,
 };

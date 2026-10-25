@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { adminGroups } from '../admin/groups';
 
 export const Users: CollectionConfig = {
 	slug: 'users',
@@ -7,6 +8,7 @@ export const Users: CollectionConfig = {
 		plural: 'Administrateurs',
 	},
 	admin: {
+		group: adminGroups.settings,
 		useAsTitle: 'email',
 	},
 	auth: {

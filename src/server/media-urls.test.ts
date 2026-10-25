@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { storageCollections } from '@/payload/storage-collections';
+import { storageCollections } from '@/payload/storage/collections';
 import { objectKeyFromPath, signUploadUrl, withMediaUrls } from './media-urls';
 
 const ORIGINAL_ENV = process.env;

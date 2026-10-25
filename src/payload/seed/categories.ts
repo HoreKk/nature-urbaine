@@ -1,6 +1,6 @@
 import type { Payload } from 'payload';
-import { createOnce, categoryKey } from '../utils/seed-once';
-import { cleanString, readExcelSheet } from '../utils/tools';
+import { cleanString, readExcelSheet } from './excel';
+import { createOnce, categoryKey } from './seed-once';
 
 const CATEGORY_COLORS: Record<string, string> = {
 	'AGRICULTURE URBAINE': '#7FA878',

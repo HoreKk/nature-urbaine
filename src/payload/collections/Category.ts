@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { adminGroups } from '../admin/groups';
 
 const HEX_COLOR = /^#[0-9A-F]{6}$/i;
 
@@ -14,6 +15,7 @@ export const Categories: CollectionConfig = {
 		plural: 'Catégories',
 	},
 	admin: {
+		group: adminGroups.taxonomy,
 		useAsTitle: 'name',
 		defaultColumns: ['name', 'color'],
 	},

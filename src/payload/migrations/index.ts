@@ -13,6 +13,7 @@ import * as migration_20261023_002822_drop_interview_thumbnail from './20261023_
 import * as migration_20261023_112335_category_color from './20261023_112335_category_color';
 import * as migration_20261023_135310_editable_interview_questions from './20261023_135310_editable_interview_questions';
 import * as migration_20261024_171019_forms_global from './20261024_171019_forms_global';
+import * as migration_20261024_231121_contributions from './20261024_231121_contributions';
 
 export const migrations = [
   {
@@ -88,6 +89,11 @@ export const migrations = [
   {
     up: migration_20261024_171019_forms_global.up,
     down: migration_20261024_171019_forms_global.down,
-    name: '20261024_171019_forms_global'
+    name: '20261024_171019_forms_global',
+  },
+  {
+    up: migration_20261024_231121_contributions.up,
+    down: migration_20261024_231121_contributions.down,
+    name: '20261024_231121_contributions'
   },
 ];

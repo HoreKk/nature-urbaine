@@ -1,8 +1,8 @@
 import type { Payload } from 'payload';
-import { CITY_STRATUM_OPTIONS } from '../collections/Report';
-import { computeReportName } from '../utils/hooks';
-import { createOnce, reportKey } from '../utils/seed-once';
-import { cleanString, readExcelSheet } from '../utils/tools';
+import { CITY_STRATUM_OPTIONS } from '../fields/report-fields';
+import { computeReportName } from '../hooks/report-name';
+import { cleanString, readExcelSheet } from './excel';
+import { createOnce, reportKey } from './seed-once';
 
 type ExcelReport = {
 	PAYS: string;
@@ -112,6 +112,8 @@ export default async function seedReports(payload: Payload) {
 				cityStratum: mapCityStratum(report['STRATE DE LA VILLE']),
 				nbPopulations: parseOptionalNumber(report['NB habitant.e.s']),
 			},
+			// `draft: false` alone leaves `_status` at its 'draft' default.
+			_status: 'published' as const,
 			category: reportCategory.id,
 			date: formattedDate,
 			projectDetails: {
