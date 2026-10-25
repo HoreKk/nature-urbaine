@@ -15,13 +15,21 @@ export function CheckboxField({ label, required }: CheckboxFieldProps) {
 		>
 			<Checkbox.Root
 				alignItems="flex-start"
+				colorPalette="primary"
 				checked={field.state.value === true}
 				onCheckedChange={(details) =>
 					field.handleChange(details.checked === true)
 				}
 			>
 				<Checkbox.HiddenInput />
-				<Checkbox.Control bg="bg" mt="2px" />
+				<Checkbox.Control
+					mt="2px"
+					bg="bg"
+					borderColor="border"
+					_checked={{ bg: 'primary.solid', borderColor: 'primary.solid' }}
+				>
+					<Checkbox.Indicator />
+				</Checkbox.Control>
 				<Checkbox.Label fontWeight={400}>{label}</Checkbox.Label>
 			</Checkbox.Root>
 		</Field>
