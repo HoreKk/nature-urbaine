@@ -7,6 +7,7 @@ import {
 	submitContributionSchema,
 } from './contribution-contract';
 import {
+	claimStagingUpload,
 	deleteStagingUpload,
 	presignStagingUpload,
 	readStagingUpload,
@@ -37,6 +38,7 @@ export const submitContribution = createServerFn({ method: 'POST' })
 		const { db } = context;
 
 		try {
+			if (!claimStagingUpload(data.uploadKey)) throw new Error(ARCHIVE_MISSING);
 			const bytes = await readStagingUpload(data.uploadKey);
 			if (!bytes) throw new Error(ARCHIVE_MISSING);
 			const { pictureCount } = inspectContributionArchive(bytes);

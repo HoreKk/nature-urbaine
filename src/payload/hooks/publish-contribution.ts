@@ -1,5 +1,6 @@
 import type { CollectionAfterChangeHook } from 'payload';
 import type { Report } from '../payload-types';
+import { afterCommit } from '../utilities/transaction';
 
 /**
  * A Report's first publish moves its Contribution from `accepted` to
@@ -34,21 +35,23 @@ export const publishContributionHook: CollectionAfterChangeHook<
 		data: { status: 'published' },
 	});
 
-	const { sendContributionPublishedEmail } =
-		await import('../../server/emails/contribution');
-	try {
-		await sendContributionPublishedEmail({
-			title: contribution.title,
-			authorName: contribution.authorName,
-			authorEmail: contribution.authorEmail,
-			reportId: doc.id,
-		});
-	} catch (error) {
-		// Publishing must not fail on an email; the operator can write by hand.
-		req.payload.logger.error(
-			{ err: error },
-			'Contribution published email failed',
-		);
-	}
+	await afterCommit(req, async () => {
+		try {
+			const { sendContributionPublishedEmail } =
+				await import('../../server/emails/contribution');
+			await sendContributionPublishedEmail({
+				title: contribution.title,
+				authorName: contribution.authorName,
+				authorEmail: contribution.authorEmail,
+				reportId: doc.id,
+			});
+		} catch (error) {
+			// Publishing must not fail on an email; the operator can write by hand.
+			req.payload.logger.error(
+				{ err: error },
+				'Contribution published email failed',
+			);
+		}
+	});
 	return doc;
 };

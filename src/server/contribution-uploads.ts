@@ -12,13 +12,22 @@ import {
 	UPLOADS_UNAVAILABLE,
 } from './contribution-contract';
 
-// The browser PUTs the zip to this staging prefix, outside every upload
-// collection's prefix: `submitContribution` checks it, stores it in
-// `contribution-archives` through Payload, then deletes it. Payload's own
-// `clientUploads` would switch every collection's admin uploads to the bucket.
+// Outside every upload collection's prefix. Payload's own `clientUploads` would
+// move every collection's admin uploads to the bucket too (ADR-0005).
 const STAGING_PREFIX = 'contribution-uploads/';
 const UPLOAD_URL_TTL_S = 10 * 60;
 const STALE_AFTER_MS = 24 * 60 * 60 * 1000;
+
+// A signed URL can be PUT again after its submit: one key, one Contribution.
+// In memory like the rate limiter, enough while the site runs on one instance.
+const unclaimedKeys = new Map<string, number>();
+
+/** False when `key` was never handed out, has expired, or was already submitted. */
+export function claimStagingUpload(key: string, now = Date.now()): boolean {
+	const expiresAt = unclaimedKeys.get(key);
+	unclaimedKeys.delete(key);
+	return expiresAt !== undefined && expiresAt > now;
+}
 
 function bucket() {
 	const config = readBucketConfig();
@@ -40,6 +49,11 @@ export async function presignStagingUpload(size: number) {
 		}),
 		{ expiresIn: UPLOAD_URL_TTL_S },
 	);
+	const now = Date.now();
+	for (const [unclaimed, expiresAt] of unclaimedKeys) {
+		if (expiresAt <= now) unclaimedKeys.delete(unclaimed);
+	}
+	unclaimedKeys.set(key, now + UPLOAD_URL_TTL_S * 1000);
 	return { key, url, contentType };
 }
 

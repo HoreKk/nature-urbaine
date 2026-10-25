@@ -10,6 +10,7 @@ import {
 import { z } from 'zod';
 import { CONTRIBUTION_REJECTION_NOTE_MAX_LENGTH } from '../../server/contribution-contract';
 import type { Contribution } from '../payload-types';
+import { lockContribution } from '../utilities/transaction';
 
 /** Its message is shown to the operator as is. */
 class ReviewError extends Error {
@@ -43,9 +44,14 @@ async function findContribution(
 	req: PayloadRequest,
 	allowed: Contribution['status'][],
 ): Promise<Contribution> {
+	const id = Number(req.routeParams?.id);
+	if (!Number.isInteger(id)) {
+		throw new ReviewError(404, 'Contribution introuvable.');
+	}
+	await lockContribution(req, id);
 	const contribution = await req.payload.findByID({
 		collection: 'contributions',
-		id: String(req.routeParams?.id),
+		id,
 		depth: 0,
 		disableErrors: true,
 		req,
