@@ -20,8 +20,8 @@ export default defineConfig(
 			// Bundling `tslib`'s UMD build (pulled in by the AWS SDK) loses its `default`
 			// export under Rolldown's CJS interop; external lets Nitro trace the real package.
 			environments: {
-				rsc: { build: { rollupOptions: { external: ['tslib'] } } },
-				ssr: { build: { rollupOptions: { external: ['tslib'] } } },
+				rsc: { build: { rolldownOptions: { external: ['tslib'] } } },
+				ssr: { build: { rolldownOptions: { external: ['tslib'] } } },
 			},
 			plugins: [
 				rsc(pluginOptions.rsc),

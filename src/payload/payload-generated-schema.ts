@@ -43,7 +43,7 @@ export const contributions = pgTable('contributions', {
   photosTakenAt: timestamp('photos_taken_at', {mode: 'string',withTimezone: true,precision: 3}),
   authorName: varchar('author_name').notNull(),
   authorEmail: varchar('author_email').notNull(),
-  archive: integer('archive_id').notNull().references(() => contribution_archives.id, {
+  archive: integer('archive_id').references(() => contribution_archives.id, {
       onDelete: 'set null'
   }),
   status: enum_contributions_status('status').notNull().default("pending"),
@@ -73,6 +73,8 @@ export const contribution_archives = pgTable('contribution_archives', {
   filesize: numeric('filesize', {mode: 'number'}),
   width: numeric('width', {mode: 'number'}),
   height: numeric('height', {mode: 'number'}),
+  _stored: boolean('_stored'),
+  _transforms: jsonb('_transforms'),
   original_filename: varchar('original_filename'),
   original_url: varchar('original_url'),
   original_mimeType: varchar('original_mime_type'),
@@ -81,6 +83,7 @@ export const contribution_archives = pgTable('contribution_archives', {
   original_height: numeric('original_height', {mode: 'number'}),
   original_prefix: varchar('original_prefix'),
   original__objectKey: varchar('original__objectkey'),
+  original__stored: boolean('original__stored'),
   focalX: numeric('focal_x', {mode: 'number'}),
   focalY: numeric('focal_y', {mode: 'number'}),
 }, (columns) => [
@@ -222,6 +225,8 @@ export const pictures = pgTable('pictures', {
   filesize: numeric('filesize', {mode: 'number'}),
   width: numeric('width', {mode: 'number'}),
   height: numeric('height', {mode: 'number'}),
+  _stored: boolean('_stored'),
+  _transforms: jsonb('_transforms'),
   original_filename: varchar('original_filename'),
   original_url: varchar('original_url'),
   original_mimeType: varchar('original_mime_type'),
@@ -230,6 +235,7 @@ export const pictures = pgTable('pictures', {
   original_height: numeric('original_height', {mode: 'number'}),
   original_prefix: varchar('original_prefix'),
   original__objectKey: varchar('original__objectkey'),
+  original__stored: boolean('original__stored'),
   focalX: numeric('focal_x', {mode: 'number'}),
   focalY: numeric('focal_y', {mode: 'number'}),
   variants_thumbnail_url: varchar('variants_thumbnail_url'),
@@ -240,6 +246,7 @@ export const pictures = pgTable('pictures', {
   variants_thumbnail_filename: varchar('variants_thumbnail_filename'),
   variants_thumbnail_prefix: varchar('variants_thumbnail_prefix'),
   variants_thumbnail__objectKey: varchar('variants_thumbnail__objectkey'),
+  variants_thumbnail__stored: boolean('variants_thumbnail__stored'),
   variants_medium_url: varchar('variants_medium_url'),
   variants_medium_width: numeric('variants_medium_width', {mode: 'number'}),
   variants_medium_height: numeric('variants_medium_height', {mode: 'number'}),
@@ -248,6 +255,7 @@ export const pictures = pgTable('pictures', {
   variants_medium_filename: varchar('variants_medium_filename'),
   variants_medium_prefix: varchar('variants_medium_prefix'),
   variants_medium__objectKey: varchar('variants_medium__objectkey'),
+  variants_medium__stored: boolean('variants_medium__stored'),
   variants_large_url: varchar('variants_large_url'),
   variants_large_width: numeric('variants_large_width', {mode: 'number'}),
   variants_large_height: numeric('variants_large_height', {mode: 'number'}),
@@ -256,6 +264,7 @@ export const pictures = pgTable('pictures', {
   variants_large_filename: varchar('variants_large_filename'),
   variants_large_prefix: varchar('variants_large_prefix'),
   variants_large__objectKey: varchar('variants_large__objectkey'),
+  variants_large__stored: boolean('variants_large__stored'),
 }, (columns) => [
     index('pictures__pictures_relatedpictures_order_idx').on(columns._pictures_relatedPictures_order), index('pictures_report_idx').on(columns.report), index('pictures_updated_at_idx').on(columns.updatedAt), index('pictures_created_at_idx').on(columns.createdAt), uniqueIndex('pictures_filename_idx').on(columns.filename), index('pictures_original_original_filename_idx').on(columns.original_filename), index('pictures_variants_thumbnail_variants_thumbnail_filename_idx').on(columns.variants_thumbnail_filename), index('pictures_variants_medium_variants_medium_filename_idx').on(columns.variants_medium_filename), index('pictures_variants_large_variants_large_filename_idx').on(columns.variants_large_filename),
 ]
@@ -300,6 +309,8 @@ export const interview_pictures = pgTable('interview_pictures', {
   filesize: numeric('filesize', {mode: 'number'}),
   width: numeric('width', {mode: 'number'}),
   height: numeric('height', {mode: 'number'}),
+  _stored: boolean('_stored'),
+  _transforms: jsonb('_transforms'),
   original_filename: varchar('original_filename'),
   original_url: varchar('original_url'),
   original_mimeType: varchar('original_mime_type'),
@@ -308,6 +319,7 @@ export const interview_pictures = pgTable('interview_pictures', {
   original_height: numeric('original_height', {mode: 'number'}),
   original_prefix: varchar('original_prefix'),
   original__objectKey: varchar('original__objectkey'),
+  original__stored: boolean('original__stored'),
   focalX: numeric('focal_x', {mode: 'number'}),
   focalY: numeric('focal_y', {mode: 'number'}),
   variants_thumbnail_url: varchar('variants_thumbnail_url'),
@@ -318,6 +330,7 @@ export const interview_pictures = pgTable('interview_pictures', {
   variants_thumbnail_filename: varchar('variants_thumbnail_filename'),
   variants_thumbnail_prefix: varchar('variants_thumbnail_prefix'),
   variants_thumbnail__objectKey: varchar('variants_thumbnail__objectkey'),
+  variants_thumbnail__stored: boolean('variants_thumbnail__stored'),
   variants_medium_url: varchar('variants_medium_url'),
   variants_medium_width: numeric('variants_medium_width', {mode: 'number'}),
   variants_medium_height: numeric('variants_medium_height', {mode: 'number'}),
@@ -326,6 +339,7 @@ export const interview_pictures = pgTable('interview_pictures', {
   variants_medium_filename: varchar('variants_medium_filename'),
   variants_medium_prefix: varchar('variants_medium_prefix'),
   variants_medium__objectKey: varchar('variants_medium__objectkey'),
+  variants_medium__stored: boolean('variants_medium__stored'),
   variants_large_url: varchar('variants_large_url'),
   variants_large_width: numeric('variants_large_width', {mode: 'number'}),
   variants_large_height: numeric('variants_large_height', {mode: 'number'}),
@@ -334,6 +348,7 @@ export const interview_pictures = pgTable('interview_pictures', {
   variants_large_filename: varchar('variants_large_filename'),
   variants_large_prefix: varchar('variants_large_prefix'),
   variants_large__objectKey: varchar('variants_large__objectkey'),
+  variants_large__stored: boolean('variants_large__stored'),
 }, (columns) => [
     index('interview_pictures__interview_pictures_relatedpictures_o_idx').on(columns['_interview-pictures_relatedPictures_order']), index('interview_pictures_interview_idx').on(columns.interview), index('interview_pictures_updated_at_idx').on(columns.updatedAt), index('interview_pictures_created_at_idx').on(columns.createdAt), uniqueIndex('interview_pictures_filename_idx').on(columns.filename), index('interview_pictures_original_original_filename_idx').on(columns.original_filename), index('interview_pictures_variants_thumbnail_variants_thumbnail_idx').on(columns.variants_thumbnail_filename), index('interview_pictures_variants_medium_variants_medium_filen_idx').on(columns.variants_medium_filename), index('interview_pictures_variants_large_variants_large_filenam_idx').on(columns.variants_large_filename),
 ]
@@ -354,6 +369,8 @@ export const media = pgTable('media', {
   filesize: numeric('filesize', {mode: 'number'}),
   width: numeric('width', {mode: 'number'}),
   height: numeric('height', {mode: 'number'}),
+  _stored: boolean('_stored'),
+  _transforms: jsonb('_transforms'),
   original_filename: varchar('original_filename'),
   original_url: varchar('original_url'),
   original_mimeType: varchar('original_mime_type'),
@@ -362,6 +379,7 @@ export const media = pgTable('media', {
   original_height: numeric('original_height', {mode: 'number'}),
   original_prefix: varchar('original_prefix'),
   original__objectKey: varchar('original__objectkey'),
+  original__stored: boolean('original__stored'),
   focalX: numeric('focal_x', {mode: 'number'}),
   focalY: numeric('focal_y', {mode: 'number'}),
   variants_thumbnail_url: varchar('variants_thumbnail_url'),
@@ -372,6 +390,7 @@ export const media = pgTable('media', {
   variants_thumbnail_filename: varchar('variants_thumbnail_filename'),
   variants_thumbnail_prefix: varchar('variants_thumbnail_prefix'),
   variants_thumbnail__objectKey: varchar('variants_thumbnail__objectkey'),
+  variants_thumbnail__stored: boolean('variants_thumbnail__stored'),
   variants_medium_url: varchar('variants_medium_url'),
   variants_medium_width: numeric('variants_medium_width', {mode: 'number'}),
   variants_medium_height: numeric('variants_medium_height', {mode: 'number'}),
@@ -380,6 +399,7 @@ export const media = pgTable('media', {
   variants_medium_filename: varchar('variants_medium_filename'),
   variants_medium_prefix: varchar('variants_medium_prefix'),
   variants_medium__objectKey: varchar('variants_medium__objectkey'),
+  variants_medium__stored: boolean('variants_medium__stored'),
   variants_large_url: varchar('variants_large_url'),
   variants_large_width: numeric('variants_large_width', {mode: 'number'}),
   variants_large_height: numeric('variants_large_height', {mode: 'number'}),
@@ -388,6 +408,7 @@ export const media = pgTable('media', {
   variants_large_filename: varchar('variants_large_filename'),
   variants_large_prefix: varchar('variants_large_prefix'),
   variants_large__objectKey: varchar('variants_large__objectkey'),
+  variants_large__stored: boolean('variants_large__stored'),
 }, (columns) => [
     index('media_updated_at_idx').on(columns.updatedAt), index('media_created_at_idx').on(columns.createdAt), uniqueIndex('media_filename_idx').on(columns.filename), index('media_original_original_filename_idx').on(columns.original_filename), index('media_variants_thumbnail_variants_thumbnail_filename_idx').on(columns.variants_thumbnail_filename), index('media_variants_medium_variants_medium_filename_idx').on(columns.variants_medium_filename), index('media_variants_large_variants_large_filename_idx').on(columns.variants_large_filename),
 ]
@@ -443,6 +464,8 @@ export const users_sessions = pgTable('users_sessions', {
   id: varchar('id').primaryKey(),
   createdAt: timestamp('created_at', {mode: 'string',withTimezone: true,precision: 3}),
   expiresAt: timestamp('expires_at', {mode: 'string',withTimezone: true,precision: 3}).notNull(),
+  refreshCount: numeric('refresh_count', {mode: 'number'}),
+  refreshedAt: timestamp('refreshed_at', {mode: 'string',withTimezone: true,precision: 3}),
 }, (columns) => [
     index('users_sessions_order_idx').on(columns._order), index('users_sessions_parent_id_idx').on(columns._parentID), foreignKey({
       columns: [columns['_parentID']],

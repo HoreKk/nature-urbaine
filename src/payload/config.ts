@@ -6,7 +6,7 @@ import { resendAdapter } from '@payloadcms/email-resend';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { sharpTransformer } from '@payloadcms/transformer-sharp';
 import { fr } from '@payloadcms/translations/languages/fr';
-import { buildConfig } from 'payload';
+import { buildConfig, type Config } from 'payload';
 import sharp from 'sharp';
 
 import { getUmamiConfig } from '../server/umami';
@@ -39,6 +39,29 @@ const imageTransform = {
 
 const filename = fileURLToPath(import.meta.url);
 const payloadDir = path.dirname(filename);
+
+type SchemaHook = NonNullable<
+	NonNullable<Config['typescript']>['schema']
+>[number];
+type JSONSchemaNode = Parameters<SchemaHook>[0]['jsonSchema'];
+
+/**
+ * v4 beta.8 types every upload's `_transforms` (and its `encoding`) with an
+ * `[k: string]: unknown` index, which TanStack's server-function serializability
+ * check rejects on every upload doc. Close the root (sharp only writes the named
+ * keys) and narrow `encoding` to primitives.
+ */
+const serializableUploadTransforms: SchemaHook = ({ jsonSchema }) => {
+	const defs = (jsonSchema as { $defs?: Record<string, JSONSchemaNode> }).$defs;
+	const primitive: JSONSchemaNode = { type: ['string', 'number', 'boolean'] };
+	for (const variant of defs?.UploadTransforms?.anyOf ?? []) {
+		if (variant.type !== 'object') continue;
+		variant.additionalProperties = false;
+		const encoding = variant.properties?.encoding;
+		if (encoding) encoding.additionalProperties = primitive;
+	}
+	return jsonSchema;
+};
 
 function parseBoolean(value: string | undefined, fallback: boolean): boolean {
 	if (!value) return fallback;
@@ -170,6 +193,7 @@ export const buildPayloadConfig = ({ push }: BuildPayloadConfigOptions = {}) =>
 		email: buildEmailAdapter(),
 		typescript: {
 			outputFile: path.resolve(payloadDir, './payload-types.ts'),
+			schema: [serializableUploadTransforms],
 		},
 		db: postgresAdapter({
 			...(push === undefined ? {} : { push }),
