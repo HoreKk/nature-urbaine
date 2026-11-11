@@ -14,6 +14,7 @@ import * as migration_20261023_112335_category_color from './20261023_112335_cat
 import * as migration_20261023_135310_editable_interview_questions from './20261023_135310_editable_interview_questions';
 import * as migration_20261024_171019_forms_global from './20261024_171019_forms_global';
 import * as migration_20261024_231121_contributions from './20261024_231121_contributions';
+import * as migration_20261111_134010_payload_v4_beta8 from './20261111_134010_payload_v4_beta8';
 
 export const migrations = [
   {
@@ -94,6 +95,11 @@ export const migrations = [
   {
     up: migration_20261024_231121_contributions.up,
     down: migration_20261024_231121_contributions.down,
-    name: '20261024_231121_contributions'
+    name: '20261024_231121_contributions',
+  },
+  {
+    up: migration_20261111_134010_payload_v4_beta8.up,
+    down: migration_20261111_134010_payload_v4_beta8.down,
+    name: '20261111_134010_payload_v4_beta8'
   },
 ];
